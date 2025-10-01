@@ -151,21 +151,25 @@ function App() {
 
   // После завершения туториала скрываем его и показываем уведомление на 15 секунд
   useEffect(() => {
-    if (tutorialStep >= 5) {
-      setShowTutorial(false);
-      // Показываем финальный хинт только если не показывали ранее
-      if (localStorage.getItem('flowersim.finalHintShown') !== '1') {
+      let timeout: NodeJS.Timeout | null = null;
+      if (tutorialStep >= 5 && localStorage.getItem('flowersim.finalHintShown') !== '1') {
+        setShowTutorial(false);
         setShowFinalHint(true);
         if (finalHintTimeout) clearTimeout(finalHintTimeout);
-        const timeout = setTimeout(() => {
+        timeout = setTimeout(() => {
           setShowFinalHint(false);
           localStorage.setItem('flowersim.finalHintShown', '1');
-        }, 15000);
+        }, 10000);
         setFinalHintTimeout(timeout);
+      } else {
+        setShowFinalHint(false);
       }
-    }
-    // eslint-disable-next-line
-  }, [tutorialStep]);
+      return () => {
+        if (timeout) clearTimeout(timeout);
+        if (finalHintTimeout) clearTimeout(finalHintTimeout);
+      };
+      // eslint-disable-next-line
+    }, [tutorialStep, progress.tutorialStep]);
 
   // Для StartScreen
   const handleStart = () => setStarted(true);
@@ -179,7 +183,7 @@ function App() {
         <StartScreen onStart={handleStart} />
       ) : (
         <>
-          {showFinalHint && (
+          {showFinalHint && localStorage.getItem('flowersim.finalHintShown') !== '1' && (
             <div style={{
               position: 'fixed',
               top: 0,

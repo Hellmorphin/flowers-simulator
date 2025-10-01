@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
-import bg1 from '../assets/i.jpg';
-import bg2 from '../assets/i2.jpg';
-import bg3 from '../assets/i3.jpg';
-import bg4 from '../assets/i4.jpg';
-import bg5 from '../assets/i5.jpg';
-import bg6 from '../assets/i6.jpg';
+import bg1 from "../assets/i.jpg";
+import bg2 from "../assets/i2.jpg";
+import bg3 from "../assets/i3.jpg";
+import bg4 from "../assets/i4.jpg";
+import bg5 from "../assets/i5.jpg";
+import bg6 from "../assets/i6.jpg";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -167,8 +167,15 @@ export interface BackgroundModalProps {
   currentBg: string | null;
 }
 
-const BackgroundModal: React.FC<BackgroundModalProps> = ({ isOpen, onClose, onApply, currentBg }) => {
-  const [coins, setCoins] = useState<number>(Number(localStorage.getItem(COINS_KEY) || 0));
+const BackgroundModal: React.FC<BackgroundModalProps> = ({
+  isOpen,
+  onClose,
+  onApply,
+  currentBg,
+}) => {
+  const [coins, setCoins] = useState<number>(
+    Number(localStorage.getItem(COINS_KEY) || 0)
+  );
   const [bought, setBought] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(BG_BOUGHT_KEY) || "[]");
@@ -179,7 +186,8 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({ isOpen, onClose, onAp
 
   useEffect(() => {
     if (!isOpen) return;
-    const handler = () => setCoins(Number(localStorage.getItem(COINS_KEY) || 0));
+    const handler = () =>
+      setCoins(Number(localStorage.getItem(COINS_KEY) || 0));
     window.addEventListener("storage", handler);
     const interval = setInterval(handler, 1000);
     return () => {
@@ -189,15 +197,15 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({ isOpen, onClose, onAp
   }, [isOpen]);
 
   const handleBuy = (bg: string) => {
-    const bgObj = backgrounds.find(b => b.name === bg);
+    const bgObj = backgrounds.find((b) => b.name === bg);
     const price = bgObj?.price || 100;
     if (coins < price) return;
-    setCoins(c => {
+    setCoins((c) => {
       const newCoins = c - price;
       localStorage.setItem(COINS_KEY, String(newCoins));
       return newCoins;
     });
-    setBought(b => {
+    setBought((b) => {
       const newBought = [...b, bg];
       localStorage.setItem(BG_BOUGHT_KEY, JSON.stringify(newBought));
       return newBought;
@@ -205,14 +213,14 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({ isOpen, onClose, onAp
   };
 
   const handleApply = (bg: string) => {
-  localStorage.setItem(BG_KEY, bg);
-  window.dispatchEvent(new Event('storage'));
-  onApply(bg);
+    localStorage.setItem(BG_KEY, bg);
+    window.dispatchEvent(new Event("storage"));
+    onApply(bg);
   };
 
   const handleReset = () => {
     localStorage.removeItem(BG_KEY);
-    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event("storage"));
     onApply(null);
   };
 
@@ -220,35 +228,50 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({ isOpen, onClose, onAp
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalBox onClick={e => e.stopPropagation()}>
-        <CloseBtn onClick={onClose} title="Закрыть">×</CloseBtn>
+      <ModalBox onClick={(e) => e.stopPropagation()}>
+        <CloseBtn onClick={onClose} title="Закрыть">
+          ×
+        </CloseBtn>
         <Title>Фоны</Title>
         <BgList>
-          {backgrounds.map(bg => (
+          {backgrounds.map((bg) => (
             <BgItem key={bg.name}>
               <BgPreview>
-                <img src={bg.src} alt={bg.name} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '1rem'}} />
+                <img
+                  src={bg.src}
+                  alt={bg.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "1rem",
+                  }}
+                />
               </BgPreview>
-              <BgName>{bg.name}</BgName>
               {!bought.includes(bg.name) ? (
                 <>
                   <BgPrice>
-                    <FaCoins style={{ color: "#FFD700", marginRight: 6 }} /> {bg.price}
+                    <FaCoins style={{ color: "#FFD700", marginRight: 6 }} />{" "}
+                    {bg.price}
                   </BgPrice>
-                  <BgButton disabled={coins < bg.price} onClick={() => handleBuy(bg.name)}>
+                  <BgButton
+                    disabled={coins < bg.price}
+                    onClick={() => handleBuy(bg.name)}
+                  >
                     Купить
                   </BgButton>
                 </>
+              ) : currentBg === bg.name ? (
+                <BgButton
+                  style={{ background: "#ffe082", color: "#222" }}
+                  onClick={handleReset}
+                >
+                  Снять
+                </BgButton>
               ) : (
-                currentBg === bg.name ? (
-                  <BgButton style={{ background: "#ffe082", color: "#222" }} onClick={handleReset}>
-                    Снять
-                  </BgButton>
-                ) : (
-                  <BgButton onClick={() => handleApply(bg.name)}>
-                    Применить
-                  </BgButton>
-                )
+                <BgButton onClick={() => handleApply(bg.name)}>
+                  Применить
+                </BgButton>
               )}
             </BgItem>
           ))}

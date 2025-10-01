@@ -33,13 +33,12 @@ import styled from "styled-components";
 import Pot from "./Pot";
 import Flower from "./Flower";
 import { FaCoins } from "react-icons/fa";
-import bg1 from '../assets/i.jpg';
-import bg2 from '../assets/i2.jpg';
-import bg3 from '../assets/i3.jpg';
-import bg4 from '../assets/i4.jpg';
-import bg5 from '../assets/i5.jpg';
-import bg6 from '../assets/i6.jpg';
-import polkaBg from '../assets/Flow.jpg';
+import bg1 from "../assets/i.jpg";
+import bg2 from "../assets/i2.jpg";
+import bg3 from "../assets/i3.jpg";
+import bg4 from "../assets/i4.jpg";
+import bg5 from "../assets/i5.jpg";
+import bg6 from "../assets/i6.jpg";
 
 const Background = styled.div`
   min-height: 100dvh;
@@ -112,19 +111,29 @@ const MainScreen: React.FC<MainScreenProps> = ({
     };
   }, []);
   const bgMap: Record<string, string> = {
-    'i.jpg': bg1,
-    'i2.jpg': bg2,
-    'i3.jpg': bg3,
-    'i4.jpg': bg4,
-    'i5.jpg': bg5,
-    'i6.jpg': bg6,
-  'Polka.jpg': polkaBg,
-  'Flow.jpg': polkaBg,
+    "i.jpg": bg1,
+    "i2.jpg": bg2,
+    "i3.jpg": bg3,
+    "i4.jpg": bg4,
+    "i5.jpg": bg5,
+    "i6.jpg": bg6,
   };
-  const bgUrl = mainBg && bgMap[mainBg] ? bgMap[mainBg] : polkaBg;
-  
+  // Если фон не куплен, просто цвет
+  const bought = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("flowersim.bg.bought") || "[]");
+    } catch {
+      return [];
+    }
+  })();
+  const isBgBought = mainBg && bought.includes(mainBg);
+  const bgUrl =
+    mainBg && isBgBought && bgMap[mainBg] ? bgMap[mainBg] : undefined;
+  const bgStyle = bgUrl
+    ? { background: `url('${bgUrl}') center/cover no-repeat` }
+    : { background: "#222" };
   return (
-    <Background style={{ background: `url('${bgUrl}') center/cover no-repeat` }}>
+    <Background style={bgStyle}>
       <CoinBarWrapper>
         <CoinIcon>
           <FaCoins />
@@ -146,7 +155,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.1.1 by{" "}
+        Ver. 1.2.2 by{" "}
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
