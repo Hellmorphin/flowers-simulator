@@ -33,6 +33,8 @@ const TUTORIAL_STEPS = [
 ];
 
 import ShopModal from './components/ShopModal';
+import ProgressModal from './components/ProgressModal';
+import BackgroundModal from './components/BackgroundModal';
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -62,9 +64,32 @@ function App() {
 
   // Туториал логика
   const [tutorialStep, setTutorialStep] = useState<number>(progress.tutorialStep);
-  const [showFinalHint, setShowFinalHint] = useState(false);
+  const [showFinalHint, setShowFinalHint] = useState(() => {
+    // Показывать только если туториал завершён и не было финального хинта
+    return localStorage.getItem('flowersim.finalHintShown') !== '1' && progress.tutorialStep >= 5;
+  });
   const [finalHintTimeout, setFinalHintTimeout] = useState<NodeJS.Timeout | null>(null);
   const [shopOpen, setShopOpen] = useState(false);
+  const [progressModalOpen, setProgressModalOpen] = useState(false);
+  const [backgroundModalOpen, setBackgroundModalOpen] = useState(false);
+  const [mainBg, setMainBg] = useState<string | null>(localStorage.getItem('flowersim.bg'));
+  // Слушаем события открытия модалок
+  useEffect(() => {
+    const handlerProgress = () => {
+      setProgressModalOpen(true);
+      setMenuOpen(false);
+    };
+    const handlerBg = () => {
+      setBackgroundModalOpen(true);
+      setMenuOpen(false);
+    };
+    window.addEventListener('openProgressModal', handlerProgress);
+    window.addEventListener('openBackgroundModal', handlerBg);
+    return () => {
+      window.removeEventListener('openProgressModal', handlerProgress);
+      window.removeEventListener('openBackgroundModal', handlerBg);
+    };
+  }, []);
 
   // Сбросить туториал если новый пользователь
   useEffect(() => {
@@ -128,10 +153,16 @@ function App() {
   useEffect(() => {
     if (tutorialStep >= 5) {
       setShowTutorial(false);
-      setShowFinalHint(true);
-      if (finalHintTimeout) clearTimeout(finalHintTimeout);
-      const timeout = setTimeout(() => setShowFinalHint(false), 15000);
-      setFinalHintTimeout(timeout);
+      // Показываем финальный хинт только если не показывали ранее
+      if (localStorage.getItem('flowersim.finalHintShown') !== '1') {
+        setShowFinalHint(true);
+        if (finalHintTimeout) clearTimeout(finalHintTimeout);
+        const timeout = setTimeout(() => {
+          setShowFinalHint(false);
+          localStorage.setItem('flowersim.finalHintShown', '1');
+        }, 15000);
+        setFinalHintTimeout(timeout);
+      }
     }
     // eslint-disable-next-line
   }, [tutorialStep]);
@@ -170,6 +201,7 @@ function App() {
             flowerSize={progress.flowerSize}
             flowerVisible={progress.tutorialStep > 1 && progress.flowerSize > MIN_FLOWER - 1}
             potSkin={localStorage.getItem('flowersim.potSkin') || 'gorshok.jpg'}
+            mainBg={mainBg}
           />
           <Menu
             open={menuOpen}
@@ -184,6 +216,17 @@ function App() {
           />
           {shopOpen && (
             <ShopModal onClose={() => setShopOpen(false)} />
+          )}
+          {progressModalOpen && (
+            <ProgressModal isOpen={progressModalOpen} onClose={() => setProgressModalOpen(false)} />
+          )}
+          {backgroundModalOpen && (
+            <BackgroundModal
+              isOpen={backgroundModalOpen}
+              onClose={() => setBackgroundModalOpen(false)}
+              onApply={bg => { setMainBg(bg); }}
+              currentBg={mainBg}
+            />
           )}
           <Tutorial
             visible={showTutorial && tutorialStep < 5}

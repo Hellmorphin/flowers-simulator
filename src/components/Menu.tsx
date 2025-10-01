@@ -11,8 +11,7 @@ const GlassMenu = styled(motion.div)`
   height: 100dvh;
   max-width: 100vw;
   max-height: 100dvh;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(18px) saturate(1.2);
+  background: #6d4c41;
   box-shadow: -8px 0 32px #6d4c4133;
   z-index: 100;
   display: flex;
@@ -118,6 +117,11 @@ const Menu: React.FC<MenuProps> = ({
 }) => {
   const showPlantBtn = tutorialStep === 1;
   const disableActions = tutorialStep !== undefined && tutorialStep < 2;
+  const handleOpenBackgroundModal = () => {
+    if (typeof window !== 'undefined' && window.dispatchEvent) {
+      window.dispatchEvent(new CustomEvent('openBackgroundModal'));
+    }
+  };
   return (
     <>
       {/* Хвостик всегда видим: если меню закрыто — фиксирован справа, если открыто — часть меню */}
@@ -164,6 +168,22 @@ const Menu: React.FC<MenuProps> = ({
           }}
         >
           Магазин
+        </MenuButton>
+        <MenuButton
+          style={{background:'#ffd600', color:'#222', fontWeight:700, marginTop: '1rem'}}
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+              window.dispatchEvent(new CustomEvent('openProgressModal'));
+            }
+          }}
+        >
+          Прогресс
+        </MenuButton>
+        <MenuButton
+          style={{background:'#ffe082', color:'#6d4c41', fontWeight:700, marginTop: '1rem'}}
+          onClick={handleOpenBackgroundModal}
+        >
+          Фон
         </MenuButton>
       </GlassMenu>
     </>

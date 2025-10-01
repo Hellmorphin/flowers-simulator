@@ -14,8 +14,11 @@ function isTempPotGlobalActive() {
   const weekNum = Math.floor(msSinceBase / weekMs);
   // Для текущей недели вычисляем дату окна раздачи во Владивостоке
   const windowStart = base + weekNum * weekMs + (21 * 60 + 50) * 60 * 1000; // 21:50 UTC+10
-  const windowEnd = base + weekNum * weekMs + (23 * 60 + 30) * 60 * 1000;   // 23:30 UTC+10
-  return vladivostokTime.getTime() >= windowStart && vladivostokTime.getTime() <= windowEnd;
+  const windowEnd = base + weekNum * weekMs + (23 * 60 + 30) * 60 * 1000; // 23:30 UTC+10
+  return (
+    vladivostokTime.getTime() >= windowStart &&
+    vladivostokTime.getTime() <= windowEnd
+  );
 }
 // --- ВРЕМЕННЫЕ ГОРШКИ ---
 const TEMP_POT_KEY = "flowersim.tempPots";
@@ -148,14 +151,17 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     let tempActive: string[] = [];
     let tempPermanent: string[] = [];
     try {
-      const tempData = JSON.parse(localStorage.getItem(TEMP_POT_KEY) || '{}');
-      const tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+      const tempData = JSON.parse(localStorage.getItem(TEMP_POT_KEY) || "{}");
+      const tempPermData = JSON.parse(
+        localStorage.getItem(TEMP_POT_PERM_KEY) || "[]"
+      );
       for (const pot of tempPots) {
         if (tempData[pot.file]) {
           // Если когда-либо активирован — добавить в постоянные
           if (!tempPermData.includes(pot.file)) tempPermData.push(pot.file);
           // Если ещё не истёк — добавить во временные
-          if (now - tempData[pot.file] < TEMP_POT_DURATION) tempActive.push(pot.file);
+          if (now - tempData[pot.file] < TEMP_POT_DURATION)
+            tempActive.push(pot.file);
         }
       }
       // Сохраняем навсегда полученные временные горшки
@@ -394,15 +400,19 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               // Проверяем статус временного горшка
               let tempData: Record<string, number> = {};
               let tempPermData: string[] = [];
-              let activated = false;
+
               let permanent = false;
               let leftMs = 0;
               try {
-                tempData = JSON.parse(localStorage.getItem(TEMP_POT_KEY) || '{}') as Record<string, number>;
-                tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+                tempData = JSON.parse(
+                  localStorage.getItem(TEMP_POT_KEY) || "{}"
+                ) as Record<string, number>;
+                tempPermData = JSON.parse(
+                  localStorage.getItem(TEMP_POT_PERM_KEY) || "[]"
+                );
                 if (tempData[skin.file]) {
-                  activated = true;
-                  leftMs = TEMP_POT_DURATION - (Date.now() - tempData[skin.file]);
+                  leftMs =
+                    TEMP_POT_DURATION - (Date.now() - tempData[skin.file]);
                   if (leftMs < 0) leftMs = 0;
                 }
                 if (tempPermData.includes(skin.file)) permanent = true;
@@ -414,13 +424,20 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               const handleClaimTempPot = () => {
                 let tempPermData: string[] = [];
                 try {
-                  tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+                  tempPermData = JSON.parse(
+                    localStorage.getItem(TEMP_POT_PERM_KEY) || "[]"
+                  );
                 } catch {}
                 if (!tempPermData.includes(skin.file)) {
                   tempPermData.push(skin.file);
-                  localStorage.setItem(TEMP_POT_PERM_KEY, JSON.stringify(tempPermData));
+                  localStorage.setItem(
+                    TEMP_POT_PERM_KEY,
+                    JSON.stringify(tempPermData)
+                  );
                   // Обновляем состояние без перезагрузки
-                  setUnlocked((prev) => Array.from(new Set([...prev, skin.file])));
+                  setUnlocked((prev) =>
+                    Array.from(new Set([...prev, skin.file]))
+                  );
                   setNewUnlock(skin.file);
                   setTimeout(() => setNewUnlock(null), 4000);
                 }
@@ -430,7 +447,9 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <div
                   key={skin.file}
                   style={{
-                    border: "2px solid " + (selected === skin.file ? "#ffb300" : "#ccc"),
+                    border:
+                      "2px solid " +
+                      (selected === skin.file ? "#ffb300" : "#ccc"),
                     borderRadius: 16,
                     padding: 12,
                     background: "#fffde7",
@@ -444,7 +463,9 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   }}
                 >
                   <img
-                    src={new URL(`../assets/${skin.file}`, import.meta.url).href}
+                    src={
+                      new URL(`../assets/${skin.file}`, import.meta.url).href
+                    }
                     alt={skin.name}
                     style={{
                       width: 80,
@@ -513,7 +534,14 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       Получить
                     </button>
                   ) : (
-                    <div style={{ fontSize: 13, color: "#bdbdbd", textAlign: "center", fontWeight: 700 }}>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#bdbdbd",
+                        textAlign: "center",
+                        fontWeight: 700,
+                      }}
+                    >
                       Недоступно
                     </div>
                   )}
