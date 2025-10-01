@@ -43,7 +43,7 @@ function App() {
     return saved ? JSON.parse(saved) : defaultProgress;
   });
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(() => progress.tutorialStep < 5);
   const [toastApi, setToastApi] = useState<any>(null);
 
   // Сохраняем прогресс
@@ -65,7 +65,8 @@ function App() {
   // Туториал логика
   const [tutorialStep, setTutorialStep] = useState<number>(progress.tutorialStep);
   const [showFinalHint, setShowFinalHint] = useState(() => {
-    // Показывать только если туториал завершён и не было финального хинта
+    // Принудительно скрываем финальный туториал у старых пользователей
+    if (progress.tutorialStep >= 5) return false;
     return localStorage.getItem('flowersim.finalHintShown') !== '1' && progress.tutorialStep >= 5;
   });
   const [finalHintTimeout, setFinalHintTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -94,6 +95,7 @@ function App() {
   // Сбросить туториал если новый пользователь
   useEffect(() => {
     if (progress.tutorialStep < 5) setShowTutorial(true);
+    else setShowTutorial(false);
   }, [progress.tutorialStep]);
 
   // Шаг 0: открыть меню
@@ -123,13 +125,22 @@ function App() {
   // Шаг 3: удобрить
   const handleFertilize = () => {
     if (!canFertilize) return;
-    setProgress((p) => ({
-      ...p,
-      lastFertilize: now,
-      flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
-      tutorialStep: 4,
-    }));
-    setTutorialStep(4);
+    // Только для новых пользователей продолжаем туториал
+    if (progress.tutorialStep < 5) {
+      setProgress((p) => ({
+        ...p,
+        lastFertilize: now,
+        flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
+        tutorialStep: 4,
+      }));
+      setTutorialStep(4);
+    } else {
+      setProgress((p) => ({
+        ...p,
+        lastFertilize: now,
+        flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
+      }));
+    }
     setMenuOpen(false);
     toastApi?.showToast('Удобрено!');
   };
@@ -175,7 +186,7 @@ function App() {
   const handleStart = () => setStarted(true);
 
   // Для туториала
-  const tutorialText = TUTORIAL_STEPS[tutorialStep] || '';
+  const tutorialText = progress.tutorialStep >= 5 ? '' : (TUTORIAL_STEPS[tutorialStep] || '');
 
   return (
     <ToastManager>
@@ -183,7 +194,7 @@ function App() {
         <StartScreen onStart={handleStart} />
       ) : (
         <>
-          {showFinalHint && localStorage.getItem('flowersim.finalHintShown') !== '1' && (
+          {progress.tutorialStep < 5 && showFinalHint && localStorage.getItem('flowersim.finalHintShown') !== '1' && (
             <div style={{
               position: 'fixed',
               top: 0,

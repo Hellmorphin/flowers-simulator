@@ -35,10 +35,21 @@ const ModalBox = styled.div`
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
+  overflow-x: hidden;
   gap: 24px;
-  scrollbar-width: none;
+  scrollbar-width: thin;
   &::-webkit-scrollbar {
-    display: none;
+    width: 8px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #d7ccc8;
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar:horizontal {
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
   }
   @media (max-width: 700px) {
     max-width: calc(100vw + 30px);
@@ -86,12 +97,6 @@ const BgPreview = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const BgName = styled.div`
-  font-weight: 600;
-  color: #6d4c41;
-  margin-bottom: 6px;
 `;
 
 const BgPrice = styled.div`

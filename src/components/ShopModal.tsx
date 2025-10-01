@@ -59,8 +59,22 @@ const ModalBox = styled(motion.div)`
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  scrollbar-width: thin;
   &::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #d7ccc8;
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar:horizontal {
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
+  }
+  &::-webkit-scrollbar:horizontal {
     display: none;
   }
   @media (max-width: 700px) {
