@@ -60,13 +60,21 @@ const MainScreen: React.FC<MainScreenProps> = ({
   return (
     <Background>
       <PotWrapper>
-        <Flower size={Math.max(24, flowerSize * 0.8)} visible={flowerVisible} />
+        <Flower
+          size={Math.max(24, flowerSize * 0.8)}
+          visible={flowerVisible}
+          marginBottom={
+            potSkin === "gorshokDEMON.png" || potSkin === "gorshokAngel.png"
+              ? -80
+              : -40
+          }
+        />
         <div style={{ marginTop: 20 }}>
           <Pot potSkin={potSkin} />
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.1 by{" "}
+        Ver. 1.1.1 by{" "}
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

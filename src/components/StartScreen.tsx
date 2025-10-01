@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import React from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
 
 const Background = styled.div`
   min-height: 100dvh;
@@ -64,17 +64,17 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
   return (
     <Background>
       <PotBg
-        src={new URL('../assets/gorshok.jpg', import.meta.url).href}
+        src={new URL("../assets/gorshok.jpg", import.meta.url).href}
         alt="Горшок"
         animate={{ scale: [1, 1.08, 1] }}
-        transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
       />
       <Title
         initial={{ scale: 0.8, y: -40 }}
         animate={{ scale: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 120 }}
+        transition={{ type: "spring", stiffness: 120 }}
       >
-        Flowers Simulator
+        Gorshock
       </Title>
       <StartButton
         whileTap={{ scale: 0.95 }}

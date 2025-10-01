@@ -1,3 +1,30 @@
+// --- ВРЕМЕННОЕ ОКНО АКТИВАЦИИ ДЛЯ ВСЕХ ---
+// Владивосток UTC+10, окно: 21:50–23:30, раз в 7 дней
+function isTempPotGlobalActive() {
+  // Владивосток UTC+10
+  const now = new Date();
+  // Получаем текущее время во Владивостоке
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const vladivostokTime = new Date(utc + 10 * 60 * 60000);
+  // День недели (0 — воскресенье, 1 — понедельник, ...)
+  // Базовая точка отсчёта — среда 1 октября 2025, 00:00:00 UTC+10
+  const base = Date.UTC(2025, 9, 1, 0, 0, 0) - 10 * 60 * 60 * 1000; // UTC
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const msSinceBase = vladivostokTime.getTime() - base;
+  const weekNum = Math.floor(msSinceBase / weekMs);
+  // Для текущей недели вычисляем дату окна раздачи во Владивостоке
+  const windowStart = base + weekNum * weekMs + (21 * 60 + 50) * 60 * 1000; // 21:50 UTC+10
+  const windowEnd = base + weekNum * weekMs + (23 * 60 + 30) * 60 * 1000;   // 23:30 UTC+10
+  return vladivostokTime.getTime() >= windowStart && vladivostokTime.getTime() <= windowEnd;
+}
+// --- ВРЕМЕННЫЕ ГОРШКИ ---
+const TEMP_POT_KEY = "flowersim.tempPots";
+const TEMP_POT_PERM_KEY = "flowersim.tempPots.permanent";
+const TEMP_POT_DURATION = 3 * 60 * 60 * 1000; // 3 часа в мс
+const tempPots = [
+  { name: "DEMON", file: "gorshokDEMON.png" },
+  { name: "ROFL", file: "gorshokRofl.png" },
+];
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
@@ -74,8 +101,11 @@ const potSkins = [
   { name: "Beta", file: "gorshokBeta1.0.png", unlock: 48 },
   { name: "Legacy", file: "gorshoklegaci.png", unlock: 72 },
   { name: "BLACK Legacy", file: "gorshokBLACKlegaci.png", unlock: 96 },
+
+  { name: "Gold", file: "gorshokGold.png", unlock: 100 },
   { name: "Loading", file: "gorshokLoadingpng.png", unlock: 120 },
-  { name: "Gold", file: "gorshokGold.png", unlock: 100 }, // Gold — за 100 часов
+  { name: "Boss", file: "gorshokBoss.png", unlock: 150 },
+  { name: "Angel", file: "gorshokAngel.png", unlock: 200 }, // Gold — за 100 часов
 ];
 
 const POTS_KEY = "flowersim.potSkin";
@@ -83,6 +113,7 @@ const PLAYTIME_KEY = "flowersim.playtime";
 const PLAYTIME_LAST_TS_KEY = "flowersim.playtime.lastts";
 
 const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  // useEffect для временных горшков больше не нужен — только кнопка 'Получить'!
   const [tab, setTab] = useState<"pot" | "flower">("pot");
   const [selected, setSelected] = useState<string>(
     () => localStorage.getItem(POTS_KEY) || "gorshok.jpg"
@@ -104,23 +135,49 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [unlocked, setUnlocked] = useState<string[]>([]);
   const [newUnlock, setNewUnlock] = useState<string | null>(null);
 
-  // Считаем открытые скины
+  // --- ЛОГИКА ВРЕМЕННЫХ ГОРШКОВ ---
+  // Считаем открытые скины (обычные + временные активные + временные навсегда)
   useEffect(() => {
-    const nowUnlocked = potSkins
+    const now = Date.now();
+    // 1. Обычные горшки
+    let nowUnlocked = potSkins
       .filter((s) => playTime >= s.unlock)
       .map((s) => s.file);
-    setUnlocked(nowUnlocked);
+
+    // 2. Временные горшки: активные (3 часа) и навсегда
+    let tempActive: string[] = [];
+    let tempPermanent: string[] = [];
+    try {
+      const tempData = JSON.parse(localStorage.getItem(TEMP_POT_KEY) || '{}');
+      const tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+      for (const pot of tempPots) {
+        if (tempData[pot.file]) {
+          // Если когда-либо активирован — добавить в постоянные
+          if (!tempPermData.includes(pot.file)) tempPermData.push(pot.file);
+          // Если ещё не истёк — добавить во временные
+          if (now - tempData[pot.file] < TEMP_POT_DURATION) tempActive.push(pot.file);
+        }
+      }
+      // Сохраняем навсегда полученные временные горшки
+      localStorage.setItem(TEMP_POT_PERM_KEY, JSON.stringify(tempPermData));
+      tempPermanent = tempPermData;
+    } catch {}
+    // Добавляем временные активные и навсегда
+    nowUnlocked = nowUnlocked.concat(tempActive).concat(tempPermanent);
+    // Убираем дубли
+    const nowUnlockedUnique = Array.from(new Set(nowUnlocked));
+    setUnlocked(nowUnlockedUnique);
     // Показываем уведомление если только что открылся новый
     const prev = JSON.parse(
       localStorage.getItem("flowersim.unlockedPots") || "[]"
     );
-    const diff = nowUnlocked.filter((f) => !prev.includes(f));
+    const diff = nowUnlockedUnique.filter((f) => !prev.includes(f));
     if (diff.length > 0) {
       setNewUnlock(diff[0]);
       setTimeout(() => setNewUnlock(null), 4000);
       localStorage.setItem(
         "flowersim.unlockedPots",
-        JSON.stringify(nowUnlocked)
+        JSON.stringify(nowUnlockedUnique)
       );
     }
   }, [playTime]);
@@ -215,6 +272,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               scrollbarColor: "transparent transparent",
             }}
           >
+            {/* Обычные скины */}
             {potSkins.map((skin) => (
               <div
                 key={skin.file}
@@ -250,7 +308,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     fontWeight: "bold",
                     marginBottom: 8,
                     textAlign: "center",
-                    color: skin.name === "Стандартный" ? "#ff6f00" : undefined,
+                    color: "#ff6f00",
                   }}
                 >
                   {skin.name}
@@ -331,6 +389,137 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 )}
               </div>
             ))}
+            {/* Временные горшки */}
+            {tempPots.map((skin) => {
+              // Проверяем статус временного горшка
+              let tempData: Record<string, number> = {};
+              let tempPermData: string[] = [];
+              let activated = false;
+              let permanent = false;
+              let leftMs = 0;
+              try {
+                tempData = JSON.parse(localStorage.getItem(TEMP_POT_KEY) || '{}') as Record<string, number>;
+                tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+                if (tempData[skin.file]) {
+                  activated = true;
+                  leftMs = TEMP_POT_DURATION - (Date.now() - tempData[skin.file]);
+                  if (leftMs < 0) leftMs = 0;
+                }
+                if (tempPermData.includes(skin.file)) permanent = true;
+              } catch {}
+              // Для временных горшков: разрешаем 'Применить' только если permanent=true
+              const unlockedThis = permanent;
+
+              // Кнопка "Получить" только в окно раздачи и если горшок ещё не получен
+              const handleClaimTempPot = () => {
+                let tempPermData: string[] = [];
+                try {
+                  tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || '[]');
+                } catch {}
+                if (!tempPermData.includes(skin.file)) {
+                  tempPermData.push(skin.file);
+                  localStorage.setItem(TEMP_POT_PERM_KEY, JSON.stringify(tempPermData));
+                  // Обновляем состояние без перезагрузки
+                  setUnlocked((prev) => Array.from(new Set([...prev, skin.file])));
+                  setNewUnlock(skin.file);
+                  setTimeout(() => setNewUnlock(null), 4000);
+                }
+              };
+
+              return (
+                <div
+                  key={skin.file}
+                  style={{
+                    border: "2px solid " + (selected === skin.file ? "#ffb300" : "#ccc"),
+                    borderRadius: 16,
+                    padding: 12,
+                    background: "#fffde7",
+                    minWidth: 120,
+                    maxWidth: 180,
+                    position: "relative",
+                    opacity: unlockedThis ? 1 : 0.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={new URL(`../assets/${skin.file}`, import.meta.url).href}
+                    alt={skin.name}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "contain",
+                      borderRadius: 12,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      marginBottom: 8,
+                      textAlign: "center",
+                      color: "#ff6f00",
+                    }}
+                  >
+                    {skin.name}
+                  </div>
+                  {/* Кнопки и статусы */}
+                  {permanent ? (
+                    selected === skin.file ? (
+                      <button
+                        onClick={handleReset}
+                        style={{
+                          background: "#eee",
+                          color: "#6d4c41",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 12px",
+                          fontWeight: "bold",
+                          margin: "0 auto",
+                        }}
+                      >
+                        Снять
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleApply(skin.file)}
+                        style={{
+                          background: "#ffb300",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 12px",
+                          fontWeight: "bold",
+                          margin: "0 auto",
+                        }}
+                      >
+                        Применить
+                      </button>
+                    )
+                  ) : isTempPotGlobalActive() ? (
+                    <button
+                      onClick={handleClaimTempPot}
+                      style={{
+                        background: "#ffb300",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "4px 12px",
+                        fontWeight: "bold",
+                        margin: "0 auto",
+                      }}
+                    >
+                      Получить
+                    </button>
+                  ) : (
+                    <div style={{ fontSize: 13, color: "#bdbdbd", textAlign: "center", fontWeight: 700 }}>
+                      Недоступно
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             <style>{`
               .shop-pots-scroll::-webkit-scrollbar { display: none; }
             `}</style>

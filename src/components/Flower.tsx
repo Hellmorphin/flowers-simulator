@@ -14,6 +14,7 @@ const FlowerImg = styled(motion.img)`
 type FlowerProps = {
   size: number; // px
   visible: boolean;
+  marginBottom?: number;
 };
 
 const flowerVariants = {
@@ -21,12 +22,12 @@ const flowerVariants = {
   visible: { opacity: 1, scale: 1 },
 };
 
-const Flower: React.FC<FlowerProps> = ({ size, visible }) => {
+const Flower: React.FC<FlowerProps> = ({ size, visible, marginBottom = -40 }) => {
   return (
     <FlowerImg
       src={new URL('../assets/Flow.jpg', import.meta.url).href}
       alt="Цветок"
-      style={{ width: size, minWidth: size, maxWidth: '90vw', height: 'auto', transition: 'width 2s cubic-bezier(.4,2,.4,1)' }}
+      style={{ width: size, minWidth: size, maxWidth: '90vw', height: 'auto', marginBottom, transition: 'width 2s cubic-bezier(.4,2,.4,1)' }}
       initial="hidden"
       animate={visible ? 'visible' : 'hidden'}
       variants={flowerVariants}
