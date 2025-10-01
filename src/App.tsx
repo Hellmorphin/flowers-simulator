@@ -169,10 +169,7 @@ function App() {
           <MainScreen
             flowerSize={progress.flowerSize}
             flowerVisible={progress.tutorialStep > 1 && progress.flowerSize > MIN_FLOWER - 1}
-            onWater={handleWater}
-            onFertilize={handleFertilize}
-            lastWater={progress.lastWater}
-            lastFertilize={progress.lastFertilize}
+            potSkin={localStorage.getItem('flowersim.potSkin') || 'gorshok.jpg'}
           />
           <Menu
             open={menuOpen}

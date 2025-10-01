@@ -11,10 +11,14 @@ const PotImg = styled(motion.img)`
 `;
 
 
-const Pot: React.FC = () => {
+type PotProps = {
+  potSkin?: string;
+};
+const Pot: React.FC<PotProps> = ({ potSkin }) => {
+  const file = potSkin || 'gorshok.jpg';
   return (
     <PotImg
-  src={new URL('../assets/gorshok.jpg', import.meta.url).href}
+      src={new URL(`../assets/${file}`, import.meta.url).href}
       alt="Горшок"
       animate={{
         scale: [1, 1.04, 1],

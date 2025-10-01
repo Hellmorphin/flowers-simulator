@@ -1,35 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
 
-const Arrow = styled(motion.div)<{top?:string, right?:string, left?:string, bottom?:string}>`
-  position: fixed;
-  z-index: 200;
-  font-size: 2.5rem;
-  color: #ffb300;
-  filter: drop-shadow(0 2px 8px #6d4c41cc);
-  pointer-events: none;
-  top: ${({top})=>top||'auto'};
-  right: ${({right})=>right||'auto'};
-  left: ${({left})=>left||'auto'};
-  bottom: ${({bottom})=>bottom||'auto'};
-`;
 
-const TutorialBox = styled(motion.div)<{top?:string, right?:string, left?:string, bottom?:string}>`
-  position: fixed;
-  background: rgba(255, 236, 179, 0.95);
-  color: #6d4c41;
-  border-radius: 1.2rem;
-  padding: 1.2rem 2rem;
-  box-shadow: 0 2px 16px #a1887f44;
-  z-index: 201;
-  font-size: 1.1rem;
-  max-width: 260px;
-  top: ${({top})=>top||'auto'};
-  right: ${({right})=>right||'auto'};
-  left: ${({left})=>left||'auto'};
-  bottom: ${({bottom})=>bottom||'auto'};
-`;
 
 type TutorialProps = {
   visible: boolean;

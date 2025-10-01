@@ -6,9 +6,11 @@ const GlassMenu = styled(motion.div)`
   position: fixed;
   top: 0;
   right: 0;
-  width: 50vw;
-  max-width: 420px;
-  height: 100vh;
+  width: 60vw;
+  max-width: 520px;
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: 100dvh;
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(18px) saturate(1.2);
   box-shadow: -8px 0 32px #6d4c4133;
@@ -17,7 +19,25 @@ const GlassMenu = styled(motion.div)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 2rem;
+  padding: 0 10px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  @media (max-width: 700px) {
+    width: 90vw;
+    max-width: 98vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0 6vw;
+    scrollbar-width: none;
+  }
+  @media (max-width: 700px) {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 
 const MenuButton = styled(motion.button)`
@@ -41,9 +61,9 @@ const MenuButton = styled(motion.button)`
 `;
 
 const TailIcon = styled(motion.div)`
-  position: fixed;
+  position: absolute;
   top: 45%;
-  right: 0;
+  left: -38px;
   transform: translateY(-50%);
   width: 38px;
   height: 100px;
@@ -56,6 +76,13 @@ const TailIcon = styled(motion.div)`
   z-index: 101;
   cursor: pointer;
   border: 2px solid #ffb300;
+  @media (max-width: 700px) {
+    position: fixed;
+    left: auto;
+    right: 0;
+    top: 45%;
+    transform: translateY(-50%);
+  }
 `;
 
 const TailGrip = styled.div`
@@ -93,24 +120,34 @@ const Menu: React.FC<MenuProps> = ({
   const disableActions = tutorialStep !== undefined && tutorialStep < 2;
   return (
     <>
-      <TailIcon
-        initial={{ x: 60, opacity: 0 }}
-        animate={{ x: open ? '-50vw' : 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 120 }}
-        onClick={toggleMenu}
-        style={{
-          right: open ? '40px' : 0,
-          zIndex: 200,
-        }}
-      >
-        <TailGrip />
-      </TailIcon>
+      {/* Хвостик всегда видим: если меню закрыто — фиксирован справа, если открыто — часть меню */}
+      {!open && (
+        <TailIcon
+          style={{position:'fixed', right:0, left:'auto', top:'45%', zIndex:200}}
+          initial={{ x: 60, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 120 }}
+          onClick={toggleMenu}
+        >
+          <TailGrip />
+        </TailIcon>
+      )}
       <GlassMenu
         initial={{ x: "100%" }}
         animate={{ x: open ? 0 : "100%" }}
         transition={{ type: "spring", stiffness: 120 }}
-        style={{ pointerEvents: open ? "auto" : "none" }}
+        style={{ pointerEvents: open ? "auto" : "none", position: 'fixed', top: 0, right: 0 }}
       >
+        {open && (
+          <TailIcon
+            initial={{ x: 0, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 120 }}
+            onClick={toggleMenu}
+          >
+            <TailGrip />
+          </TailIcon>
+        )}
         {showPlantBtn && (
           <MenuButton onClick={onPlant}>Посадить цветок</MenuButton>
         )}
