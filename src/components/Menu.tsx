@@ -143,18 +143,18 @@ const Menu: React.FC<MenuProps> = ({
           <TailGrip />
         </TailIcon>
       )}
-      <GlassMenu
-        initial={{ x: isAndroid ? 0 : "100%" }}
-        animate={{ x: open ? 0 : (isAndroid ? 0 : "100%") }}
-        transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
-        style={{
-          pointerEvents: open ? "auto" : "none",
-          position: "fixed",
-          top: 0,
-          right: 0,
-        }}
-      >
-        {open && (
+      {open && (
+        <GlassMenu
+          initial={{ x: isAndroid ? 0 : "100%" }}
+          animate={{ x: 0 }}
+          transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
+          style={{
+            pointerEvents: "auto",
+            position: "fixed",
+            top: 0,
+            right: 0,
+          }}
+        >
           <TailIcon
             initial={{ x: 0, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -163,70 +163,70 @@ const Menu: React.FC<MenuProps> = ({
           >
             <TailGrip />
           </TailIcon>
-        )}
-        {showPlantBtn && (
-          <MenuButton onClick={onPlant}>Посадить цветок</MenuButton>
-        )}
-        <MenuButton
-          onClick={onFertilize}
-          disabled={disableActions || !canFertilize}
-          style={{
-            opacity: canFertilize && !disableActions ? 1 : 0.5,
-            pointerEvents: canFertilize && !disableActions ? "auto" : "none",
-          }}
-        >
-          Удобрить
-        </MenuButton>
-        <MenuButton
-          onClick={onWater}
-          disabled={disableActions || !canWater}
-          style={{
-            opacity: canWater && !disableActions ? 1 : 0.5,
-            pointerEvents: canWater && !disableActions ? "auto" : "none",
-          }}
-        >
-          Полить
-        </MenuButton>
-        <MenuButton
-          style={{
-            marginTop: "2.5rem",
-            background: "#ffe082",
-            color: "#6d4c41",
-            fontWeight: 700,
-          }}
-          onClick={() => {
-            onShop();
-          }}
-        >
-          Магазин
-        </MenuButton>
-        <MenuButton
-          style={{
-            background: "#ffd600",
-            color: "#222",
-            fontWeight: 700,
-            marginTop: "1rem",
-          }}
-          onClick={() => {
-            if (typeof window !== "undefined" && window.dispatchEvent) {
-              window.dispatchEvent(new CustomEvent("openProgressModal"));
-            }
-          }}
-        >
-          Прогресс
-        </MenuButton>
-        <MenuButton
-          style={{
-            background: "#ffe082",
-            color: "#6d4c41",
-            fontWeight: 700,
-            marginTop: "1rem",
-          }}
-          onClick={handleOpenBackgroundModal}
-        >
-          Фон
-        </MenuButton>
-      </GlassMenu>
+          {showPlantBtn && (
+            <MenuButton onClick={onPlant}>Посадить цветок</MenuButton>
+          )}
+          <MenuButton
+            onClick={onFertilize}
+            disabled={disableActions || !canFertilize}
+            style={{
+              opacity: canFertilize && !disableActions ? 1 : 0.5,
+              pointerEvents: canFertilize && !disableActions ? "auto" : "none",
+            }}
+          >
+            Удобрить
+          </MenuButton>
+          <MenuButton
+            onClick={onWater}
+            disabled={disableActions || !canWater}
+            style={{
+              opacity: canWater && !disableActions ? 1 : 0.5,
+              pointerEvents: canWater && !disableActions ? "auto" : "none",
+            }}
+          >
+            Полить
+          </MenuButton>
+          <MenuButton
+            style={{
+              marginTop: "2.5rem",
+              background: "#ffe082",
+              color: "#6d4c41",
+              fontWeight: 700,
+            }}
+            onClick={() => {
+              onShop();
+            }}
+          >
+            Магазин
+          </MenuButton>
+          <MenuButton
+            style={{
+              background: "#ffd600",
+              color: "#222",
+              fontWeight: 700,
+              marginTop: "1rem",
+            }}
+            onClick={() => {
+              if (typeof window !== "undefined" && window.dispatchEvent) {
+                window.dispatchEvent(new CustomEvent("openProgressModal"));
+              }
+            }}
+          >
+            Прогресс
+          </MenuButton>
+          <MenuButton
+            style={{
+              background: "#ffe082",
+              color: "#6d4c41",
+              fontWeight: 700,
+              marginTop: "1rem",
+            }}
+            onClick={handleOpenBackgroundModal}
+          >
+            Фон
+          </MenuButton>
+        </GlassMenu>
+      )}
     </>
   );
 };
