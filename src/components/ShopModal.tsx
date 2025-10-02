@@ -29,6 +29,13 @@ const tempPots = [
   { name: "ROFL", file: "gorshokRofl.png" },
 ];
 import React, { useState, useEffect } from "react";
+import {
+  flowerSkins,
+  TEMP_FLOWER_KEY,
+  TEMP_FLOWER_PERM_KEY,
+  TEMP_FLOWER_DURATION,
+  isTempFlowerActive,
+} from "./FlowerShopData";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
@@ -126,15 +133,12 @@ const potSkins = [
 ];
 
 const POTS_KEY = "flowersim.potSkin";
+const FLOWERS_KEY = "flowersim.flowerSkin";
 const PLAYTIME_KEY = "flowersim.playtime";
 const PLAYTIME_LAST_TS_KEY = "flowersim.playtime.lastts";
 
 const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  // useEffect для временных горшков больше не нужен — только кнопка 'Получить'!
-  const [tab, setTab] = useState<"pot" | "flower">("pot");
-  const [selected, setSelected] = useState<string>(
-    () => localStorage.getItem(POTS_KEY) || "gorshok.jpg"
-  );
+  // --- PlayTime ---
   const [playTime, setPlayTime] = useState<number>(() => {
     const saved = Number(localStorage.getItem(PLAYTIME_KEY)) || 0;
     const lastTs =
@@ -149,6 +153,84 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     localStorage.setItem(PLAYTIME_LAST_TS_KEY, String(now));
     return saved + diffHrs;
   });
+  // --- PlayTime ---
+  // --- Магазин цветов ---
+  const [selectedFlower, setSelectedFlower] = useState<string>(
+    () => localStorage.getItem(FLOWERS_KEY) || "Flowers1.png"
+  );
+  const [unlockedFlowers, setUnlockedFlowers] = useState<string[]>([]);
+  const [newFlowerUnlock, setNewFlowerUnlock] = useState<string | null>(null);
+  // --- ЛОГИКА ВРЕМЕННЫХ ГОРШКОВ ---
+  // ...существующий useEffect для playTime и unlocked...
+
+  // --- ЛОГИКА МАГАЗИНА ЦВЕТОВ ---
+  useEffect(() => {
+    const now = Date.now();
+    let nowUnlocked = flowerSkins
+      .filter((s) => typeof s.unlock === "number" && playTime >= s.unlock)
+      .map((s) => s.file);
+    // Временные цветы
+    let tempActive: string[] = [];
+    let tempPermanent: string[] = [];
+    try {
+      const tempData = JSON.parse(localStorage.getItem(TEMP_FLOWER_KEY) || "{}");
+      const tempPermData = JSON.parse(localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]");
+      for (const skin of flowerSkins) {
+        if (skin.unlock === "temp" && tempData[skin.file]) {
+          if (!tempPermData.includes(skin.file)) tempPermData.push(skin.file);
+          if (now - tempData[skin.file] < TEMP_FLOWER_DURATION)
+            tempActive.push(skin.file);
+        }
+        if (skin.unlock === "temp2" && tempData[skin.file]) {
+          if (!tempPermData.includes(skin.file)) tempPermData.push(skin.file);
+          if (now - tempData[skin.file] < TEMP_FLOWER_DURATION)
+            tempActive.push(skin.file);
+        }
+      }
+      localStorage.setItem(TEMP_FLOWER_PERM_KEY, JSON.stringify(tempPermData));
+      tempPermanent = tempPermData;
+    } catch {}
+    nowUnlocked = nowUnlocked.concat(tempActive).concat(tempPermanent);
+    const nowUnlockedUnique = Array.from(new Set(nowUnlocked));
+    setUnlockedFlowers(nowUnlockedUnique);
+    // уведомление
+    const prev = JSON.parse(localStorage.getItem("flowersim.unlockedFlowers") || "[]");
+    const tempPermData = JSON.parse(localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]");
+    const diff = nowUnlockedUnique.filter((f) => !prev.includes(f) && !tempPermData.includes(f));
+    if (diff.length > 0) {
+      setNewFlowerUnlock(diff[0]);
+      setTimeout(() => setNewFlowerUnlock(null), 4000);
+      localStorage.setItem("flowersim.unlockedFlowers", JSON.stringify([...prev, ...diff]));
+    }
+  }, [playTime]);
+
+  const handleApplyFlower = (file: string) => {
+    setSelectedFlower(file);
+    localStorage.setItem(FLOWERS_KEY, file);
+  };
+  const handleResetFlower = () => {
+    setSelectedFlower("Flowers1.png");
+    localStorage.setItem(FLOWERS_KEY, "Flowers1.png");
+  };
+  // Получить временный цветок
+  const handleClaimTempFlower = (file: string) => {
+    let tempPermData: string[] = [];
+    try {
+      tempPermData = JSON.parse(localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]");
+    } catch {}
+    if (!tempPermData.includes(file)) {
+      tempPermData.push(file);
+      localStorage.setItem(TEMP_FLOWER_PERM_KEY, JSON.stringify(tempPermData));
+      setUnlockedFlowers((prev) => Array.from(new Set([...prev, file])));
+      setNewFlowerUnlock(file);
+      setTimeout(() => setNewFlowerUnlock(null), 4000);
+    }
+  };
+  // useEffect для временных горшков больше не нужен — только кнопка 'Получить'!
+  const [tab, setTab] = useState<"pot" | "flower">("pot");
+  const [selected, setSelected] = useState<string>(
+    () => localStorage.getItem(POTS_KEY) || "gorshok.jpg"
+  );
   const [unlocked, setUnlocked] = useState<string[]>([]);
   const [newUnlock, setNewUnlock] = useState<string | null>(null);
 
@@ -188,17 +270,13 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const nowUnlockedUnique = Array.from(new Set(nowUnlocked));
     setUnlocked(nowUnlockedUnique);
     // Показываем уведомление если только что открылся новый
-    const prev = JSON.parse(
-      localStorage.getItem("flowersim.unlockedPots") || "[]"
-    );
-    const diff = nowUnlockedUnique.filter((f) => !prev.includes(f));
+    const prev = JSON.parse(localStorage.getItem("flowersim.unlockedPots") || "[]");
+    const tempPermData = JSON.parse(localStorage.getItem(TEMP_POT_PERM_KEY) || "[]");
+    const diff = nowUnlockedUnique.filter((f) => !prev.includes(f) && !tempPermData.includes(f));
     if (diff.length > 0) {
       setNewUnlock(diff[0]);
       setTimeout(() => setNewUnlock(null), 4000);
-      localStorage.setItem(
-        "flowersim.unlockedPots",
-        JSON.stringify(nowUnlockedUnique)
-      );
+      localStorage.setItem("flowersim.unlockedPots", JSON.stringify([...prev, ...diff]));
     }
   }, [playTime]);
 
@@ -568,11 +646,285 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
         )}
         {tab === "flower" && (
-          <div style={{ color: "#6d4c41", opacity: 0.7 }}>
-            Скоро будут доступны скины для цветка!
+          <div
+            style={{
+              width: "100%",
+              maxHeight: 320,
+              minHeight: 180,
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              alignItems: "center",
+              justifyContent: "flex-start",
+              paddingBottom: 8,
+              scrollbarWidth: "none",
+              scrollbarColor: "transparent transparent",
+            }}
+          >
+            {/* Обычные цветы */}
+            {flowerSkins.filter(s => typeof s.unlock === "number").map((skin) => (
+              <div
+                key={skin.file}
+                style={{
+                  border:
+                    "2px solid " +
+                    (selectedFlower === skin.file ? "#ffb300" : "#ccc"),
+                  borderRadius: 16,
+                  padding: 12,
+                  background: "#fffde7",
+                  minWidth: 120,
+                  maxWidth: 180,
+                  position: "relative",
+                  opacity: unlockedFlowers.includes(skin.file) ? 1 : 0.5,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={new URL(`../assets/${skin.file}`, import.meta.url).href}
+                  alt={skin.name}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    objectFit: "contain",
+                    borderRadius: 12,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: 8,
+                    textAlign: "center",
+                    color: "#ff6f00",
+                  }}
+                >
+                  {skin.name}
+                </div>
+                {unlockedFlowers.includes(skin.file) ? (
+                  skin.file === "Flowers1.png"
+                    ? null
+                    : selectedFlower === skin.file
+                    ? (
+                        <button
+                          onClick={handleResetFlower}
+                          style={{
+                            background: "#eee",
+                            color: "#6d4c41",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "4px 12px",
+                            fontWeight: "bold",
+                            margin: "0 auto",
+                          }}
+                        >
+                          Снять
+                        </button>
+                      )
+                    : (
+                        <button
+                          onClick={() => handleApplyFlower(skin.file)}
+                          style={{
+                            background: "#ffb300",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "4px 12px",
+                            fontWeight: "bold",
+                            margin: "0 auto",
+                          }}
+                        >
+                          Применить
+                        </button>
+                      )
+                ) : (
+                  (() => {
+                    const left = Math.max(0, (skin.unlock as number) - playTime);
+                    if (left >= 1) {
+                      return (
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#ff6f00",
+                            textAlign: "center",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Откроется через {Math.ceil(left)}ч
+                        </div>
+                      );
+                    } else if (left > 0) {
+                      const mins = Math.ceil(left * 60);
+                      return (
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#ff6f00",
+                            textAlign: "center",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Откроется через {mins}м
+                        </div>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })()
+                )}
+              </div>
+            ))}
+            {/* Временные цветы */}
+            {flowerSkins.filter(s => typeof s.unlock === "string").map((skin) => {
+              let tempData: Record<string, number> = {};
+              let tempPermData: string[] = [];
+              let permanent = false;
+              let leftMs = 0;
+              try {
+                tempData = JSON.parse(localStorage.getItem(TEMP_FLOWER_KEY) || "{}");
+                tempPermData = JSON.parse(localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]");
+                if (tempData[skin.file]) {
+                  leftMs = TEMP_FLOWER_DURATION - (Date.now() - tempData[skin.file]);
+                  if (leftMs < 0) leftMs = 0;
+                }
+                if (tempPermData.includes(skin.file)) permanent = true;
+              } catch {}
+              const unlockedThis = permanent;
+              // Кнопка "Получить" только в окно раздачи
+              const tempActiveFlower = isTempFlowerActive();
+              return (
+                <div
+                  key={skin.file}
+                  style={{
+                    border:
+                      "2px solid " +
+                      (selectedFlower === skin.file ? "#ffb300" : "#ccc"),
+                    borderRadius: 16,
+                    padding: 12,
+                    background: "#fffde7",
+                    minWidth: 120,
+                    maxWidth: 180,
+                    position: "relative",
+                    opacity: unlockedThis ? 1 : 0.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={new URL(`../assets/${skin.file}`, import.meta.url).href}
+                    alt={skin.name}
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "contain",
+                      borderRadius: 12,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      marginBottom: 8,
+                      textAlign: "center",
+                      color: "#ff6f00",
+                    }}
+                  >
+                    {skin.name}
+                  </div>
+                  {permanent ? (
+                    selectedFlower === skin.file ? (
+                      <button
+                        onClick={handleResetFlower}
+                        style={{
+                          background: "#eee",
+                          color: "#6d4c41",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 12px",
+                          fontWeight: "bold",
+                          margin: "0 auto",
+                        }}
+                      >
+                        Снять
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleApplyFlower(skin.file)}
+                        style={{
+                          background: "#ffb300",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 12px",
+                          fontWeight: "bold",
+                          margin: "0 auto",
+                        }}
+                      >
+                        Применить
+                      </button>
+                    )
+                  ) : tempActiveFlower === skin.file ? (
+                    <button
+                      onClick={() => handleClaimTempFlower(skin.file)}
+                      style={{
+                        background: "#ffb300",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "4px 12px",
+                        fontWeight: "bold",
+                        margin: "0 auto",
+                      }}
+                    >
+                      Получить
+                    </button>
+                  ) : (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#bdbdbd",
+                        textAlign: "center",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Недоступно
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
-        {newUnlock && (
+        {newFlowerUnlock && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 32,
+              left: 0,
+              width: "100%",
+              textAlign: "center",
+              zIndex: 3000,
+            }}
+          >
+            <div
+              style={{
+                display: "inline-block",
+                background: "#ffecb3",
+                color: "#6d4c41",
+                padding: "12px 32px",
+                borderRadius: 16,
+                boxShadow: "0 2px 16px #a1887f44",
+                fontWeight: "bold",
+              }}
+            >
+              В магазине открылся новый цветок!
+            </div>
+          </div>
+        )}
+        {!newFlowerUnlock && newUnlock && (
           <div
             style={{
               position: "fixed",

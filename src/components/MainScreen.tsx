@@ -1,3 +1,16 @@
+
+import React from "react";
+import styled from "styled-components";
+import Pot from "./Pot";
+import Flower from "./Flower";
+import { FaCoins } from "react-icons/fa";
+import bg1 from "../assets/i.jpg";
+import bg2 from "../assets/i2.jpg";
+import bg3 from "../assets/i3.jpg";
+import bg4 from "../assets/i4.jpg";
+import bg5 from "../assets/i5.jpg";
+import bg6 from "../assets/i6.jpg";
+
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
   position: absolute;
@@ -28,17 +41,6 @@ const CoinAmount = styled.span`
   font-weight: bold;
   letter-spacing: 2px;
 `;
-import React from "react";
-import styled from "styled-components";
-import Pot from "./Pot";
-import Flower from "./Flower";
-import { FaCoins } from "react-icons/fa";
-import bg1 from "../assets/i.jpg";
-import bg2 from "../assets/i2.jpg";
-import bg3 from "../assets/i3.jpg";
-import bg4 from "../assets/i4.jpg";
-import bg5 from "../assets/i5.jpg";
-import bg6 from "../assets/i6.jpg";
 
 const Background = styled.div`
   min-height: 100dvh;
@@ -87,15 +89,18 @@ type MainScreenProps = {
   flowerVisible: boolean;
   potSkin?: string;
   mainBg?: string | null;
+  skin?: string;
 };
 
 const MainScreen: React.FC<MainScreenProps> = ({
+  // ...existing code...
   flowerSize,
   flowerVisible,
   potSkin,
   mainBg,
 }) => {
   // --- Монеты ---
+  const flowerSkin = localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
   const [coins, setCoins] = React.useState<number>(
     Number(localStorage.getItem("progress_coins") || 0)
   );
@@ -141,21 +146,24 @@ const MainScreen: React.FC<MainScreenProps> = ({
         <CoinAmount>{coins}</CoinAmount>
       </CoinBarWrapper>
       <PotWrapper>
-        <Flower
-          size={Math.max(24, flowerSize * 0.8)}
-          visible={flowerVisible}
-          marginBottom={
-            potSkin === "gorshokDEMON.png" || potSkin === "gorshokAngel.png"
-              ? -80
-              : -40
-          }
-        />
-        <div style={{ marginTop: 20 }}>
-          <Pot potSkin={potSkin} />
+  <div style={{ position: 'relative', width: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Flower
+            size={Math.max(60, Math.min(flowerSize * 0.8, 380))}
+            visible={flowerVisible}
+            marginBottom={
+              potSkin === "gorshokDEMON.png" || potSkin === "gorshokAngel.png"
+                ? -80
+                : -40
+            }
+            skin={flowerSkin}
+          />
+          <div style={{ marginTop: 20, position: 'relative', zIndex: 2 }}>
+            <Pot potSkin={potSkin} />
+          </div>
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.2.2 by{" "}
+        Ver. 1.2.2 by{' '}
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
@@ -166,6 +174,5 @@ const MainScreen: React.FC<MainScreenProps> = ({
       </Footer>
     </Background>
   );
-};
-
+}
 export default MainScreen;
