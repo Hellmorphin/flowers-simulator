@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+// Определяем Android-устройство
+const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 import { motion } from "framer-motion";
 
 const GlassMenu = styled(motion.div)`
@@ -118,35 +120,45 @@ const Menu: React.FC<MenuProps> = ({
   const showPlantBtn = tutorialStep === 1;
   const disableActions = tutorialStep !== undefined && tutorialStep < 2;
   const handleOpenBackgroundModal = () => {
-    if (typeof window !== 'undefined' && window.dispatchEvent) {
-      window.dispatchEvent(new CustomEvent('openBackgroundModal'));
+    if (typeof window !== "undefined" && window.dispatchEvent) {
+      window.dispatchEvent(new CustomEvent("openBackgroundModal"));
     }
   };
   return (
     <>
-      {/* Хвостик всегда видим: если меню закрыто — фиксирован справа, если открыто — часть меню */}
       {!open && (
         <TailIcon
-          style={{position:'fixed', right:0, left:'auto', top:'45%', zIndex:200}}
-          initial={{ x: 60, opacity: 0 }}
+          style={{
+            position: "fixed",
+            right: 0,
+            left: "auto",
+            top: "45%",
+            zIndex: 200,
+          }}
+          initial={{ x: isAndroid ? 0 : 60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 120 }}
+          transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
           onClick={toggleMenu}
         >
           <TailGrip />
         </TailIcon>
       )}
       <GlassMenu
-        initial={{ x: "100%" }}
-        animate={{ x: open ? 0 : "100%" }}
-        transition={{ type: "spring", stiffness: 120 }}
-        style={{ pointerEvents: open ? "auto" : "none", position: 'fixed', top: 0, right: 0 }}
+        initial={{ x: isAndroid ? 0 : "100%" }}
+        animate={{ x: open ? 0 : (isAndroid ? 0 : "100%") }}
+        transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
+        style={{
+          pointerEvents: open ? "auto" : "none",
+          position: "fixed",
+          top: 0,
+          right: 0,
+        }}
       >
         {open && (
           <TailIcon
             initial={{ x: 0, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 120 }}
+            transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
             onClick={toggleMenu}
           >
             <TailGrip />
@@ -155,14 +167,33 @@ const Menu: React.FC<MenuProps> = ({
         {showPlantBtn && (
           <MenuButton onClick={onPlant}>Посадить цветок</MenuButton>
         )}
-        <MenuButton onClick={onFertilize} disabled={disableActions || !canFertilize} style={{opacity: canFertilize && !disableActions ? 1 : 0.5, pointerEvents: canFertilize && !disableActions ? 'auto' : 'none'}}>
+        <MenuButton
+          onClick={onFertilize}
+          disabled={disableActions || !canFertilize}
+          style={{
+            opacity: canFertilize && !disableActions ? 1 : 0.5,
+            pointerEvents: canFertilize && !disableActions ? "auto" : "none",
+          }}
+        >
           Удобрить
         </MenuButton>
-        <MenuButton onClick={onWater} disabled={disableActions || !canWater} style={{opacity: canWater && !disableActions ? 1 : 0.5, pointerEvents: canWater && !disableActions ? 'auto' : 'none'}}>
+        <MenuButton
+          onClick={onWater}
+          disabled={disableActions || !canWater}
+          style={{
+            opacity: canWater && !disableActions ? 1 : 0.5,
+            pointerEvents: canWater && !disableActions ? "auto" : "none",
+          }}
+        >
           Полить
         </MenuButton>
         <MenuButton
-          style={{marginTop: '2.5rem', background:'#ffe082', color:'#6d4c41', fontWeight:700}}
+          style={{
+            marginTop: "2.5rem",
+            background: "#ffe082",
+            color: "#6d4c41",
+            fontWeight: 700,
+          }}
           onClick={() => {
             onShop();
           }}
@@ -170,17 +201,27 @@ const Menu: React.FC<MenuProps> = ({
           Магазин
         </MenuButton>
         <MenuButton
-          style={{background:'#ffd600', color:'#222', fontWeight:700, marginTop: '1rem'}}
+          style={{
+            background: "#ffd600",
+            color: "#222",
+            fontWeight: 700,
+            marginTop: "1rem",
+          }}
           onClick={() => {
-            if (typeof window !== 'undefined' && window.dispatchEvent) {
-              window.dispatchEvent(new CustomEvent('openProgressModal'));
+            if (typeof window !== "undefined" && window.dispatchEvent) {
+              window.dispatchEvent(new CustomEvent("openProgressModal"));
             }
           }}
         >
           Прогресс
         </MenuButton>
         <MenuButton
-          style={{background:'#ffe082', color:'#6d4c41', fontWeight:700, marginTop: '1rem'}}
+          style={{
+            background: "#ffe082",
+            color: "#6d4c41",
+            fontWeight: 700,
+            marginTop: "1rem",
+          }}
           onClick={handleOpenBackgroundModal}
         >
           Фон
