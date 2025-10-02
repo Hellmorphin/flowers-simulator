@@ -74,7 +74,7 @@ function App() {
 
   // Проверка времени для полива/удобрения
   const now = Date.now();
-  const canWater = now - progress.lastWater > 5 * 1000;
+  const canWater = now - progress.lastWater > 30 * 60 * 1000;
   const canFertilize = now - progress.lastFertilize > 3 * 60 * 60 * 1000;
 
   // Туториал логика
