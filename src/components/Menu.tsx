@@ -180,8 +180,8 @@ const Menu: React.FC<MenuProps> = ({
             onClick={onWater}
             disabled={disableActions || !canWater}
             style={{
-              opacity: canWater && !disableActions ? 1 : 0.5,
-              pointerEvents: canWater && !disableActions ? "auto" : "none",
+              opacity: !disableActions && canWater ? 1 : 0.5,
+              pointerEvents: !disableActions && canWater ? "auto" : "none",
             }}
           >
             Полить

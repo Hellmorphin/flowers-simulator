@@ -8,16 +8,18 @@ import ToastManager, { ToastManagerContext } from './components/ToastManager';
 const FLOWER_KEY = 'flowersim.progress';
 
 interface Progress {
-  flowerSize: number; // px
+  flowerSize: number; // px (deprecated)
+  flowerSizes: { [skin: string]: number };
   lastWater: number;
   lastFertilize: number;
   tutorialStep: number;
 }
 
 const MIN_FLOWER = 32;
-const MAX_FLOWER = 160;
+const MAX_FLOWER = 380;
 const defaultProgress: Progress = {
   flowerSize: MIN_FLOWER,
+  flowerSizes: { "Flowers1.png": MIN_FLOWER },
   lastWater: 0,
   lastFertilize: 0,
   tutorialStep: 0,
@@ -42,14 +44,18 @@ function App() {
     const saved = localStorage.getItem(FLOWER_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Если flowerSize отсутствует или меньше 32, значит старый пользователь — ставим 80
-      if (!parsed.flowerSize || parsed.flowerSize < 32) {
-        parsed.flowerSize = 80;
+      // Миграция: если flowerSizes нет, создать и перенести размер
+      if (!parsed.flowerSizes) {
+        parsed.flowerSizes = { [localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png"]: parsed.flowerSize || 80 };
       }
       return parsed;
     }
     return defaultProgress;
   });
+  // Получаем текущий скин цветка
+  const flowerSkin = localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
+  // Размер для текущего цветка
+  const currentFlowerSize = progress.flowerSizes[flowerSkin] ?? MIN_FLOWER;
   const [menuOpen, setMenuOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(() => progress.tutorialStep < 5);
   const [toastApi, setToastApi] = useState<any>(null);
@@ -68,7 +74,7 @@ function App() {
 
   // Проверка времени для полива/удобрения
   const now = Date.now();
-  const canWater = now - progress.lastWater > 60 * 60 * 1000;
+  const canWater = now - progress.lastWater > 30 * 60 * 1000;
   const canFertilize = now - progress.lastFertilize > 3 * 60 * 60 * 1000;
 
   // Туториал логика
@@ -118,7 +124,11 @@ function App() {
 
   // Шаг 1: посадить цветок
   const handlePlant = () => {
-    setProgress((p) => ({ ...p, flowerSize: MIN_FLOWER, tutorialStep: 2 }));
+    setProgress((p) => ({
+      ...p,
+      flowerSizes: { ...p.flowerSizes, [flowerSkin]: MIN_FLOWER },
+      tutorialStep: 2
+    }));
     setTutorialStep(2);
     setMenuOpen(false);
   };
@@ -139,7 +149,10 @@ function App() {
       setProgress((p) => ({
         ...p,
         lastFertilize: now,
-        flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
+        flowerSizes: {
+          ...p.flowerSizes,
+          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10)
+        },
         tutorialStep: 4,
       }));
       setTutorialStep(4);
@@ -147,7 +160,10 @@ function App() {
       setProgress((p) => ({
         ...p,
         lastFertilize: now,
-        flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
+        flowerSizes: {
+          ...p.flowerSizes,
+          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 2)
+        },
       }));
     }
     setMenuOpen(false);
@@ -157,10 +173,19 @@ function App() {
   // Шаг 4: полить
   const handleWater = () => {
     if (!canWater) return;
+    const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
+    if (size >= MAX_FLOWER) {
+      (toastApi?.showToast || toastContext?.showToast)?.('Цветок Вырос до максимума!');
+      setMenuOpen(false);
+      return;
+    }
     setProgress((p) => ({
       ...p,
       lastWater: now,
-      flowerSize: Math.min(MAX_FLOWER, (p.flowerSize || MIN_FLOWER) + 2),
+      flowerSizes: {
+        ...p.flowerSizes,
+  [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5)
+      },
       tutorialStep: 5,
     }));
     setTutorialStep(5);
@@ -222,8 +247,8 @@ function App() {
             </div>
           )}
           <MainScreen
-            flowerSize={progress.flowerSize}
-            flowerVisible={progress.tutorialStep > 1 && progress.flowerSize > MIN_FLOWER - 1}
+            flowerSize={currentFlowerSize}
+            flowerVisible={progress.tutorialStep > 1 && currentFlowerSize > MIN_FLOWER - 1}
             potSkin={localStorage.getItem('flowersim.potSkin') || 'gorshok.jpg'}
             mainBg={mainBg}
           />
