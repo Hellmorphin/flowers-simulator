@@ -704,9 +704,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   {skin.name}
                 </div>
                 {unlockedFlowers.includes(skin.file) ? (
-                  skin.file === "Flowers1.png"
-                    ? null
-                    : selectedFlower === skin.file
+                  selectedFlower === skin.file
                     ? (
                         <button
                           onClick={handleResetFlower}
