@@ -26,6 +26,8 @@ const CoinBarWrapper = styled.div`
   box-shadow: 0 2px 12px #ffb30044;
 `;
 
+const P = styled.span``;
+
 const CoinIcon = styled.span`
   display: flex;
   align-items: center;
@@ -173,7 +175,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.3.2 by{" "}
+        Ver. 1.3.3 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
@@ -181,6 +183,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         >
           Hellmorphin
         </a>
+        <P>- За кастомным горшком обращатся в ЛС</P>
       </Footer>
     </Background>
   );
