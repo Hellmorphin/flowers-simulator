@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import React from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
 
 const FlowerImg = styled(motion.img)`
   width: 120px;
@@ -20,23 +20,35 @@ type FlowerProps = {
   skin?: string;
 };
 
-const flowerVariants = {
-  hidden: { opacity: 0, scale: 0 },
-  visible: { opacity: 1, scale: 1 },
-};
-
-const Flower: React.FC<FlowerProps> = ({ size, visible, marginBottom = -40, skin }) => {
+const Flower: React.FC<FlowerProps> = ({
+  size,
+  visible,
+  marginBottom = -40,
+  skin,
+}) => {
   return (
     <FlowerImg
-      src={new URL(`../assets/${skin ? skin : 'Flowers1.png'}`, import.meta.url).href}
-      alt="Цветок"
-      style={{ width: size, minWidth: size, maxWidth: '90vw', height: 'auto', marginBottom, transition: 'width 2s cubic-bezier(.4,2,.4,1)', opacity: visible ? 1 : 0 }}
-      animate={
-        visible
-          ? { rotate: [-7, 7, -7] }
-          : { rotate: 0 }
+      src={
+        new URL(`../assets/${skin ? skin : "Flowers1.png"}`, import.meta.url)
+          .href
       }
-      transition={{ duration: 3, repeat: Infinity, repeatType: "loop", ease: "easeInOut" }}
+      alt="Цветок"
+      style={{
+  width: size,
+  minWidth: size,
+  maxWidth: "90vw",
+  height: "auto",
+  marginBottom,
+  transition: "width 2s cubic-bezier(.4,2,.4,1)",
+        opacity: visible ? 1 : 0,
+      }}
+      animate={visible ? { rotate: [-7, 7, -7] } : { rotate: 0 }}
+      transition={{
+        duration: 3,
+        repeat: Infinity,
+        repeatType: "loop",
+        ease: "easeInOut",
+      }}
     />
   );
 };

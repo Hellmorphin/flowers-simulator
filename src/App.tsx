@@ -40,7 +40,15 @@ function App() {
   const [started, setStarted] = useState(false);
   const [progress, setProgress] = useState<Progress>(() => {
     const saved = localStorage.getItem(FLOWER_KEY);
-    return saved ? JSON.parse(saved) : defaultProgress;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Если flowerSize отсутствует или меньше 32, значит старый пользователь — ставим 80
+      if (!parsed.flowerSize || parsed.flowerSize < 32) {
+        parsed.flowerSize = 80;
+      }
+      return parsed;
+    }
+    return defaultProgress;
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(() => progress.tutorialStep < 5);
@@ -50,6 +58,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem(FLOWER_KEY, JSON.stringify(progress));
   }, [progress]);
+
 
   // Для ToastManager
   const toastContext = React.useContext(ToastManagerContext);

@@ -1,4 +1,3 @@
-
 import React from "react";
 import styled from "styled-components";
 import Pot from "./Pot";
@@ -100,7 +99,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
   mainBg,
 }) => {
   // --- Монеты ---
-  const flowerSkin = localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
+  const flowerSkin =
+    localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
   const [coins, setCoins] = React.useState<number>(
     Number(localStorage.getItem("progress_coins") || 0)
   );
@@ -146,9 +146,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
         <CoinAmount>{coins}</CoinAmount>
       </CoinBarWrapper>
       <PotWrapper>
-  <div style={{ position: 'relative', width: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <Flower
-            size={Math.max(60, Math.min(flowerSize * 0.8, 380))}
+            size={Math.max(60, Math.min(flowerSize, 380))}
             visible={flowerVisible}
             marginBottom={
               potSkin === "gorshokDEMON.png" || potSkin === "gorshokAngel.png"
@@ -157,13 +167,13 @@ const MainScreen: React.FC<MainScreenProps> = ({
             }
             skin={flowerSkin}
           />
-          <div style={{ marginTop: 20, position: 'relative', zIndex: 2 }}>
+          <div style={{ marginTop: 20, position: "relative", zIndex: 2 }}>
             <Pot potSkin={potSkin} />
           </div>
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.2.2 by{' '}
+        Ver. 1.3.2 by{" "}
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
@@ -174,5 +184,5 @@ const MainScreen: React.FC<MainScreenProps> = ({
       </Footer>
     </Background>
   );
-}
+};
 export default MainScreen;
