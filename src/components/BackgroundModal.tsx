@@ -7,6 +7,9 @@ import bg3 from "../assets/i3.jpg";
 import bg4 from "../assets/i4.jpg";
 import bg5 from "../assets/i5.jpg";
 import bg6 from "../assets/i6.jpg";
+import forestBg from "../assets/Forest.jpg";
+import loogBg from "../assets/loog.jpg";
+import { tempBackgrounds } from "./BackgroundShopData";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -165,6 +168,11 @@ const backgrounds = [
   { name: "i6.jpg", src: bg6, price: 100 },
 ];
 
+const tempBgAssets: Record<string, string> = {
+  "Forest.jpg": forestBg,
+  "loog.jpg": loogBg,
+};
+
 export interface BackgroundModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -274,7 +282,62 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
                   Снять
                 </BgButton>
               ) : (
-                <BgButton onClick={() => handleApply(bg.name)}>
+                <BgButton onClick={() => {
+                  handleApply(bg.name);
+                  onClose();
+                }}>
+                  Применить
+                </BgButton>
+              )}
+            </BgItem>
+          ))}
+          {/* Временные фоны */}
+          {tempBackgrounds.map((bg) => (
+            <BgItem key={bg.name}>
+              <BgPreview>
+                <img
+                  src={tempBgAssets[bg.name]}
+                  alt={bg.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "1rem",
+                  }}
+                />
+              </BgPreview>
+              {/* Не показываем label/условия! */}
+              {!bought.includes(bg.name) ? (
+                bg.isActive() ? (
+                  <BgButton
+                    style={{ background: "#ffb300", color: "#fff", fontWeight: "bold" }}
+                    onClick={() => {
+                      setBought((b) => {
+                        const newBought = [...b, bg.name];
+                        localStorage.setItem(BG_BOUGHT_KEY, JSON.stringify(newBought));
+                        // Сразу применяем фон
+                        localStorage.setItem(BG_KEY, bg.name);
+                        window.dispatchEvent(new Event("storage"));
+                        onApply(bg.name);
+                        return newBought;
+                      });
+                      onClose();
+                    }}
+                  >
+                    Получить
+                  </BgButton>
+                ) : (
+                  <BgButton disabled>Недоступно</BgButton>
+                )
+              ) : currentBg === bg.name ? (
+                <BgButton style={{ background: "#ffe082", color: "#222" }} onClick={handleReset}>
+                  Снять
+                </BgButton>
+              ) : (
+                <BgButton onClick={() => {
+                  handleApply(bg.name);
+                  onClose();
+                }}>
                   Применить
                 </BgButton>
               )}

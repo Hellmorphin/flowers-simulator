@@ -35,10 +35,77 @@ const TUTORIAL_STEPS = [
 ];
 
 import ShopModal from './components/ShopModal';
+import TasksModal from './components/TasksModal';
 import ProgressModal from './components/ProgressModal';
 import BackgroundModal from './components/BackgroundModal';
 
 function App() {
+  // --- Задания ---
+  const [tasksModalOpen, setTasksModalOpen] = useState(false);
+  // Проверка и обновление прогресса задания
+  function updateTaskProgress(type: string) {
+    let progress: Record<string, number> = {};
+    let completed: Record<string, boolean> = {};
+    try {
+      progress = JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
+      completed = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+    } catch {}
+    const tasks = JSON.parse(localStorage.getItem("tasks_current") || "[]");
+    tasks.forEach((task: any) => {
+      const key = task.name;
+      // Полить горшок
+      if (key === "Полить горшок" && type === "water") completed[key] = true;
+      // Удобрить горшок
+      if (key === "Удобрить горшок" && type === "fertilize") completed[key] = true;
+      // Полить горшок 10 раз
+      if (key === "Полить горшок 10 раз" && type === "water") {
+        progress[key] = (progress[key] ?? 0) + 1;
+        if (progress[key] >= 10) completed[key] = true;
+      }
+      // Удобрить горшок 3 раза
+      if (key === "Удобрить горшок 3 раза" && type === "fertilize") {
+        progress[key] = (progress[key] ?? 0) + 1;
+        if (progress[key] >= 3) completed[key] = true;
+      }
+      // Удобрить и полить горшок (в любом порядке)
+      if (key === "Удобрить и полить горшок") {
+        // 1 — одно действие выполнено, 2 — оба
+        if (type === "water" && progress[key] !== 2) {
+          progress[key] = progress[key] === 1 ? 2 : 1;
+        }
+        if (type === "fertilize" && progress[key] !== 2) {
+          progress[key] = progress[key] === 1 ? 2 : 1;
+        }
+        if (progress[key] === 2) completed[key] = true;
+      }
+    });
+    localStorage.setItem("tasks_progress", JSON.stringify(progress));
+    localStorage.setItem("tasks_completed", JSON.stringify(completed));
+  }
+
+  // Зайти в игру / Бесплатно
+  // tasksModalOpen должен быть объявлен выше
+  // (оставляем только одно объявление выше)
+  // ...existing code...
+  useEffect(() => {
+    if (!tasksModalOpen) return;
+    let completed: Record<string, boolean> = {};
+    try {
+      completed = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+    } catch {}
+    const tasks = JSON.parse(localStorage.getItem("tasks_current") || "[]");
+    let changed = false;
+    tasks.forEach((task: any) => {
+      if (task.name === "Зайти в игру" || task.name === "Бесплатно") {
+        if (!completed[task.name]) {
+          completed[task.name] = true;
+          changed = true;
+        }
+      }
+    });
+    if (changed) localStorage.setItem("tasks_completed", JSON.stringify(completed));
+  }, [tasksModalOpen]);
+  // удалено повторное объявление
   const [started, setStarted] = useState(false);
   const [progress, setProgress] = useState<Progress>(() => {
     const saved = localStorage.getItem(FLOWER_KEY);
@@ -101,6 +168,11 @@ function App() {
     };
     window.addEventListener('openProgressModal', handlerProgress);
     window.addEventListener('openBackgroundModal', handlerBg);
+    const handlerTasks = () => {
+      setTasksModalOpen(true);
+      setMenuOpen(false);
+    };
+    window.addEventListener('openTasksModal', handlerTasks);
     return () => {
       window.removeEventListener('openProgressModal', handlerProgress);
       window.removeEventListener('openBackgroundModal', handlerBg);
@@ -148,8 +220,9 @@ function App() {
   // Шаг 3: удобрить
   const handleFertilize = () => {
     if (!canFertilize) return;
-    setShowYdobr(true);
-    setTimeout(() => setShowYdobr(false), 4000);
+  setShowYdobr(true);
+  setTimeout(() => setShowYdobr(false), 4000);
+  updateTaskProgress("fertilize");
     // Только для новых пользователей продолжаем туториал
     if (progress.tutorialStep < 5) {
       setProgress((p) => ({
@@ -179,8 +252,9 @@ function App() {
   // Шаг 4: полить
   const handleWater = () => {
     if (!canWater) return;
-    setShowLeika(true);
-    setTimeout(() => setShowLeika(false), 4000);
+  setShowLeika(true);
+  setTimeout(() => setShowLeika(false), 4000);
+  updateTaskProgress("water");
     const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
     if (size >= MAX_FLOWER) {
       (toastApi?.showToast || toastContext?.showToast)?.('Цветок Вырос до максимума!');
@@ -295,6 +369,9 @@ function App() {
             menuOpen={menuOpen}
             topBar
           />
+          {tasksModalOpen && (
+            <TasksModal isOpen={tasksModalOpen} onClose={() => setTasksModalOpen(false)} />
+          )}
         </>
       )}
     </ToastManager>

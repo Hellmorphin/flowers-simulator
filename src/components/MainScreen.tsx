@@ -11,6 +11,8 @@ import bg3 from "../assets/i3.jpg";
 import bg4 from "../assets/i4.jpg";
 import bg5 from "../assets/i5.jpg";
 import bg6 from "../assets/i6.jpg";
+import forestBg from "../assets/Forest.jpg";
+import loogBg from "../assets/loog.jpg";
 
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
@@ -130,6 +132,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
     "i4.jpg": bg4,
     "i5.jpg": bg5,
     "i6.jpg": bg6,
+    "Forest.jpg": forestBg,
+    "loog.jpg": loogBg,
   };
   // Если фон не куплен, просто цвет
   const bought = (() => {
@@ -139,9 +143,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
       return [];
     }
   })();
+  // Для временных фонов: если фон есть в bgMap и куплен, показываем его
   const isBgBought = mainBg && bought.includes(mainBg);
-  const bgUrl =
-    mainBg && isBgBought && bgMap[mainBg] ? bgMap[mainBg] : undefined;
+  const isTempBg = mainBg && (mainBg === "Forest.jpg" || mainBg === "loog.jpg");
+  const bgUrl = mainBg && bgMap[mainBg] && (isBgBought || isTempBg) ? bgMap[mainBg] : undefined;
   const bgStyle = bgUrl
     ? { background: `url('${bgUrl}') center/cover no-repeat` }
     : { background: "#222" };
@@ -245,7 +250,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.4.3 by -
+        Ver. 1.5.3 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

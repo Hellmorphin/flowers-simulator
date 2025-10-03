@@ -126,6 +126,12 @@ const Menu: React.FC<MenuProps> = ({
       window.dispatchEvent(new CustomEvent("openBackgroundModal"));
     }
   };
+
+  const handleOpenTasksModal = () => {
+    if (typeof window !== "undefined" && window.dispatchEvent) {
+      window.dispatchEvent(new CustomEvent("openTasksModal"));
+    }
+  };
   return (
     <>
       {!open && (
@@ -240,6 +246,17 @@ const Menu: React.FC<MenuProps> = ({
             onClick={handleOpenBackgroundModal}
           >
             Фон
+          </MenuButton>
+          <MenuButton
+            style={{
+              background: "#ffd600",
+              color: "#222",
+              fontWeight: 700,
+              marginTop: "2.5rem",
+            }}
+            onClick={handleOpenTasksModal}
+          >
+            Задания
           </MenuButton>
         </GlassMenu>
       )}
