@@ -110,10 +110,12 @@ export const TASKS = [
   { name: "Бесплатно", reward: 10 },
 ];
 
+
 function getNextUpdateTime() {
   const last = Number(localStorage.getItem("tasks_last_update") || 0);
   return last + 12 * 3600 * 1000;
 }
+
 
 function getTimeLeft(target: number) {
   const now = Date.now();
@@ -142,9 +144,7 @@ export interface TasksModalProps {
 }
 
 const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
-  const [tasks, setTasks] = useState<Array<{ name: string; reward: number }>>(
-    []
-  );
+  const [tasks, setTasks] = useState<Array<{ name: string; reward: number }>>([]);
   const [timer, setTimer] = useState<string>("");
 
   const [completed, setCompleted] = useState<{ [key: string]: boolean }>({});
@@ -211,16 +211,12 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
-
   return (
     <ModalOverlay onClick={onClose}>
       <ModalBox onClick={(e) => e.stopPropagation()}>
-        <CloseBtn onClick={onClose} title="Закрыть">
-          ×
-        </CloseBtn>
+        <CloseBtn onClick={onClose} title="Закрыть" />
         <Title>Задания</Title>
         <TimerText>Обновится через: {timer}</TimerText>
-
         <TaskList>
           {tasks.map((task, idx) => {
             const key = task.name;
@@ -244,18 +240,12 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
                       boxShadow: "0 2px 8px #43a04744",
                     }}
                     onClick={() => {
-                      let coins = Number(
-                        localStorage.getItem("progress_coins") || 0
-                      );
+                      let coins = Number(localStorage.getItem("progress_coins") || 0);
                       coins += task.reward;
                       localStorage.setItem("progress_coins", String(coins));
-                      // Сохраняем claimed в localStorage по нормализованному ключу
                       const newClaimed = { ...claimed, [nkey]: true };
                       setClaimed(newClaimed);
-                      localStorage.setItem(
-                        "tasks_claimed",
-                        JSON.stringify(newClaimed)
-                      );
+                      localStorage.setItem("tasks_claimed", JSON.stringify(newClaimed));
                       setShowCompleteMsg("Вы выполнили задание!");
                       setTimeout(() => setShowCompleteMsg(null), 3000);
                     }}
@@ -315,6 +305,6 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
       </ModalBox>
     </ModalOverlay>
   );
-};
+}
 
 export default TasksModal;
