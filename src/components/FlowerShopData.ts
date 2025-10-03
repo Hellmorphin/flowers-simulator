@@ -14,6 +14,7 @@ export const flowerSkins = [
   { name: "ОБАБОК", file: "Flowers12.png", unlock: 200 },
   { name: "БАОБАБ", file: "Flowers13.png", unlock: 250 },
   { name: "ДЕМОНОБАБОК", file: "Flowers14.png", unlock: "temp2" }, // временный
+  { name: "Обезьянка", file: "FlowersMonkey.png", unlock: "temp" }, // временный
 ];
 
 // --- ВРЕМЕННЫЕ ЦВЕТЫ ---
@@ -36,6 +37,9 @@ export function isTempFlowerActive() {
     // Flowers7: пятница, с 18:15 до 20:00 по Владивостоку (day === 5).
   if (day === 5 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
     return "Flowers7.png";
+  }
+  if (day === 5 && (hours > 22 || (hours === 22 && minutes >= 25)) && (hours < 23 || (hours === 23 && minutes === 0))) {
+    return "FlowersMonkey.png";
   }
     // Flowers14: четверг, с 18:15 до 20:00 по Владивостоку (day === 4).
   if (day === 6 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
