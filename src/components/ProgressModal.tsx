@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { FaCoins } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { FaCoins } from "react-icons/fa";
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -42,14 +42,31 @@ const ModalContainer = styled.div`
   }
 `;
 
+const BonusBlocksRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 16px;
+  @media (max-width: 700px) {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+`;
+
 const BonusBlock = styled.div`
   background: #f9f6e7;
   border-radius: 12px;
-  padding: 18px 16px;
+  padding: 14px 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  justify-content: flex-start;
+  min-width: 260px;
+  max-width: 140px;
+  width: 100%;
 `;
 
 const BonusLabel = styled.b`
@@ -59,9 +76,9 @@ const BonusLabel = styled.b`
 `;
 
 const CoinIcon = styled(FaCoins)`
-  color: #FFD700;
-  font-size: 1.6em;
-  margin-right: 8px;
+  color: #ffd700;
+  font-size: 2em;
+  margin-bottom: 2px;
 `;
 
 const BonusButton = styled.button`
@@ -75,7 +92,7 @@ const BonusButton = styled.button`
   box-shadow: 0 2px 8px #a1887f44;
   cursor: pointer;
   margin: 0.7rem 0;
-  width: 60%;
+  width: 120%;
   max-width: 180px;
   transition: background 0.2s;
   display: block;
@@ -98,25 +115,26 @@ const Title = styled.h2`
   width: 100%;
 `;
 
-const TimerText = styled.span`
+const TimerText = styled.div`
   font-size: 0.98em;
   color: #888;
-  margin-left: 12px;
+  margin-top: 4px;
+  text-align: center;
 `;
 
 function getTimeLeft(target: number) {
   const now = Date.now();
   const diff = target - now;
-  if (diff <= 0) return 'Доступно!';
+  if (diff <= 0) return "Доступно!";
   const hours = Math.floor(diff / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
-  const seconds = Math.floor((diff % 60000) / 1000);
-  return `${hours}ч ${minutes}м ${seconds}с`;
+  if (hours > 0) return `${hours}ч ${minutes}м`;
+  return `${minutes}м`;
 }
 
-const DAILY_KEY = 'progress_daily_bonus';
-const WEEKLY_KEY = 'progress_weekly_bonus';
-const COINS_KEY = 'progress_coins';
+const DAILY_KEY = "progress_daily_bonus";
+const WEEKLY_KEY = "progress_weekly_bonus";
+const COINS_KEY = "progress_coins";
 
 const getNextDaily = () => {
   const last = Number(localStorage.getItem(DAILY_KEY) || 0);
@@ -132,11 +150,27 @@ export interface ProgressModalProps {
   onClose: () => void;
 }
 
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6d4c41;
+  cursor: pointer;
+  z-index: 10;
+  @media (max-width: 700px) {
+    top: -0.9rem;
+    right: -0.9rem;
+  }
+`;
+
 const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
   const [dailyReady, setDailyReady] = useState<boolean>(false);
   const [weeklyReady, setWeeklyReady] = useState<boolean>(false);
-  const [dailyTimer, setDailyTimer] = useState<string>('');
-  const [weeklyTimer, setWeeklyTimer] = useState<string>('');
+  const [dailyTimer, setDailyTimer] = useState<string>("");
+  const [weeklyTimer, setWeeklyTimer] = useState<string>("");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -145,8 +179,8 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
       const nextWeekly = getNextWeekly();
       const dailyText = getTimeLeft(nextDaily);
       const weeklyText = getTimeLeft(nextWeekly);
-      setDailyReady(dailyText === 'Доступно!');
-      setWeeklyReady(weeklyText === 'Доступно!');
+      setDailyReady(dailyText === "Доступно!");
+      setWeeklyReady(weeklyText === "Доступно!");
       setDailyTimer(dailyText);
       setWeeklyTimer(weeklyText);
     };
@@ -173,29 +207,29 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <ModalBackground onClick={onClose}>
-      <ModalContainer onClick={e => e.stopPropagation()}>
-        <Title>Прогресс</Title>
-        <BonusBlock>
-          <div>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <CloseBtn onClick={onClose} title="Закрыть">
+          ×
+        </CloseBtn>
+        <Title>Бонус</Title>
+        <BonusBlocksRow>
+          <BonusBlock>
             <CoinIcon />
             <BonusLabel>Ежедневный бонус</BonusLabel>
             <TimerText>{dailyTimer}</TimerText>
-          </div>
-          <BonusButton disabled={!dailyReady} onClick={handleDailyBonus}>
-            Получить +10
-          </BonusButton>
-        </BonusBlock>
-        <BonusBlock>
-          <div>
+            <BonusButton disabled={!dailyReady} onClick={handleDailyBonus}>
+              Получить +10
+            </BonusButton>
+          </BonusBlock>
+          <BonusBlock>
             <CoinIcon />
             <BonusLabel>Еженедельный бонус</BonusLabel>
             <TimerText>{weeklyTimer}</TimerText>
-          </div>
-          <BonusButton disabled={!weeklyReady} onClick={handleWeeklyBonus}>
-            Получить +50
-          </BonusButton>
-        </BonusBlock>
-        <BonusButton onClick={onClose} style={{ marginTop: 12 }}>Закрыть</BonusButton>
+            <BonusButton disabled={!weeklyReady} onClick={handleWeeklyBonus}>
+              Получить +50
+            </BonusButton>
+          </BonusBlock>
+        </BonusBlocksRow>
       </ModalContainer>
     </ModalBackground>
   );

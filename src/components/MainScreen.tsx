@@ -261,7 +261,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         >
           Hellmorphin
         </a>
-        <P>- За кастомным горшком обращатся в ЛС</P>
+        <P>- За кастомным горшком обращайтесь в ЛС</P>
       </Footer>
     </Background>
   );

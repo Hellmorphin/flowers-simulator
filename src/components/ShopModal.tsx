@@ -412,7 +412,12 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         >
           <button
             onClick={() => setTab("pot")}
-            style={{ fontWeight: tab === "pot" ? "bold" : 400, minWidth: 100 }}
+            style={{
+              fontWeight: tab === "pot" ? "bold" : 400,
+              minWidth: 130,
+              maxWidth: 320,
+              background: tab === "pot" ? "#4e3f12" : "#4e3f12",
+            }}
           >
             Горшок
           </button>
@@ -420,7 +425,9 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             onClick={() => setTab("flower")}
             style={{
               fontWeight: tab === "flower" ? "bold" : 400,
-              minWidth: 100,
+              minWidth: 130,
+              maxWidth: 320,
+              background: tab === "pot" ? "#4e3f12" : "#4e3f12",
             }}
           >
             Цветок
@@ -432,6 +439,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               width: "100%",
               maxHeight: 320,
               minHeight: 180,
+
               overflowY: "auto",
               display: "flex",
               flexDirection: "column",
@@ -450,17 +458,19 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 style={{
                   border:
                     "2px solid " +
-                    (selected === skin.file ? "#ffb300" : "#ccc"),
+                    (selected === skin.file ? "#ffecb3" : "#ffecb3"),
                   borderRadius: 16,
+
                   padding: 12,
-                  background: "#fffde7",
-                  minWidth: 120,
-                  maxWidth: 180,
+                  background: "#ffecb3",
+                  minWidth: 250,
+                  maxWidth: 250,
                   position: "relative",
                   opacity: unlocked.includes(skin.file) ? 1 : 0.5,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
+                  boxShadow: "0 8px 32px #6d4c4133",
                 }}
               >
                 <img
@@ -592,17 +602,18 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   style={{
                     border:
                       "2px solid " +
-                      (selected === skin.file ? "#ffb300" : "#ccc"),
+                      (selected === skin.file ? "#ffecb3" : "#ffecb3"),
                     borderRadius: 16,
                     padding: 12,
-                    background: "#fffde7",
-                    minWidth: 120,
-                    maxWidth: 180,
+                    background: "#ffecb3",
+                    minWidth: 250,
+                    maxWidth: 250,
                     position: "relative",
                     opacity: unlockedThis ? 1 : 0.5,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    boxShadow: "0 8px 32px #6d4c4133",
                   }}
                 >
                   <img
@@ -722,17 +733,18 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   style={{
                     border:
                       "2px solid " +
-                      (selectedFlower === skin.file ? "#ffb300" : "#ccc"),
+                      (selectedFlower === skin.file ? "#ffecb3" : "#ffecb3"),
                     borderRadius: 16,
                     padding: 12,
-                    background: "#fffde7",
-                    minWidth: 120,
-                    maxWidth: 180,
+                    background: "#ffecb3",
+                    minWidth: 250,
+                    maxWidth: 250,
                     position: "relative",
                     opacity: unlockedFlowers.includes(skin.file) ? 1 : 0.5,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                    boxShadow: "0 8px 32px #6d4c4133",
                   }}
                 >
                   <img
@@ -759,43 +771,41 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     {skin.name}
                   </div>
                   {unlockedFlowers.includes(skin.file) ? (
-                    selectedFlower === skin.file
-                      ? (skin.file !== "Flowers1.png"
-                          ? (
-                              <button
-                                onClick={handleResetFlower}
-                                style={{
-                                  background: "#eee",
-                                  color: "#6d4c41",
-                                  border: "none",
-                                  borderRadius: 8,
-                                  padding: "4px 12px",
-                                  fontWeight: "bold",
-                                  margin: "0 auto",
-                                }}
-                              >
-                                Снять
-                              </button>
-                            )
-                          : null)
-                      : (
-                          skin.file !== "Flowers1.png" && (
-                            <button
-                              onClick={() => handleApplyFlower(skin.file)}
-                              style={{
-                                background: "#ffb300",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: 8,
-                                padding: "4px 12px",
-                                fontWeight: "bold",
-                                margin: "0 auto",
-                              }}
-                            >
-                              Применить
-                            </button>
-                          )
-                        )
+                    selectedFlower === skin.file ? (
+                      skin.file !== "Flowers1.png" ? (
+                        <button
+                          onClick={handleResetFlower}
+                          style={{
+                            background: "#eee",
+                            color: "#6d4c41",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "4px 12px",
+                            fontWeight: "bold",
+                            margin: "0 auto",
+                          }}
+                        >
+                          Снять
+                        </button>
+                      ) : null
+                    ) : (
+                      skin.file !== "Flowers1.png" && (
+                        <button
+                          onClick={() => handleApplyFlower(skin.file)}
+                          style={{
+                            background: "#ffb300",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "4px 12px",
+                            fontWeight: "bold",
+                            margin: "0 auto",
+                          }}
+                        >
+                          Применить
+                        </button>
+                      )
+                    )
                   ) : (
                     (() => {
                       const left = Math.max(
@@ -867,17 +877,18 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     style={{
                       border:
                         "2px solid " +
-                        (selectedFlower === skin.file ? "#ffb300" : "#ccc"),
+                        (selectedFlower === skin.file ? "#ffecb3" : "#ffecb3"),
                       borderRadius: 16,
                       padding: 12,
-                      background: "#fffde7",
-                      minWidth: 120,
-                      maxWidth: 180,
+                      background: "#ffecb3",
+                      minWidth: 250,
+                      maxWidth: 250,
                       position: "relative",
                       opacity: unlockedThis ? 1 : 0.5,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
+                      boxShadow: "0 8px 32px #6d4c4133",
                     }}
                   >
                     <img

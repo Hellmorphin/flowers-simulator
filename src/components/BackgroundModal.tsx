@@ -71,23 +71,35 @@ const Title = styled.h2`
 `;
 
 const BgList = styled.div`
+  width: 100%;
+  max-height: 320px;
+  min-height: 180px;
+  overflow-y: auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
   margin-bottom: 18px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const BgItem = styled.div`
-  background: #fffde7;
+  background: rgba(255, 236, 179, 0.98);
   border-radius: 1.2rem;
   box-shadow: 0 2px 8px #a1887f44;
   padding: 12px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 120px;
-  max-width: 160px;
+  min-width: 240px;
+  max-width: 180px;
+  width: 100%;
 `;
 
 const BgPreview = styled.div`
@@ -283,10 +295,12 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
                   Снять
                 </BgButton>
               ) : (
-                <BgButton onClick={() => {
-                  handleApply(bg.name);
-                  onClose();
-                }}>
+                <BgButton
+                  onClick={() => {
+                    handleApply(bg.name);
+                    onClose();
+                  }}
+                >
                   Применить
                 </BgButton>
               )}
@@ -311,11 +325,18 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
               {!bought.includes(bg.name) ? (
                 bg.isActive() ? (
                   <BgButton
-                    style={{ background: "#ffb300", color: "#fff", fontWeight: "bold" }}
+                    style={{
+                      background: "#ffb300",
+                      color: "#fff",
+                      fontWeight: "bold",
+                    }}
                     onClick={() => {
                       setBought((b) => {
                         const newBought = [...b, bg.name];
-                        localStorage.setItem(BG_BOUGHT_KEY, JSON.stringify(newBought));
+                        localStorage.setItem(
+                          BG_BOUGHT_KEY,
+                          JSON.stringify(newBought)
+                        );
                         // Сразу применяем фон
                         localStorage.setItem(BG_KEY, bg.name);
                         window.dispatchEvent(new Event("storage"));
@@ -331,14 +352,19 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
                   <BgButton disabled>Недоступно</BgButton>
                 )
               ) : currentBg === bg.name ? (
-                <BgButton style={{ background: "#ffe082", color: "#222" }} onClick={handleReset}>
+                <BgButton
+                  style={{ background: "#ffe082", color: "#222" }}
+                  onClick={handleReset}
+                >
                   Снять
                 </BgButton>
               ) : (
-                <BgButton onClick={() => {
-                  handleApply(bg.name);
-                  onClose();
-                }}>
+                <BgButton
+                  onClick={() => {
+                    handleApply(bg.name);
+                    onClose();
+                  }}
+                >
                   Применить
                 </BgButton>
               )}

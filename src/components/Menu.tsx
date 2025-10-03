@@ -301,7 +301,7 @@ const Menu: React.FC<MenuProps> = ({
               }
             }}
           >
-            Прогресс
+            Бонус
           </MenuButton>
           <MenuButton
             style={{
