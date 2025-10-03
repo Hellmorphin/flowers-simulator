@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+const isAndroid =
+  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
 import bg1 from "../assets/i.jpg";
@@ -12,8 +13,9 @@ import bg6 from "../assets/i6.jpg";
 import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
 import { tempBackgrounds } from "./BackgroundShopData";
+import { motion } from "framer-motion";
 
-const ModalOverlay = styled.div`
+const ModalOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
@@ -26,7 +28,7 @@ const ModalOverlay = styled.div`
   justify-content: center;
 `;
 
-const ModalBox = styled.div`
+const ModalBox = styled(motion.div)`
   background: rgba(255, 236, 179, 0.98);
   border-radius: 2rem;
   box-shadow: 0 8px 32px #6d4c4133;
@@ -243,18 +245,16 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
 
   return (
     <ModalOverlay
-      initial={isAndroid ? undefined : { opacity: 0 }}
-      exit={isAndroid ? undefined : { opacity: 0 }}
+      initial={!isAndroid ? { opacity: 0 } : undefined}
       animate={{ opacity: 1 }}
+      exit={!isAndroid ? { opacity: 0 } : undefined}
       transition={{ duration: isAndroid ? 0 : 0.2 }}
-      onClick={onClose}
     >
       <ModalBox
-        initial={isAndroid ? undefined : { scale: 0.9 }}
-        exit={isAndroid ? undefined : { scale: 0.9 }}
+        initial={!isAndroid ? { scale: 0.9 } : undefined}
         animate={{ scale: 1 }}
+        exit={!isAndroid ? { scale: 0.9 } : undefined}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={(e) => e.stopPropagation()}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×

@@ -253,7 +253,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.6.0 by -
+        Ver. 1.6.1 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
