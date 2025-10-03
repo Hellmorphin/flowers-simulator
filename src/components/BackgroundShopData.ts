@@ -10,7 +10,7 @@ export const tempBackgrounds = [
       const vladivostok = new Date(utc + 10 * 60 * 60000);
       const day = vladivostok.getDay(); // 5 — пятница
       const hours = vladivostok.getHours();
-      return day === 5 && hours === 16;
+      return day === 5 && hours === 17;
     },
   },
   {

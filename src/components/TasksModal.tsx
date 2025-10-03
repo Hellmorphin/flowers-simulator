@@ -156,26 +156,24 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
     let lastUpdate = Number(localStorage.getItem("tasks_last_update") || 0);
     let saved = localStorage.getItem("tasks_current");
     let currentTasks: Array<{ name: string; reward: number }> = [];
-    let claimedObj: { [key: string]: boolean } = {};
+  // let claimedObj: { [key: string]: boolean } = {};
     if (!saved || Date.now() - lastUpdate > 12 * 3600 * 1000) {
       currentTasks = getRandomTasks();
       localStorage.setItem("tasks_current", JSON.stringify(currentTasks));
       localStorage.setItem("tasks_last_update", String(Date.now()));
       // Сброс claimed при обновлении заданий
       localStorage.setItem("tasks_claimed", JSON.stringify({}));
-      claimedObj = {};
     } else {
       try {
         currentTasks = JSON.parse(saved);
       } catch {
         currentTasks = getRandomTasks();
       }
-      // Загружаем claimed из localStorage
+      // Загружаем claimed из localStorage (но не используем claimedObj)
       try {
-        claimedObj =
-          JSON.parse(localStorage.getItem("tasks_claimed") || "{}") || {};
+        JSON.parse(localStorage.getItem("tasks_claimed") || "{}") || {};
       } catch {
-        claimedObj = {};
+        /* пусто */
       }
     }
     setTasks(currentTasks);
@@ -214,7 +212,7 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalBox onClick={(e) => e.stopPropagation()}>
-        <CloseBtn onClick={onClose} title="Закрыть" />
+  <CloseBtn onClick={onClose} title="Закрыть">×</CloseBtn>
         <Title>Задания</Title>
         <TimerText>Обновится через: {timer}</TimerText>
         <TaskList>
