@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
+const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+
 const ModalOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -210,8 +212,18 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalBox onClick={(e) => e.stopPropagation()}>
+    <ModalOverlay
+      {...(!isAndroid && { initial: { opacity: 0 }, exit: { opacity: 0 } })}
+      animate={{ opacity: 1 }}
+      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      onClick={onClose}
+    >
+      <ModalBox
+        {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
+        animate={{ scale: 1 }}
+        transition={{ duration: isAndroid ? 0 : 0.2 }}
+        onClick={(e) => e.stopPropagation()}
+      >
   <CloseBtn onClick={onClose} title="Закрыть">×</CloseBtn>
         <Title>Задания</Title>
         <TimerText>Обновится через: {timer}</TimerText>

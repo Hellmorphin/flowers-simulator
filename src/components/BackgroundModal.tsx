@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+
+const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
 import bg1 from "../assets/i.jpg";
@@ -209,22 +211,9 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
     }
   });
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = () =>
-      setCoins(Number(localStorage.getItem(COINS_KEY) || 0));
-    window.addEventListener("storage", handler);
-    const interval = setInterval(handler, 1000);
-    return () => {
-      window.removeEventListener("storage", handler);
-      clearInterval(interval);
-    };
-  }, [isOpen]);
-
+  // Восстановленный обработчик покупки
   const handleBuy = (bg: string) => {
-    const bgObj = backgrounds.find((b) => b.name === bg);
-    const price = bgObj?.price || 100;
-    if (coins < price) return;
+    const price = backgrounds.find((b) => b.name === bg)?.price || 0;
     setCoins((c) => {
       const newCoins = c - price;
       localStorage.setItem(COINS_KEY, String(newCoins));
@@ -253,8 +242,20 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalBox onClick={(e) => e.stopPropagation()}>
+    <ModalOverlay
+      initial={isAndroid ? undefined : { opacity: 0 }}
+      exit={isAndroid ? undefined : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      onClick={onClose}
+    >
+      <ModalBox
+        initial={isAndroid ? undefined : { scale: 0.9 }}
+        exit={isAndroid ? undefined : { scale: 0.9 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: isAndroid ? 0 : 0.2 }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×
         </CloseBtn>

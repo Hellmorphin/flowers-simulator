@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
+import { motion } from "framer-motion";
 
-const ModalBackground = styled.div`
+const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+
+const ModalBackground = styled(motion.div)`
   position: fixed;
   top: 0;
   left: 0;
@@ -15,7 +18,7 @@ const ModalBackground = styled.div`
   justify-content: center;
 `;
 
-const ModalContainer = styled.div`
+const ModalContainer = styled(motion.div)`
   background: rgba(255, 236, 179, 0.98);
   border-radius: 2rem;
   box-shadow: 0 8px 32px #6d4c4133;
@@ -206,8 +209,18 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <ModalBackground onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
+    <ModalBackground
+      {...(!isAndroid && { initial: { opacity: 0 }, exit: { opacity: 0 } })}
+      animate={{ opacity: 1 }}
+      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      onClick={onClose}
+    >
+      <ModalContainer
+        {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
+        animate={{ scale: 1 }}
+        transition={{ duration: isAndroid ? 0 : 0.2 }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×
         </CloseBtn>

@@ -51,6 +51,8 @@ import {
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
+const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+
 const ModalOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -388,14 +390,16 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <ModalOverlay
-      initial={{ opacity: 0 }}
+      initial={isAndroid ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={isAndroid ? false : { opacity: 0 }}
+      transition={isAndroid ? { duration: 0 } : { duration: 0.2 }}
     >
       <ModalBox
-        initial={{ scale: 0.9 }}
+        initial={isAndroid ? false : { scale: 0.9 }}
         animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
+        exit={isAndroid ? false : { scale: 0.9 }}
+        transition={isAndroid ? { duration: 0 } : { duration: 0.2 }}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×
