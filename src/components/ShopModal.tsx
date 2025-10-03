@@ -234,15 +234,24 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const tempPermData = JSON.parse(
       localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]"
     );
-    const diff = nowUnlockedUnique.filter(
-      (f) => !prev.includes(f) && !tempPermData.includes(f)
-    );
-    if (diff.length > 0) {
-      setNewFlowerUnlock(diff[0]);
-      setTimeout(() => setNewFlowerUnlock(null), 4000);
+    // Показываем уведомление только если магазин открыт не просто так, а реально есть новые цветы
+    if (prev.length > 0) {
+      const diff = nowUnlockedUnique.filter(
+        (f) => !prev.includes(f) && !tempPermData.includes(f)
+      );
+      if (diff.length > 0) {
+        setNewFlowerUnlock(diff[0]);
+        setTimeout(() => setNewFlowerUnlock(null), 4000);
+        localStorage.setItem(
+          "flowersim.unlockedFlowers",
+          JSON.stringify([...prev, ...diff])
+        );
+      }
+    } else {
+      // Если это первый запуск — просто запоминаем стартовый набор, но не показываем уведомление
       localStorage.setItem(
         "flowersim.unlockedFlowers",
-        JSON.stringify([...prev, ...diff])
+        JSON.stringify(nowUnlockedUnique)
       );
     }
   }, [playTime]);
@@ -322,15 +331,24 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const tempPermData = JSON.parse(
       localStorage.getItem(TEMP_POT_PERM_KEY) || "[]"
     );
-    const diff = nowUnlockedUnique.filter(
-      (f) => !prev.includes(f) && !tempPermData.includes(f)
-    );
-    if (diff.length > 0) {
-      setNewUnlock(diff[0]);
-      setTimeout(() => setNewUnlock(null), 4000);
+    // Показываем уведомление только если магазин открыт не просто так, а реально есть новые горшки
+    if (prev.length > 0) {
+      const diff = nowUnlockedUnique.filter(
+        (f) => !prev.includes(f) && !tempPermData.includes(f)
+      );
+      if (diff.length > 0) {
+        setNewUnlock(diff[0]);
+        setTimeout(() => setNewUnlock(null), 4000);
+        localStorage.setItem(
+          "flowersim.unlockedPots",
+          JSON.stringify([...prev, ...diff])
+        );
+      }
+    } else {
+      // Если это первый запуск — просто запоминаем стартовый набор, но не показываем уведомление
       localStorage.setItem(
         "flowersim.unlockedPots",
-        JSON.stringify([...prev, ...diff])
+        JSON.stringify(nowUnlockedUnique)
       );
     }
   }, [playTime]);
@@ -741,37 +759,43 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     {skin.name}
                   </div>
                   {unlockedFlowers.includes(skin.file) ? (
-                    selectedFlower === skin.file ? (
-                      <button
-                        onClick={handleResetFlower}
-                        style={{
-                          background: "#eee",
-                          color: "#6d4c41",
-                          border: "none",
-                          borderRadius: 8,
-                          padding: "4px 12px",
-                          fontWeight: "bold",
-                          margin: "0 auto",
-                        }}
-                      >
-                        Снять
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleApplyFlower(skin.file)}
-                        style={{
-                          background: "#ffb300",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 8,
-                          padding: "4px 12px",
-                          fontWeight: "bold",
-                          margin: "0 auto",
-                        }}
-                      >
-                        Применить
-                      </button>
-                    )
+                    selectedFlower === skin.file
+                      ? (skin.file !== "Flowers1.png"
+                          ? (
+                              <button
+                                onClick={handleResetFlower}
+                                style={{
+                                  background: "#eee",
+                                  color: "#6d4c41",
+                                  border: "none",
+                                  borderRadius: 8,
+                                  padding: "4px 12px",
+                                  fontWeight: "bold",
+                                  margin: "0 auto",
+                                }}
+                              >
+                                Снять
+                              </button>
+                            )
+                          : null)
+                      : (
+                          skin.file !== "Flowers1.png" && (
+                            <button
+                              onClick={() => handleApplyFlower(skin.file)}
+                              style={{
+                                background: "#ffb300",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                padding: "4px 12px",
+                                fontWeight: "bold",
+                                margin: "0 auto",
+                              }}
+                            >
+                              Применить
+                            </button>
+                          )
+                        )
                   ) : (
                     (() => {
                       const left = Math.max(

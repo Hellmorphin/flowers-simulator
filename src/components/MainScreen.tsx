@@ -146,7 +146,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
   // Для временных фонов: если фон есть в bgMap и куплен, показываем его
   const isBgBought = mainBg && bought.includes(mainBg);
   const isTempBg = mainBg && (mainBg === "Forest.jpg" || mainBg === "loog.jpg");
-  const bgUrl = mainBg && bgMap[mainBg] && (isBgBought || isTempBg) ? bgMap[mainBg] : undefined;
+  const bgUrl =
+    mainBg && bgMap[mainBg] && (isBgBought || isTempBg)
+      ? bgMap[mainBg]
+      : undefined;
   const bgStyle = bgUrl
     ? { background: `url('${bgUrl}') center/cover no-repeat` }
     : { background: "#222" };
@@ -250,7 +253,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </div>
       </PotWrapper>
       <Footer>
-        Ver. 1.5.3 by -
+        Ver. 1.6.0 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

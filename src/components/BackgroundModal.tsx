@@ -235,6 +235,7 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
     localStorage.removeItem(BG_KEY);
     window.dispatchEvent(new Event("storage"));
     onApply(null);
+    onClose();
   };
 
   if (!isOpen) return null;

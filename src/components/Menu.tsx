@@ -1,8 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-// Определяем Android-устройство
-const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 import { motion } from "framer-motion";
+// Определяем Android-устройство
+const isAndroid =
+  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+
+// Вспомогательная функция для форматирования времени без секунд
+function getTimeLeftText(ms: number) {
+  if (ms <= 0) return "";
+  const min = Math.ceil(ms / 60000);
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h > 0) return `${h}ч ${m}м`;
+  return `${m}м`;
+}
 
 const GlassMenu = styled(motion.div)`
   position: fixed;
@@ -95,6 +106,7 @@ const TailGrip = styled.div`
 `;
 
 interface MenuProps {
+  // ...existing code...
   open: boolean;
   toggleMenu: () => void;
   onPlant: () => void;
@@ -121,17 +133,37 @@ const Menu: React.FC<MenuProps> = ({
 }) => {
   const showPlantBtn = tutorialStep === 1;
   const disableActions = tutorialStep !== undefined && tutorialStep < 2;
+  // --- Время до активации кнопок ---
+  const [waterLeftMs, setWaterLeftMs] = useState(0);
+  const [fertilizeLeftMs, setFertilizeLeftMs] = useState(0);
+  useEffect(() => {
+    function updateTimes() {
+      const progress = JSON.parse(
+        localStorage.getItem("flowersim.progress") || "{}"
+      );
+      const now = Date.now();
+      const lastWater = progress?.lastWater || 0;
+      const lastFertilize = progress?.lastFertilize || 0;
+      setWaterLeftMs(Math.max(0, 30 * 60 * 1000 - (now - lastWater)));
+      setFertilizeLeftMs(
+        Math.max(0, 2 * 60 * 60 * 1000 - (now - lastFertilize))
+      );
+    }
+    updateTimes();
+    const interval = setInterval(updateTimes, 200); // обновлять раз в 0.2 секунды для мгновенного отклика
+    return () => clearInterval(interval);
+  }, []);
   const handleOpenBackgroundModal = () => {
     if (typeof window !== "undefined" && window.dispatchEvent) {
       window.dispatchEvent(new CustomEvent("openBackgroundModal"));
     }
   };
-
   const handleOpenTasksModal = () => {
     if (typeof window !== "undefined" && window.dispatchEvent) {
       window.dispatchEvent(new CustomEvent("openTasksModal"));
     }
   };
+
   return (
     <>
       {!open && (
@@ -145,7 +177,9 @@ const Menu: React.FC<MenuProps> = ({
           }}
           initial={{ x: isAndroid ? 0 : 60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
+          transition={
+            isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }
+          }
           onClick={toggleMenu}
         >
           <TailGrip />
@@ -155,7 +189,9 @@ const Menu: React.FC<MenuProps> = ({
         <GlassMenu
           initial={{ x: isAndroid ? 0 : "100%" }}
           animate={{ x: 0 }}
-          transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
+          transition={
+            isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }
+          }
           style={{
             pointerEvents: "auto",
             position: "fixed",
@@ -166,7 +202,9 @@ const Menu: React.FC<MenuProps> = ({
           <TailIcon
             initial={{ x: 0, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }}
+            transition={
+              isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }
+            }
             onClick={toggleMenu}
           >
             <TailGrip />
@@ -175,13 +213,15 @@ const Menu: React.FC<MenuProps> = ({
             <MenuButton onClick={onPlant}>Посадить цветок</MenuButton>
           )}
           {isFlowerMaxed ? (
-            <div style={{
-              margin: "2rem 0",
-              fontWeight: "bold",
-              color: "#ffb300",
-              fontSize: "1.3rem",
-              textAlign: "center"
-            }}>
+            <div
+              style={{
+                margin: "2rem 0",
+                fontWeight: "bold",
+                color: "#ffb300",
+                fontSize: "1.3rem",
+                textAlign: "center",
+              }}
+            >
               Цветок вырос!
             </div>
           ) : (
@@ -191,10 +231,24 @@ const Menu: React.FC<MenuProps> = ({
                 disabled={disableActions || !canFertilize}
                 style={{
                   opacity: canFertilize && !disableActions ? 1 : 0.5,
-                  pointerEvents: canFertilize && !disableActions ? "auto" : "none",
+                  pointerEvents:
+                    canFertilize && !disableActions ? "auto" : "none",
                 }}
               >
-                Удобрить
+                {canFertilize || disableActions ? (
+                  "Удобрить"
+                ) : (
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 18,
+                      color: "#131312",
+                      minWidth: 60,
+                    }}
+                  >
+                    {getTimeLeftText(fertilizeLeftMs)}
+                  </span>
+                )}
               </MenuButton>
               <MenuButton
                 onClick={onWater}
@@ -204,7 +258,20 @@ const Menu: React.FC<MenuProps> = ({
                   pointerEvents: !disableActions && canWater ? "auto" : "none",
                 }}
               >
-                Полить
+                {canWater || disableActions ? (
+                  "Полить"
+                ) : (
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 18,
+                      color: "#131312",
+                      minWidth: 60,
+                    }}
+                  >
+                    {getTimeLeftText(waterLeftMs)}
+                  </span>
+                )}
               </MenuButton>
             </>
           )}

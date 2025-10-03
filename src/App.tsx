@@ -1,3 +1,5 @@
+// Инициализация заданий при первом запуске
+import { TASKS } from "./components/TasksModal";
 import React, { useState, useEffect } from 'react';
 import StartScreen from './components/StartScreen';
 import MainScreen from './components/MainScreen';
@@ -40,6 +42,22 @@ import ProgressModal from './components/ProgressModal';
 import BackgroundModal from './components/BackgroundModal';
 
 function App() {
+  // Инициализация заданий при первом запуске приложения
+  useEffect(() => {
+    const saved = localStorage.getItem("tasks_current");
+    const lastUpdate = Number(localStorage.getItem("tasks_last_update") || 0);
+    const now = Date.now();
+    if (!saved || now - lastUpdate > 12 * 3600 * 1000) {
+      // Случайные 3 задания
+      const shuffled = [...TASKS].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, 3);
+      localStorage.setItem("tasks_current", JSON.stringify(selected));
+      localStorage.setItem("tasks_last_update", now.toString());
+      localStorage.setItem("tasks_completed", "{}");
+      localStorage.setItem("tasks_claimed", "{}");
+      localStorage.setItem("tasks_progress", "{}");
+    }
+  }, []);
   // --- Задания ---
   const [tasksModalOpen, setTasksModalOpen] = useState(false);
   // Проверка и обновление прогресса задания
@@ -47,40 +65,54 @@ function App() {
     let progress: Record<string, number> = {};
     let completed: Record<string, boolean> = {};
     try {
-      progress = JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
-      completed = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
-    } catch {}
+      const rawProgress = JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
+      const rawCompleted = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+      // Если вдруг в localStorage оказался не объект, сбрасываем
+      if (typeof rawProgress === 'object' && rawProgress !== null && !Array.isArray(rawProgress)) {
+        progress = rawProgress;
+      }
+      if (typeof rawCompleted === 'object' && rawCompleted !== null && !Array.isArray(rawCompleted)) {
+        completed = rawCompleted;
+      }
+    } catch {
+      progress = {};
+      completed = {};
+    }
     const tasks = JSON.parse(localStorage.getItem("tasks_current") || "[]");
+    // Хелпер для нормализации названия (убрать пробелы и регистр)
+    const norm = (s: string) => s.trim().toLowerCase();
+    // Используем нормализованные ключи для хранения прогресса и завершения
+    let progressNorm: Record<string, number> = {};
+    let completedNorm: Record<string, boolean> = {};
+    // Переносим старые значения в новые нормализованные ключи (однократно)
+    Object.keys(progress).forEach(k => { progressNorm[norm(k)] = progress[k]; });
+    Object.keys(completed).forEach(k => { completedNorm[norm(k)] = completed[k]; });
     tasks.forEach((task: any) => {
       const key = task.name;
-      // Полить горшок
-      if (key === "Полить горшок" && type === "water") completed[key] = true;
-      // Удобрить горшок
-      if (key === "Удобрить горшок" && type === "fertilize") completed[key] = true;
-      // Полить горшок 10 раз
-      if (key === "Полить горшок 10 раз" && type === "water") {
-        progress[key] = (progress[key] ?? 0) + 1;
-        if (progress[key] >= 10) completed[key] = true;
+      const nkey = norm(key);
+      // Сравниваем нормализованные названия
+      if (nkey === norm("полить горшок") && type === "water") completedNorm[nkey] = true;
+      if (nkey === norm("удобрить горшок") && type === "fertilize") completedNorm[nkey] = true;
+      if (nkey === norm("полить горшок 10 раз") && type === "water") {
+        progressNorm[nkey] = (progressNorm[nkey] ?? 0) + 1;
+        if (progressNorm[nkey] >= 10) completedNorm[nkey] = true;
       }
-      // Удобрить горшок 3 раза
-      if (key === "Удобрить горшок 3 раза" && type === "fertilize") {
-        progress[key] = (progress[key] ?? 0) + 1;
-        if (progress[key] >= 3) completed[key] = true;
+      if (nkey === norm("удобрить горшок 3 раза") && type === "fertilize") {
+        progressNorm[nkey] = (progressNorm[nkey] ?? 0) + 1;
+        if (progressNorm[nkey] >= 3) completedNorm[nkey] = true;
       }
-      // Удобрить и полить горшок (в любом порядке)
-      if (key === "Удобрить и полить горшок") {
-        // 1 — одно действие выполнено, 2 — оба
-        if (type === "water" && progress[key] !== 2) {
-          progress[key] = progress[key] === 1 ? 2 : 1;
-        }
-        if (type === "fertilize" && progress[key] !== 2) {
-          progress[key] = progress[key] === 1 ? 2 : 1;
-        }
-        if (progress[key] === 2) completed[key] = true;
+      if (nkey === norm("удобрить и полить горшок")) {
+        // 1 — был полив, 2 — было удобрение, 3 — оба действия
+        let val = progressNorm[nkey] ?? 0;
+        if (type === "water") val = val | 1;
+        if (type === "fertilize") val = val | 2;
+        progressNorm[nkey] = val;
+        if (val === 3) completedNorm[nkey] = true;
       }
     });
-    localStorage.setItem("tasks_progress", JSON.stringify(progress));
-    localStorage.setItem("tasks_completed", JSON.stringify(completed));
+    // Сохраняем только нормализованные ключи
+    localStorage.setItem("tasks_progress", JSON.stringify(progressNorm));
+    localStorage.setItem("tasks_completed", JSON.stringify(completedNorm));
   }
 
   // Зайти в игру / Бесплатно
@@ -93,12 +125,14 @@ function App() {
     try {
       completed = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
     } catch {}
+    const norm = (s: string) => s.trim().toLowerCase();
     const tasks = JSON.parse(localStorage.getItem("tasks_current") || "[]");
     let changed = false;
     tasks.forEach((task: any) => {
-      if (task.name === "Зайти в игру" || task.name === "Бесплатно") {
-        if (!completed[task.name]) {
-          completed[task.name] = true;
+      const nkey = norm(task.name);
+      if (nkey === norm("Зайти в игру") || nkey === norm("Бесплатно")) {
+        if (!completed[nkey]) {
+          completed[nkey] = true;
           changed = true;
         }
       }
@@ -220,30 +254,37 @@ function App() {
   // Шаг 3: удобрить
   const handleFertilize = () => {
     if (!canFertilize) return;
-  setShowYdobr(true);
-  setTimeout(() => setShowYdobr(false), 4000);
-  updateTaskProgress("fertilize");
+    setShowYdobr(true);
+    setTimeout(() => setShowYdobr(false), 4000);
     // Только для новых пользователей продолжаем туториал
     if (progress.tutorialStep < 5) {
-      setProgress((p) => ({
-        ...p,
-        lastFertilize: now,
-        flowerSizes: {
-          ...p.flowerSizes,
-          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10)
-        },
-        tutorialStep: 4,
-      }));
+      setProgress((p) => {
+        const newP = {
+          ...p,
+          lastFertilize: now,
+          flowerSizes: {
+            ...p.flowerSizes,
+            [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10)
+          },
+          tutorialStep: 4,
+        };
+        setTimeout(() => updateTaskProgress("fertilize"), 0);
+        return newP;
+      });
       setTutorialStep(4);
     } else {
-      setProgress((p) => ({
-        ...p,
-        lastFertilize: now,
-        flowerSizes: {
-          ...p.flowerSizes,
-          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 2)
-        },
-      }));
+      setProgress((p) => {
+        const newP = {
+          ...p,
+          lastFertilize: now,
+          flowerSizes: {
+            ...p.flowerSizes,
+            [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 2)
+          },
+        };
+        setTimeout(() => updateTaskProgress("fertilize"), 0);
+        return newP;
+      });
     }
     setMenuOpen(false);
     toastApi?.showToast('Удобрено!');
@@ -252,24 +293,27 @@ function App() {
   // Шаг 4: полить
   const handleWater = () => {
     if (!canWater) return;
-  setShowLeika(true);
-  setTimeout(() => setShowLeika(false), 4000);
-  updateTaskProgress("water");
+    setShowLeika(true);
+    setTimeout(() => setShowLeika(false), 4000);
     const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
     if (size >= MAX_FLOWER) {
       (toastApi?.showToast || toastContext?.showToast)?.('Цветок Вырос до максимума!');
       setMenuOpen(false);
       return;
     }
-    setProgress((p) => ({
-      ...p,
-      lastWater: now,
-      flowerSizes: {
-        ...p.flowerSizes,
-        [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5)
-      },
-      tutorialStep: 5,
-    }));
+    setProgress((p) => {
+      const newP = {
+        ...p,
+        lastWater: now,
+        flowerSizes: {
+          ...p.flowerSizes,
+          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5)
+        },
+        tutorialStep: 5,
+      };
+      setTimeout(() => updateTaskProgress("water"), 0);
+      return newP;
+    });
     setTutorialStep(5);
     setMenuOpen(false);
     toastApi?.showToast('Спасибо!');

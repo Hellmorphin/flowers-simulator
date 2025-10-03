@@ -28,7 +28,11 @@ const ModalBox = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  touch-action: none;
+  user-select: none;
+  /* Блокируем любые скроллы и перетаскивания */
 `;
 
 const Title = styled.h2`
@@ -52,6 +56,15 @@ const TaskList = styled.div`
   flex-direction: column;
   gap: 18px;
   align-items: center;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  touch-action: none;
+  user-select: none;
+  /* Блокируем любые скроллы и скроллбары */
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const TaskItem = styled.div`
@@ -87,7 +100,7 @@ const CloseBtn = styled.button`
   z-index: 10;
 `;
 
-const TASKS = [
+export const TASKS = [
   { name: "Полить горшок", reward: 10 },
   { name: "Удобрить горшок", reward: 10 },
   { name: "Полить горшок 10 раз", reward: 50 },
@@ -133,7 +146,7 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
     []
   );
   const [timer, setTimer] = useState<string>("");
-  const [progress, setProgress] = useState<{ [key: string]: number }>({});
+
   const [completed, setCompleted] = useState<{ [key: string]: boolean }>({});
   const [claimed, setClaimed] = useState<{ [key: string]: boolean }>({});
   const [showCompleteMsg, setShowCompleteMsg] = useState<string | null>(null);
@@ -166,25 +179,34 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
       }
     }
     setTasks(currentTasks);
-    // Загружаем прогресс и выполненные задания
-    let savedProgress = {};
-    let savedCompleted = {};
-    try {
-      savedProgress =
-        JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
-      savedCompleted =
-        JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
-    } catch {}
-    setProgress(savedProgress);
-    setCompleted(savedCompleted);
-    setClaimed(claimedObj);
-    // Таймер
+
+    // Функция для обновления прогресса и выполненных заданий
+    const updateProgress = () => {
+      let savedCompleted = {};
+      try {
+        savedCompleted =
+          JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+      } catch {}
+      setCompleted(savedCompleted);
+      // claimed тоже может меняться (например, после получения награды в другом окне)
+      let claimedObj = {};
+      try {
+        claimedObj =
+          JSON.parse(localStorage.getItem("tasks_claimed") || "{}") || {};
+      } catch {}
+      setClaimed(claimedObj);
+    };
+    // Таймер для обновления времени до обновления заданий
     const updateTimers = () => {
       const nextUpdate = getNextUpdateTime();
       setTimer(getTimeLeft(nextUpdate));
     };
+    updateProgress();
     updateTimers();
-    const interval = setInterval(updateTimers, 1000);
+    const interval = setInterval(() => {
+      updateProgress();
+      updateTimers();
+    }, 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
@@ -198,15 +220,17 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
         </CloseBtn>
         <Title>Задания</Title>
         <TimerText>Обновится через: {timer}</TimerText>
+
         <TaskList>
           {tasks.map((task, idx) => {
             const key = task.name;
-            const isDone = completed[key];
+            const nkey = key.trim().toLowerCase();
+            const isDone = completed[nkey];
             return (
               <TaskItem key={idx}>
                 {task.name}
                 <Reward>Награда: {task.reward} монет</Reward>
-                {isDone && !claimed[key] ? (
+                {isDone && !claimed[nkey] ? (
                   <button
                     style={{
                       marginTop: 10,
@@ -225,8 +249,8 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
                       );
                       coins += task.reward;
                       localStorage.setItem("progress_coins", String(coins));
-                      // Сохраняем claimed в localStorage
-                      const newClaimed = { ...claimed, [key]: true };
+                      // Сохраняем claimed в localStorage по нормализованному ключу
+                      const newClaimed = { ...claimed, [nkey]: true };
                       setClaimed(newClaimed);
                       localStorage.setItem(
                         "tasks_claimed",
@@ -239,7 +263,7 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
                     Получить
                   </button>
                 ) : null}
-                {isDone && claimed[key] ? (
+                {isDone && claimed[nkey] ? (
                   <button
                     style={{
                       marginTop: 10,
