@@ -17,8 +17,8 @@ import loogBg from "../assets/loog.jpg";
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
   position: absolute;
-  top: 18px;
-  left: 110px;
+  top: 48px; /* было 18px, стало ниже на 30px */
+  left: 100px; /* было 110px, стало левее на 10px */
   z-index: 10;
   background: #222;
   border: 4px solid #ffb300;
@@ -167,8 +167,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
             alt="Лейка"
             style={{
               position: "absolute",
-              left: 60,
-              top: 70,
+              left: 50, // было 60, стало левее на 10px
+              top: 100, // было 70, стало ниже на 30px
               width: 60,
               height: 60,
               zIndex: 20,
@@ -185,8 +185,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
             alt="Удобрение"
             style={{
               position: "absolute",
-              left: 45, // было 65, ещё минус 20px
-              top: 60,
+              left: 35, // было 45, стало левее на 10px
+              top: 90, // было 60, стало ниже на 30px
               width: 120,
               height: 120,
               zIndex: 20,
