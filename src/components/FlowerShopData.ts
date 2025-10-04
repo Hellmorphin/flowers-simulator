@@ -15,6 +15,7 @@ export const flowerSkins = [
   { name: "БАОБАБ", file: "Flowers13.png", unlock: 250 },
   { name: "ДЕМОНОБАБОК", file: "Flowers14.png", unlock: "temp2" }, // временный
   { name: "Обезьянка", file: "FlowersMonkey.png", unlock: "temp" }, // временный
+  { name: "Valera", file: "FlowersVarleraFlow.png", unlock: "temp" }, // временный
 ];
 
 // --- ВРЕМЕННЫЕ ЦВЕТЫ ---
@@ -34,20 +35,24 @@ export function isTempFlowerActive() {
   const day = vladivostokTime.getDay();
   const hours = vladivostokTime.getHours();
   const minutes = vladivostokTime.getMinutes();
-    // Flowers7: пятница, с 18:15 до 20:00 по Владивостоку (day === 5).
+  // Flowers7: пятница, с 18:15 до 20:00 по Владивостоку (day === 5).
   if (day === 5 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
     return "Flowers7.png";
   }
   if (day === 5 && (hours > 22 || (hours === 22 && minutes >= 25)) && (hours < 23 || (hours === 23 && minutes === 0))) {
     return "FlowersMonkey.png";
   }
-    // Flowers14: четверг, с 18:15 до 20:00 по Владивостоку (day === 4).
+  // Flowers14: суббота, с 18:15 до 20:00 по Владивостоку (day === 6).
   if (day === 6 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
     return "Flowers14.png";
   }
-    // Flowers14: четверг
-    if (day === 4 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
-      return "Flowers14.png";
-    }
+  // Flowers14: четверг, с 18:15 до 20:00 по Владивостоку (day === 4).
+  if (day === 4 && (hours > 18 || (hours === 18 && minutes >= 15)) && (hours < 20 || (hours === 20 && minutes === 0))) {
+    return "Flowers14.png";
+  }
+  // Valera: суббота, с 15:15 до 17:00 по Владивостоку (day === 6).
+  if (day === 6 && (hours > 15 || (hours === 15 && minutes >= 15)) && (hours < 17 || (hours === 17 && minutes === 0))) {
+    return "FlowersVarleraFlow.png";
+  }
   return null;
 }
