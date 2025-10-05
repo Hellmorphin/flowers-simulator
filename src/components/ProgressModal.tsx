@@ -219,7 +219,7 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
         {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
         animate={{ scale: 1 }}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×

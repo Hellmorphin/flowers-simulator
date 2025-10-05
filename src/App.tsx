@@ -1,13 +1,13 @@
 // Инициализация заданий при первом запуске
 import { TASKS } from "./components/TasksModal";
-import React, { useState, useEffect } from 'react';
-import StartScreen from './components/StartScreen';
-import MainScreen from './components/MainScreen';
-import Menu from './components/Menu';
-import Tutorial from './components/Tutorial';
-import ToastManager, { ToastManagerContext } from './components/ToastManager';
+import React, { useState, useEffect } from "react";
+import StartScreen from "./components/StartScreen";
+import MainScreen from "./components/MainScreen";
+import Menu from "./components/Menu";
+import Tutorial from "./components/Tutorial";
+import ToastManager, { ToastManagerContext } from "./components/ToastManager";
 
-const FLOWER_KEY = 'flowersim.progress';
+const FLOWER_KEY = "flowersim.progress";
 
 interface Progress {
   flowerSize: number; // px (deprecated)
@@ -29,17 +29,17 @@ const defaultProgress: Progress = {
 
 // Туториал: 0 — открыть меню, 1 — посадить цветок, 2 — открыть меню, 3 — удобрить, 4 — полить
 const TUTORIAL_STEPS = [
-  'Нажмите на хвостик справа для открытия меню.',
-  'Нажмите «Посадить цветок».',
-  'Снова нажмите на хвостик, чтобы открыть меню.',
-  'Нажмите «Удобрить».',
-  'Нажмите «Полить».',
+  "Нажмите на хвостик справа для открытия меню.",
+  "Нажмите «Посадить цветок».",
+  "Обратите внимание на кнопку с удобрением и каплей.",
+  "Нажмите «Удобрить».",
+  "Нажмите «Полить».",
 ];
 
-import ShopModal from './components/ShopModal';
-import TasksModal from './components/TasksModal';
-import ProgressModal from './components/ProgressModal';
-import BackgroundModal from './components/BackgroundModal';
+import ShopModal from "./components/ShopModal";
+import TasksModal from "./components/TasksModal";
+import ProgressModal from "./components/ProgressModal";
+import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
   // Инициализация заданий при первом запуске приложения
@@ -65,13 +65,23 @@ function App() {
     let progress: Record<string, number> = {};
     let completed: Record<string, boolean> = {};
     try {
-      const rawProgress = JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
-      const rawCompleted = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+      const rawProgress =
+        JSON.parse(localStorage.getItem("tasks_progress") || "{}") || {};
+      const rawCompleted =
+        JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
       // Если вдруг в localStorage оказался не объект, сбрасываем
-      if (typeof rawProgress === 'object' && rawProgress !== null && !Array.isArray(rawProgress)) {
+      if (
+        typeof rawProgress === "object" &&
+        rawProgress !== null &&
+        !Array.isArray(rawProgress)
+      ) {
         progress = rawProgress;
       }
-      if (typeof rawCompleted === 'object' && rawCompleted !== null && !Array.isArray(rawCompleted)) {
+      if (
+        typeof rawCompleted === "object" &&
+        rawCompleted !== null &&
+        !Array.isArray(rawCompleted)
+      ) {
         completed = rawCompleted;
       }
     } catch {
@@ -85,14 +95,20 @@ function App() {
     let progressNorm: Record<string, number> = {};
     let completedNorm: Record<string, boolean> = {};
     // Переносим старые значения в новые нормализованные ключи (однократно)
-    Object.keys(progress).forEach(k => { progressNorm[norm(k)] = progress[k]; });
-    Object.keys(completed).forEach(k => { completedNorm[norm(k)] = completed[k]; });
+    Object.keys(progress).forEach((k) => {
+      progressNorm[norm(k)] = progress[k];
+    });
+    Object.keys(completed).forEach((k) => {
+      completedNorm[norm(k)] = completed[k];
+    });
     tasks.forEach((task: any) => {
       const key = task.name;
       const nkey = norm(key);
       // Сравниваем нормализованные названия
-      if (nkey === norm("полить горшок") && type === "water") completedNorm[nkey] = true;
-      if (nkey === norm("удобрить горшок") && type === "fertilize") completedNorm[nkey] = true;
+      if (nkey === norm("полить горшок") && type === "water")
+        completedNorm[nkey] = true;
+      if (nkey === norm("удобрить горшок") && type === "fertilize")
+        completedNorm[nkey] = true;
       if (nkey === norm("полить горшок 10 раз") && type === "water") {
         progressNorm[nkey] = (progressNorm[nkey] ?? 0) + 1;
         if (progressNorm[nkey] >= 10) completedNorm[nkey] = true;
@@ -123,7 +139,8 @@ function App() {
     if (!tasksModalOpen) return;
     let completed: Record<string, boolean> = {};
     try {
-      completed = JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+      completed =
+        JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
     } catch {}
     const norm = (s: string) => s.trim().toLowerCase();
     const tasks = JSON.parse(localStorage.getItem("tasks_current") || "[]");
@@ -137,7 +154,8 @@ function App() {
         }
       }
     });
-    if (changed) localStorage.setItem("tasks_completed", JSON.stringify(completed));
+    if (changed)
+      localStorage.setItem("tasks_completed", JSON.stringify(completed));
   }, [tasksModalOpen]);
   // удалено повторное объявление
   const [started, setStarted] = useState(false);
@@ -147,25 +165,30 @@ function App() {
       const parsed = JSON.parse(saved);
       // Миграция: если flowerSizes нет, создать и перенести размер
       if (!parsed.flowerSizes) {
-        parsed.flowerSizes = { [localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png"]: parsed.flowerSize || 80 };
+        parsed.flowerSizes = {
+          [localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png"]:
+            parsed.flowerSize || 80,
+        };
       }
       return parsed;
     }
     return defaultProgress;
   });
   // Получаем текущий скин цветка
-  const flowerSkin = localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
+  const flowerSkin =
+    localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
   // Размер для текущего цветка
   const currentFlowerSize = progress.flowerSizes[flowerSkin] ?? MIN_FLOWER;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(() => progress.tutorialStep < 5);
+  const [showTutorial, setShowTutorial] = useState(
+    () => progress.tutorialStep < 5
+  );
   const [toastApi, setToastApi] = useState<any>(null);
 
   // Сохраняем прогресс
   useEffect(() => {
     localStorage.setItem(FLOWER_KEY, JSON.stringify(progress));
   }, [progress]);
-
 
   // Для ToastManager
   const toastContext = React.useContext(ToastManagerContext);
@@ -179,17 +202,25 @@ function App() {
   const canFertilize = now - progress.lastFertilize > 2 * 60 * 60 * 1000;
 
   // Туториал логика
-  const [tutorialStep, setTutorialStep] = useState<number>(progress.tutorialStep);
+  const [tutorialStep, setTutorialStep] = useState<number>(
+    progress.tutorialStep
+  );
   const [showFinalHint, setShowFinalHint] = useState(() => {
     // Принудительно скрываем финальный туториал у старых пользователей
     if (progress.tutorialStep >= 5) return false;
-    return localStorage.getItem('flowersim.finalHintShown') !== '1' && progress.tutorialStep >= 5;
+    return (
+      localStorage.getItem("flowersim.finalHintShown") !== "1" &&
+      progress.tutorialStep >= 5
+    );
   });
-  const [finalHintTimeout, setFinalHintTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [finalHintTimeout, setFinalHintTimeout] =
+    useState<NodeJS.Timeout | null>(null);
   const [shopOpen, setShopOpen] = useState(false);
   const [progressModalOpen, setProgressModalOpen] = useState(false);
   const [backgroundModalOpen, setBackgroundModalOpen] = useState(false);
-  const [mainBg, setMainBg] = useState<string | null>(localStorage.getItem('flowersim.bg'));
+  const [mainBg, setMainBg] = useState<string | null>(
+    localStorage.getItem("flowersim.bg")
+  );
   // Слушаем события открытия модалок
   useEffect(() => {
     const handlerProgress = () => {
@@ -200,16 +231,16 @@ function App() {
       setBackgroundModalOpen(true);
       setMenuOpen(false);
     };
-    window.addEventListener('openProgressModal', handlerProgress);
-    window.addEventListener('openBackgroundModal', handlerBg);
+    window.addEventListener("openProgressModal", handlerProgress);
+    window.addEventListener("openBackgroundModal", handlerBg);
     const handlerTasks = () => {
       setTasksModalOpen(true);
       setMenuOpen(false);
     };
-    window.addEventListener('openTasksModal', handlerTasks);
+    window.addEventListener("openTasksModal", handlerTasks);
     return () => {
-      window.removeEventListener('openProgressModal', handlerProgress);
-      window.removeEventListener('openBackgroundModal', handlerBg);
+      window.removeEventListener("openProgressModal", handlerProgress);
+      window.removeEventListener("openBackgroundModal", handlerBg);
     };
   }, []);
 
@@ -233,19 +264,22 @@ function App() {
     setProgress((p) => ({
       ...p,
       flowerSizes: { ...p.flowerSizes, [flowerSkin]: MIN_FLOWER },
-      tutorialStep: 2
+      tutorialStep: 2,
     }));
     setTutorialStep(2);
     setMenuOpen(false);
   };
 
-  // Шаг 2: открыть меню снова
+  // Шаг 2: показать подсказку и автоматически перейти к следующему шагу через 3 секунды
   useEffect(() => {
-    if (tutorialStep === 2 && menuOpen) {
-      setTutorialStep(3);
-      setProgress((p) => ({ ...p, tutorialStep: 3 }));
+    if (tutorialStep === 2) {
+      const timeout = setTimeout(() => {
+        setTutorialStep(3);
+        setProgress((p) => ({ ...p, tutorialStep: 3 }));
+      }, 3000);
+      return () => clearTimeout(timeout);
     }
-  }, [tutorialStep, menuOpen]);
+  }, [tutorialStep]);
 
   // Анимации лейки и удобрения
   const [showLeika, setShowLeika] = useState(false);
@@ -264,7 +298,10 @@ function App() {
           lastFertilize: now,
           flowerSizes: {
             ...p.flowerSizes,
-            [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10)
+            [flowerSkin]: Math.min(
+              MAX_FLOWER,
+              (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10
+            ),
           },
           tutorialStep: 4,
         };
@@ -279,7 +316,10 @@ function App() {
           lastFertilize: now,
           flowerSizes: {
             ...p.flowerSizes,
-            [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 2)
+            [flowerSkin]: Math.min(
+              MAX_FLOWER,
+              (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 2
+            ),
           },
         };
         setTimeout(() => updateTaskProgress("fertilize"), 0);
@@ -287,7 +327,7 @@ function App() {
       });
     }
     setMenuOpen(false);
-    toastApi?.showToast('Удобрено!');
+    toastApi?.showToast("Удобрено!");
   };
 
   // Шаг 4: полить
@@ -297,7 +337,9 @@ function App() {
     setTimeout(() => setShowLeika(false), 4000);
     const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
     if (size >= MAX_FLOWER) {
-      (toastApi?.showToast || toastContext?.showToast)?.('Цветок Вырос до максимума!');
+      (toastApi?.showToast || toastContext?.showToast)?.(
+        "Цветок Вырос до максимума!"
+      );
       setMenuOpen(false);
       return;
     }
@@ -307,7 +349,10 @@ function App() {
         lastWater: now,
         flowerSizes: {
           ...p.flowerSizes,
-          [flowerSkin]: Math.min(MAX_FLOWER, (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5)
+          [flowerSkin]: Math.min(
+            MAX_FLOWER,
+            (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5
+          ),
         },
         tutorialStep: 5,
       };
@@ -316,37 +361,41 @@ function App() {
     });
     setTutorialStep(5);
     setMenuOpen(false);
-    toastApi?.showToast('Спасибо!');
+    toastApi?.showToast("Спасибо!");
     setTimeout(() => setShowFinalHint(true), 800);
   };
 
   // После завершения туториала скрываем его и показываем уведомление на 15 секунд
   useEffect(() => {
-      let timeout: NodeJS.Timeout | null = null;
-      if (tutorialStep >= 5 && localStorage.getItem('flowersim.finalHintShown') !== '1') {
-        setShowTutorial(false);
-        setShowFinalHint(true);
-        if (finalHintTimeout) clearTimeout(finalHintTimeout);
-        timeout = setTimeout(() => {
-          setShowFinalHint(false);
-          localStorage.setItem('flowersim.finalHintShown', '1');
-        }, 10000);
-        setFinalHintTimeout(timeout);
-      } else {
+    let timeout: NodeJS.Timeout | null = null;
+    if (
+      tutorialStep >= 5 &&
+      localStorage.getItem("flowersim.finalHintShown") !== "1"
+    ) {
+      setShowTutorial(false);
+      setShowFinalHint(true);
+      if (finalHintTimeout) clearTimeout(finalHintTimeout);
+      timeout = setTimeout(() => {
         setShowFinalHint(false);
-      }
-      return () => {
-        if (timeout) clearTimeout(timeout);
-        if (finalHintTimeout) clearTimeout(finalHintTimeout);
-      };
-      // eslint-disable-next-line
-    }, [tutorialStep, progress.tutorialStep]);
+        localStorage.setItem("flowersim.finalHintShown", "1");
+      }, 10000);
+      setFinalHintTimeout(timeout);
+    } else {
+      setShowFinalHint(false);
+    }
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (finalHintTimeout) clearTimeout(finalHintTimeout);
+    };
+    // eslint-disable-next-line
+  }, [tutorialStep, progress.tutorialStep]);
 
   // Для StartScreen
   const handleStart = () => setStarted(true);
 
   // Для туториала
-  const tutorialText = progress.tutorialStep >= 5 ? '' : (TUTORIAL_STEPS[tutorialStep] || '');
+  const tutorialText =
+    progress.tutorialStep >= 5 ? "" : TUTORIAL_STEPS[tutorialStep] || "";
 
   return (
     <ToastManager>
@@ -354,31 +403,44 @@ function App() {
         <StartScreen onStart={handleStart} />
       ) : (
         <>
-          {progress.tutorialStep < 5 && showFinalHint && localStorage.getItem('flowersim.finalHintShown') !== '1' && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              background: 'rgba(255,236,179,0.98)',
-              color: '#6d4c41',
-              fontWeight: 600,
-              fontSize: '1.1rem',
-              textAlign: 'center',
-              zIndex: 9999,
-              padding: '0.7rem 0',
-              boxShadow: '0 2px 16px #a1887f44',
-            }}>
-              Не забывай поливать цветок каждый час и удобрять каждые 3 часа игрового времени чтобы вырастить его.
-            </div>
-          )}
+          {progress.tutorialStep < 5 &&
+            showFinalHint &&
+            localStorage.getItem("flowersim.finalHintShown") !== "1" && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  background: "rgba(255,236,179,0.98)",
+                  color: "#6d4c41",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  textAlign: "center",
+                  zIndex: 9999,
+                  padding: "0.7rem 0",
+                  boxShadow: "0 2px 16px #a1887f44",
+                }}
+              >
+                Не забывай поливать цветок каждый час и удобрять каждые 3 часа
+                игрового времени чтобы вырастить его.
+              </div>
+            )}
           <MainScreen
             flowerSize={currentFlowerSize}
-            flowerVisible={progress.tutorialStep > 1 && currentFlowerSize > MIN_FLOWER - 1}
-            potSkin={localStorage.getItem('flowersim.potSkin') || 'gorshok.jpg'}
+            flowerVisible={
+              progress.tutorialStep > 1 && currentFlowerSize > MIN_FLOWER - 1
+            }
+            potSkin={localStorage.getItem("flowersim.potSkin") || "gorshok.jpg"}
             mainBg={mainBg}
             showLeika={showLeika}
             showYdobr={showYdobr}
+            onPlant={handlePlant}
+            onWater={handleWater}
+            onFertilize={handleFertilize}
+            canWater={canWater}
+            canFertilize={canFertilize}
+            disableActions={tutorialStep < 2}
           />
           <Menu
             open={menuOpen}
@@ -389,20 +451,26 @@ function App() {
             canWater={canWater}
             canFertilize={canFertilize}
             tutorialStep={tutorialStep}
-            onShop={() => { setShopOpen(true); setMenuOpen(false); }}
+            onShop={() => {
+              setShopOpen(true);
+              setMenuOpen(false);
+            }}
             isFlowerMaxed={currentFlowerSize >= MAX_FLOWER}
           />
-          {shopOpen && (
-            <ShopModal onClose={() => setShopOpen(false)} />
-          )}
+          {shopOpen && <ShopModal onClose={() => setShopOpen(false)} />}
           {progressModalOpen && (
-            <ProgressModal isOpen={progressModalOpen} onClose={() => setProgressModalOpen(false)} />
+            <ProgressModal
+              isOpen={progressModalOpen}
+              onClose={() => setProgressModalOpen(false)}
+            />
           )}
           {backgroundModalOpen && (
             <BackgroundModal
               isOpen={backgroundModalOpen}
               onClose={() => setBackgroundModalOpen(false)}
-              onApply={bg => { setMainBg(bg); }}
+              onApply={(bg) => {
+                setMainBg(bg);
+              }}
               currentBg={mainBg}
             />
           )}
@@ -414,7 +482,10 @@ function App() {
             topBar
           />
           {tasksModalOpen && (
-            <TasksModal isOpen={tasksModalOpen} onClose={() => setTasksModalOpen(false)} />
+            <TasksModal
+              isOpen={tasksModalOpen}
+              onClose={() => setTasksModalOpen(false)}
+            />
           )}
         </>
       )}

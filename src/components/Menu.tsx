@@ -224,61 +224,11 @@ const Menu: React.FC<MenuProps> = ({
             >
               Цветок вырос!
             </div>
-          ) : (
-            <>
-              <MenuButton
-                onClick={onFertilize}
-                disabled={disableActions || !canFertilize}
-                style={{
-                  opacity: canFertilize && !disableActions ? 1 : 0.5,
-                  pointerEvents:
-                    canFertilize && !disableActions ? "auto" : "none",
-                }}
-              >
-                {canFertilize || disableActions ? (
-                  "Удобрить"
-                ) : (
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 18,
-                      color: "#131312",
-                      minWidth: 60,
-                    }}
-                  >
-                    {getTimeLeftText(fertilizeLeftMs)}
-                  </span>
-                )}
-              </MenuButton>
-              <MenuButton
-                onClick={onWater}
-                disabled={disableActions || !canWater}
-                style={{
-                  opacity: !disableActions && canWater ? 1 : 0.5,
-                  pointerEvents: !disableActions && canWater ? "auto" : "none",
-                }}
-              >
-                {canWater || disableActions ? (
-                  "Полить"
-                ) : (
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: 18,
-                      color: "#131312",
-                      minWidth: 60,
-                    }}
-                  >
-                    {getTimeLeftText(waterLeftMs)}
-                  </span>
-                )}
-              </MenuButton>
-            </>
-          )}
+          ) : null}
           <MenuButton
             style={{
               marginTop: "2.5rem",
-              background: "#ffe082",
+              background: "#ffd600",
               color: "#6d4c41",
               fontWeight: 700,
             }}
@@ -291,9 +241,9 @@ const Menu: React.FC<MenuProps> = ({
           <MenuButton
             style={{
               background: "#ffd600",
-              color: "#222",
+              color: "#6d4c41",
               fontWeight: 700,
-              marginTop: "1rem",
+              marginTop: "1.2rem",
             }}
             onClick={() => {
               if (typeof window !== "undefined" && window.dispatchEvent) {
@@ -305,10 +255,10 @@ const Menu: React.FC<MenuProps> = ({
           </MenuButton>
           <MenuButton
             style={{
-              background: "#ffe082",
+              background: "#ffd600",
               color: "#6d4c41",
               fontWeight: 700,
-              marginTop: "1rem",
+              marginTop: "1.2rem",
             }}
             onClick={handleOpenBackgroundModal}
           >
@@ -317,9 +267,9 @@ const Menu: React.FC<MenuProps> = ({
           <MenuButton
             style={{
               background: "#ffd600",
-              color: "#222",
+              color: "#6d4c41",
               fontWeight: 700,
-              marginTop: "2.5rem",
+              marginTop: "1.2rem",
             }}
             onClick={handleOpenTasksModal}
           >

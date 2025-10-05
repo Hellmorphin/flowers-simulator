@@ -249,12 +249,14 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
       animate={{ opacity: 1 }}
       exit={!isAndroid ? { opacity: 0 } : undefined}
       transition={{ duration: isAndroid ? 0 : 0.2 }}
+      onClick={onClose}
     >
       <ModalBox
         initial={!isAndroid ? { scale: 0.9 } : undefined}
         animate={{ scale: 1 }}
         exit={!isAndroid ? { scale: 0.9 } : undefined}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
+        onClick={e => e.stopPropagation()}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×

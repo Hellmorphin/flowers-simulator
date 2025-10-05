@@ -395,18 +395,20 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <ModalOverlay
-      initial={!isAndroid ? { opacity: 0 } : undefined}
-      animate={{ opacity: 1 }}
-      exit={!isAndroid ? { opacity: 0 } : undefined}
-      transition={{ duration: isAndroid ? 0 : 0.2 }}
-    >
-      <ModalBox
-        initial={!isAndroid ? { scale: 0.9 } : undefined}
-        animate={{ scale: 1 }}
-        exit={!isAndroid ? { scale: 0.9 } : undefined}
+      <ModalOverlay
+        initial={!isAndroid ? { opacity: 0 } : undefined}
+        animate={{ opacity: 1 }}
+        exit={!isAndroid ? { opacity: 0 } : undefined}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
+        onClick={onClose}
       >
+        <ModalBox
+          initial={!isAndroid ? { scale: 0.9 } : undefined}
+          animate={{ scale: 1 }}
+          exit={!isAndroid ? { scale: 0.9 } : undefined}
+          transition={{ duration: isAndroid ? 0 : 0.2 }}
+          onClick={e => e.stopPropagation()}
+        >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×
         </CloseBtn>
