@@ -701,11 +701,13 @@ const MainScreen: React.FC<MainScreenProps> = ({
           style={{
             position: "relative",
             width: "100%",
-            height: "auto",
+            height: 420,
+            minHeight: 320,
+            maxHeight: 480,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-end",
           }}
         >
           <Flower
