@@ -47,6 +47,14 @@ const AwakenButton = styled.button`
     color: #888;
     cursor: not-allowed;
   }
+  @media (max-width: 380px) and (max-height: 670px) {
+    font-size: 0.73em;
+    padding: 5px 11px;
+    border-radius: 8px;
+    min-width: 0;
+    width: 66%;
+    max-width: 150px;
+  }
 `;
 import LeikaImg from "../assets/Leika.png";
 import YdobrImg from "../assets/Ydobr.png";
@@ -111,7 +119,7 @@ const Background = styled.div`
   overflow: hidden;
 `;
 
-const TailIconStyled = styled(motion.button)`
+const TailIconStyled = styled(motion.button)<{ small?: boolean }>`
   position: relative;
   left: 0;
   width: 60px;
@@ -127,6 +135,18 @@ const TailIconStyled = styled(motion.button)`
   margin: 0;
   padding: 0;
   outline: none;
+  ${({ small }) =>
+    small &&
+    `@media (max-width: 380px) and (max-height: 670px) {
+      width: 40px;
+      height: 66px;
+      border-radius: 0 14px 14px 0;
+      & svg {
+        width: 22px !important;
+        height: 22px !important;
+      }
+    }`
+  }
 `;
 
 const PotWrapper = styled.div`
@@ -541,6 +561,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
       >
         <TailIconStyled
           as={motion.button}
+          small
           whileTap={{ scale: 0.95 }}
           style={{
             borderRadius: "24px 0 0 24px",
@@ -553,6 +574,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </TailIconStyled>
         <TailIconStyled
           as={motion.button}
+          small
           whileTap={{ scale: 0.95 }}
           style={{
             borderRadius: "24px 0 0 24px",
@@ -568,6 +590,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         {/* Кнопка прокачки пробуждения */}
         <TailIconStyled
           as={motion.button}
+          small
           whileTap={{ scale: 0.95 }}
           style={{
             borderRadius: "24px 0 0 24px",
@@ -580,6 +603,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </TailIconStyled>
         <TailIconStyled
           as={motion.button}
+          small
           whileTap={{ scale: 0.95 }}
           style={{
             borderRadius: "24px 0 0 24px",
@@ -594,6 +618,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </TailIconStyled>
         <TailIconStyled
           as={motion.button}
+          small
           whileTap={{ scale: 0.95 }}
           style={{
             borderRadius: "24px 0 0 24px",

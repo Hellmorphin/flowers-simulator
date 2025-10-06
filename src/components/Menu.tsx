@@ -61,6 +61,14 @@ const MenuButton = styled(motion.button)`
   &:hover {
     background: #ffecb3;
   }
+  @media (max-width: 380px) and (max-height: 670px) {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.8rem;
+    margin: 0.5rem 0;
+    max-width: 140px;
+    width: 60%;
+    border-radius: 0.8rem;
+  }
 `;
 
 const TailIcon = styled(motion.div)`
