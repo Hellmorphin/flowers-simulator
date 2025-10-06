@@ -184,7 +184,7 @@ const AwakenUpgradeModal: React.FC<{
                 style={{
                   fontWeight: 700,
                   fontSize: 18,
-                  color: upgradeLevel >= level ? "#ff9800" : "#6d4c41",
+                  color: upgradeLevel >= level ? "#ff9800" : "#cd8c1d",
                 }}
               >
                 {reward} монет за пробуждение

@@ -140,7 +140,7 @@ const PotWrapper = styled.div`
   align-items: center;
   @media (max-width: 700px) {
     left: 50%;
-    top: calc(54% + 60px);
+    top: calc(44% + 60px);
     transform: translate(-50%, -40%);
   }
 `;
@@ -178,7 +178,6 @@ type MainScreenProps = {
   canWater?: boolean;
   canFertilize?: boolean;
   disableActions?: boolean;
-  onAwakenUpgrade: () => void;
 };
 
 const MainScreen: React.FC<MainScreenProps> = ({
@@ -194,7 +193,6 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canWater,
   canFertilize,
   disableActions,
-  onAwakenUpgrade,
 }) => {
   // Кнопка открытия модалки прокачки пробуждения (вызывается из Menu через проп onAwakenUpgrade)
   // ...
@@ -202,16 +200,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
   // --- Монеты и уровень прокачки пробуждения ---
   // --- Прокачка пробуждения ---
   const AWAKEN_UPGRADE_KEY = "pot_awaken_upgrade";
-  const [upgradeLevel, setUpgradeLevel] = React.useState<number>(() => Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0));
+  const [upgradeLevel, setUpgradeLevel] = React.useState<number>(() =>
+    Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0)
+  );
   React.useEffect(() => {
-    const handler = () => setUpgradeLevel(Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0));
+    const handler = () =>
+      setUpgradeLevel(Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0));
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
   }, []);
 
   // --- Модалка прокачки пробуждения ---
   const [showAwakenUpgrade, setShowAwakenUpgrade] = React.useState(false);
-  const handleOpenAwakenUpgrade = () => setShowAwakenUpgrade(true);
+
   const handleCloseAwakenUpgrade = () => setShowAwakenUpgrade(false);
   const flowerSkin =
     localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
@@ -797,7 +798,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         )}
       </AnimatePresence>
       <Footer>
-        Ver. 1.6.3 by -
+        Ver. 1.6.4 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

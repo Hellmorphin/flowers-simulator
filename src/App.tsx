@@ -43,7 +43,7 @@ import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
   // --- Состояние для модалки прокачки пробуждения ---
-  const [awakenUpgradeOpen, setAwakenUpgradeOpen] = useState(false);
+
   const [canWater, setCanWater] = useState(false);
   const [canFertilize, setCanFertilize] = useState(false);
   // Инициализация заданий при первом запуске приложения
@@ -461,7 +461,6 @@ function App() {
             canWater={canWater}
             canFertilize={canFertilize}
             disableActions={tutorialStep < 2}
-            onAwakenUpgrade={() => setAwakenUpgradeOpen(true)}
           />
           <Menu
             open={menuOpen}
@@ -477,10 +476,8 @@ function App() {
               setMenuOpen(false);
             }}
             isFlowerMaxed={currentFlowerSize >= MAX_FLOWER}
-            onAwakenUpgrade={() => setAwakenUpgradeOpen(true)}
           />
-          // --- Состояние для модалки прокачки пробуждения --- const
-          [awakenUpgradeOpen, setAwakenUpgradeOpen] = useState(false);
+
           {shopOpen && <ShopModal onClose={() => setShopOpen(false)} />}
           {progressModalOpen && (
             <ProgressModal

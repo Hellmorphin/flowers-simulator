@@ -107,7 +107,6 @@ interface MenuProps {
   tutorialStep?: number;
   onShop: () => void;
   isFlowerMaxed?: boolean;
-  onAwakenUpgrade: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
