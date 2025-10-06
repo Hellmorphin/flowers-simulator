@@ -12,20 +12,28 @@ const AwakenWrapper = styled.div`
   margin: 32px auto 0 auto;
 `;
 const AwakenBar = styled.div`
-  width: 140px;
-  height: 14px;
+  width: 210px;
+  height: 22px;
   background: #ffe082;
-  border-radius: 9px;
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 10px;
   box-shadow: 0 1px 4px #ffb30022;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 const AwakenBarFill = styled.div<{ percent: number }>`
   height: 100%;
   width: ${({ percent }) => percent}%;
   background: linear-gradient(90deg, #ffd54f 60%, #ffb300 100%);
-  border-radius: 9px;
+  border-radius: 12px;
   transition: width 0.3s;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
 `;
 const AwakenButton = styled.button`
   background: #ffb300;
@@ -57,6 +65,8 @@ const AwakenButton = styled.button`
   }
 `;
 import LeikaImg from "../assets/Leika.png";
+import WoterImg from "../assets/Woter.png";
+import ListImg from "../assets/list.png";
 import YdobrImg from "../assets/Ydobr.png";
 import styled from "styled-components";
 import Pot from "./Pot";
@@ -79,7 +89,7 @@ import AwakenUpgradeModal from "./AwakenUpgradeModal";
 const CoinBarWrapper = styled.div`
   position: absolute;
   top: 48px; /* было 18px, стало ниже на 30px */
-  left: 100px; /* было 110px, стало левее на 10px */
+  left: 105px; /* было 110px, стало левее на 10px */
   z-index: 10;
   background: #222;
   border: 4px solid #ffb300;
@@ -137,16 +147,18 @@ const TailIconStyled = styled(motion.button)<{ small?: boolean }>`
   outline: none;
   ${({ small }) =>
     small &&
-    `@media (max-width: 380px) and (max-height: 670px) {
-      width: 40px;
-      height: 66px;
-      border-radius: 0 14px 14px 0;
-      & svg {
-        width: 22px !important;
-        height: 22px !important;
+    `
+      @media (max-width: 380px) and (max-height: 670px),
+             (max-width: 362px) and (max-height: 742px) {
+        width: 40px;
+        height: 66px;
+        border-radius: 0 14px 14px 0;
+        & svg {
+          width: 22px !important;
+          height: 22px !important;
+        }
       }
-    }`
-  }
+    `}
 `;
 
 const PotWrapper = styled.div`
@@ -319,6 +331,11 @@ const MainScreen: React.FC<MainScreenProps> = ({
       { level: 3, price: 1200, reward: 30 },
       { level: 4, price: 2000, reward: 40 },
       { level: 5, price: 2500, reward: 50 },
+      { level: 6, price: 3000, reward: 60 },
+      { level: 7, price: 3500, reward: 70 },
+      { level: 8, price: 4000, reward: 80 },
+      { level: 9, price: 4500, reward: 90 },
+      { level: 10, price: 5000, reward: 100 },
     ];
     let reward = 5;
     if (upgradeLevel > 0) {
@@ -383,6 +400,56 @@ const MainScreen: React.FC<MainScreenProps> = ({
 
   return (
     <Background style={bgStyle}>
+      {/* Фиксированные иконки полива и удобрения справа от цветка */}
+      {flowerVisible && (canWater || canFertilize) && (
+        <div
+          style={{
+            position: "absolute",
+            left: "calc(50% + 50px)",
+            top:
+              window.innerWidth === 375 && window.innerHeight === 667
+                ? "calc(50% + 25px)"
+                : "calc(50% + 10px)",
+            transform: "translate(-50%, -100%)",
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: canWater && canFertilize ? 2 : 0,
+            pointerEvents: "none",
+          }}
+        >
+          {canWater && (
+            <img
+              src={WoterImg}
+              alt="Полить"
+              style={{
+                width: 72,
+                height: 72,
+                marginBottom: canFertilize ? 2 : 0,
+                pointerEvents: "none",
+                userSelect: "none",
+                display: "block",
+                zIndex: 9999,
+              }}
+            />
+          )}
+          {canFertilize && (
+            <img
+              src={ListImg}
+              alt="Удобрить"
+              style={{
+                width: 72,
+                height: 72,
+                pointerEvents: "none",
+                userSelect: "none",
+                display: "block",
+                zIndex: 9999,
+              }}
+            />
+          )}
+        </div>
+      )}
       <CoinBarWrapper>
         <CoinIcon>
           <FaCoins />
@@ -758,17 +825,23 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 <>
                   <AwakenBar>
                     <AwakenBarFill percent={awakenPercent} />
+                    <span
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                        fontSize: 16,
+                        color: "#111",
+                        fontWeight: 700,
+                        width: "100%",
+                        textAlign: "center",
+                        letterSpacing: 1,
+                        userSelect: "none",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      До монет: {formatAwakenTime(awakenTimeLeft)}
+                    </span>
                   </AwakenBar>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      color: "#db8f14",
-                      fontWeight: 600,
-                      marginBottom: 4,
-                    }}
-                  >
-                    До монет: {formatAwakenTime(awakenTimeLeft)}
-                  </div>
                   <AwakenButton disabled>В процессе...</AwakenButton>
                 </>
               )}
@@ -791,10 +864,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
               exit={{ opacity: 0, y: 30 }}
               transition={{ duration: 0.4 }}
               style={{
-                position: "absolute",
-                top: -60,
-                left: "50%",
-                transform: "translateX(-50%)",
+                position: "fixed",
+                top: "calc(50% - 130px)",
+                left: "calc(50% - 90px)",
+                transform: "translate(-50%, -50%)",
                 background: "#ffecb3",
                 color: "#6d4c41",
                 padding: "14px 36px",
@@ -802,9 +875,11 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 boxShadow: "0 2px 16px #a1887f44",
                 fontWeight: "bold",
                 fontSize: 20,
-                zIndex: 1000,
+                zIndex: 99999,
                 textAlign: "center",
                 pointerEvents: "none",
+                minWidth: 120,
+                maxWidth: "90vw",
               }}
             >
               {notifText}
