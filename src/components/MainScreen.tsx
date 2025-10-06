@@ -1,10 +1,59 @@
 import React from "react";
+// --- Стили для прогресс-бара и кнопки пробуждения ---
+const AwakenWrapper = styled.div`
+  width: 220px;
+  max-width: 90vw;
+  border-radius: 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+  margin: 32px auto 0 auto;
+`;
+const AwakenBar = styled.div`
+  width: 140px;
+  height: 14px;
+  background: #ffe082;
+  border-radius: 9px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px #ffb30022;
+`;
+const AwakenBarFill = styled.div<{ percent: number }>`
+  height: 100%;
+  width: ${({ percent }) => percent}%;
+  background: linear-gradient(90deg, #ffd54f 60%, #ffb300 100%);
+  border-radius: 9px;
+  transition: width 0.3s;
+`;
+const AwakenButton = styled.button`
+  background: #ffb300;
+  color: #fffde7;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 32px;
+  font-size: 1.1em;
+  font-weight: bold;
+  box-shadow: 0 2px 8px #a1887f44;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s;
+  &:hover:enabled {
+    background: #ffa000;
+  }
+  &:disabled {
+    background: #ccc;
+    color: #888;
+    cursor: not-allowed;
+  }
+`;
 import LeikaImg from "../assets/Leika.png";
 import YdobrImg from "../assets/Ydobr.png";
 import styled from "styled-components";
 import Pot from "./Pot";
 import Flower from "./Flower";
-import { FaCoins, FaStore, FaGift, FaImage } from "react-icons/fa";
+import { FaCoins, FaStore, FaGift, FaImage, FaBolt } from "react-icons/fa";
 import { FaTint, FaLeaf } from "react-icons/fa";
 import { MdAssignment } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
@@ -16,6 +65,7 @@ import bg5 from "../assets/i5.jpg";
 import bg6 from "../assets/i6.jpg";
 import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
+import AwakenUpgradeModal from "./AwakenUpgradeModal";
 
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
@@ -81,15 +131,17 @@ const TailIconStyled = styled(motion.button)`
 
 const PotWrapper = styled.div`
   position: absolute;
-  left: calc(50% + 25px);
-  bottom: 28vh;
-  transform: translateX(-50%);
+  left: 50%;
+  top: calc(50% + 60px);
+  transform: translate(-50%, -40%);
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   @media (max-width: 700px) {
-    left: calc(50% + 5px);
+    left: 50%;
+    top: calc(54% + 60px);
+    transform: translate(-50%, -40%);
   }
 `;
 
@@ -121,14 +173,12 @@ type MainScreenProps = {
   showYdobr?: boolean;
   onPlant: () => void;
   tutorialStep?: number;
-  // waterLeftMs?: number;
-  // fertilizeLeftMs?: number;
-  // getTimeLeftText?: (ms: number) => string;
   onWater: () => void;
   onFertilize: () => void;
   canWater?: boolean;
   canFertilize?: boolean;
   disableActions?: boolean;
+  onAwakenUpgrade: () => void;
 };
 
 const MainScreen: React.FC<MainScreenProps> = ({
@@ -144,12 +194,25 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canWater,
   canFertilize,
   disableActions,
-
-  // waterLeftMs,
-  // fertilizeLeftMs,
-  // getTimeLeftText,
+  onAwakenUpgrade,
 }) => {
-  // --- Монеты ---
+  // Кнопка открытия модалки прокачки пробуждения (вызывается из Menu через проп onAwakenUpgrade)
+  // ...
+  // Вставьте сюда Menu, если он используется внутри MainScreen, иначе вызовите onAwakenUpgrade из App
+  // --- Монеты и уровень прокачки пробуждения ---
+  // --- Прокачка пробуждения ---
+  const AWAKEN_UPGRADE_KEY = "pot_awaken_upgrade";
+  const [upgradeLevel, setUpgradeLevel] = React.useState<number>(() => Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0));
+  React.useEffect(() => {
+    const handler = () => setUpgradeLevel(Number(localStorage.getItem(AWAKEN_UPGRADE_KEY) || 0));
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
+
+  // --- Модалка прокачки пробуждения ---
+  const [showAwakenUpgrade, setShowAwakenUpgrade] = React.useState(false);
+  const handleOpenAwakenUpgrade = () => setShowAwakenUpgrade(true);
+  const handleCloseAwakenUpgrade = () => setShowAwakenUpgrade(false);
   const flowerSkin =
     localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
   const [coins, setCoins] = React.useState<number>(
@@ -184,13 +247,72 @@ const MainScreen: React.FC<MainScreenProps> = ({
     const handler = () =>
       setCoins(Number(localStorage.getItem("progress_coins") || 0));
     window.addEventListener("storage", handler);
-    // Для синхронизации при изменении монет из ProgressModal
     const interval = setInterval(handler, 1000);
     return () => {
       window.removeEventListener("storage", handler);
       clearInterval(interval);
     };
   }, []);
+
+  // --- Пробуждение горшка и прогресс-бар ---
+  const AWAKEN_KEY = "pot_awaken_start";
+  const AWAKEN_DURATION = 5 * 60 * 1000; // 5 минут
+  const [awakenStart, setAwakenStart] = React.useState<number>(() =>
+    Number(localStorage.getItem(AWAKEN_KEY) || 0)
+  );
+  const [now, setNow] = React.useState<number>(Date.now());
+  const [collecting, setCollecting] = React.useState(false);
+  React.useEffect(() => {
+    if (!flowerVisible) return;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [flowerVisible]);
+  const awakenActive =
+    flowerVisible && awakenStart > 0 && now - awakenStart < AWAKEN_DURATION;
+  const awakenPercent = awakenActive
+    ? Math.min(100, ((now - awakenStart) / AWAKEN_DURATION) * 100)
+    : awakenStart && flowerVisible
+    ? 100
+    : 0;
+  const awakenTimeLeft = awakenActive
+    ? Math.max(0, AWAKEN_DURATION - (now - awakenStart))
+    : 0;
+  function formatAwakenTime(ms: number) {
+    if (ms <= 0) return "Готово!";
+    const min = Math.floor(ms / 60000);
+    const sec = Math.floor((ms % 60000) / 1000);
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  }
+  function handleAwakenStart() {
+    const t = Date.now();
+    setAwakenStart(t);
+    localStorage.setItem(AWAKEN_KEY, String(t));
+  }
+  function handleAwakenCollect() {
+    if (awakenPercent < 100 || collecting) return;
+    setCollecting(true);
+    // Награда зависит от уровня прокачки
+    const LEVELS = [
+      { level: 1, price: 500, reward: 10 },
+      { level: 2, price: 800, reward: 20 },
+      { level: 3, price: 1200, reward: 30 },
+      { level: 4, price: 2000, reward: 40 },
+      { level: 5, price: 2500, reward: 50 },
+    ];
+    let reward = 5;
+    if (upgradeLevel > 0) {
+      const found = LEVELS.find((l) => l.level === upgradeLevel);
+      if (found) reward = found.reward;
+    }
+    const current = Number(localStorage.getItem("progress_coins") || 0);
+    localStorage.setItem("progress_coins", String(current + reward));
+    setTimeout(() => {
+      setAwakenStart(0);
+      localStorage.setItem(AWAKEN_KEY, "0");
+      setCollecting(false);
+      setCoins(current + reward);
+    }, 400);
+  }
   const bgMap: Record<string, string> = {
     "i.jpg": bg1,
     "i2.jpg": bg2,
@@ -442,6 +564,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
         >
           <FaGift size={32} color="#88181e" />
         </TailIconStyled>
+        {/* Кнопка прокачки пробуждения */}
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            borderRadius: "24px 0 0 24px",
+            borderLeft: "none",
+            borderRight: "2px solid #ffb300",
+          }}
+          onClick={() => setShowAwakenUpgrade(true)}
+        >
+          <FaBolt size={32} color="#db8f14" />
+        </TailIconStyled>
         <TailIconStyled
           as={motion.button}
           whileTap={{ scale: 0.95 }}
@@ -582,6 +717,43 @@ const MainScreen: React.FC<MainScreenProps> = ({
               Посадить цветок
             </button>
           )}
+          {/* Кнопка пробуждения/бар/забрать монеты */}
+          {/* Кнопка пробуждения/бар/забрать монеты теперь внутри PotWrapper, сразу под горшком */}
+          {flowerVisible && (
+            <AwakenWrapper>
+              {awakenStart === 0 && (
+                <AwakenButton onClick={handleAwakenStart}>
+                  Пробудить горшок
+                </AwakenButton>
+              )}
+              {awakenStart > 0 && awakenPercent < 100 && (
+                <>
+                  <AwakenBar>
+                    <AwakenBarFill percent={awakenPercent} />
+                  </AwakenBar>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      color: "#db8f14",
+                      fontWeight: 600,
+                      marginBottom: 4,
+                    }}
+                  >
+                    До монет: {formatAwakenTime(awakenTimeLeft)}
+                  </div>
+                  <AwakenButton disabled>В процессе...</AwakenButton>
+                </>
+              )}
+              {awakenStart > 0 && awakenPercent === 100 && (
+                <AwakenButton
+                  onClick={handleAwakenCollect}
+                  disabled={collecting}
+                >
+                  {collecting ? "Забираем..." : "Забрать монетки"}
+                </AwakenButton>
+              )}
+            </AwakenWrapper>
+          )}
         </div>
         <AnimatePresence>
           {showSizeNotif && (
@@ -612,6 +784,18 @@ const MainScreen: React.FC<MainScreenProps> = ({
           )}
         </AnimatePresence>
       </PotWrapper>
+      {/* Модалка прокачки пробуждения */}
+      <AnimatePresence>
+        {showAwakenUpgrade && (
+          <AwakenUpgradeModal
+            onClose={handleCloseAwakenUpgrade}
+            coins={coins}
+            setCoins={setCoins}
+            upgradeLevel={upgradeLevel}
+            setUpgradeLevel={setUpgradeLevel}
+          />
+        )}
+      </AnimatePresence>
       <Footer>
         Ver. 1.6.3 by -
         <a

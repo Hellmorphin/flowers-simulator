@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
-const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+const isAndroid =
+  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 
 const ModalOverlay = styled(motion.div)`
   position: fixed;
@@ -70,7 +71,8 @@ const TaskList = styled.div`
 `;
 
 const TaskItem = styled.div`
-  background: #fffde7;
+  background: rgba(255, 236, 179, 0.98);
+
   border-radius: 1.2rem;
   box-shadow: 0 2px 8px #a1887f44;
   padding: 1.1rem 2.2rem;
@@ -112,12 +114,10 @@ export const TASKS = [
   { name: "Бесплатно", reward: 10 },
 ];
 
-
 function getNextUpdateTime() {
   const last = Number(localStorage.getItem("tasks_last_update") || 0);
   return last + 12 * 3600 * 1000;
 }
-
 
 function getTimeLeft(target: number) {
   const now = Date.now();
@@ -146,7 +146,9 @@ export interface TasksModalProps {
 }
 
 const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
-  const [tasks, setTasks] = useState<Array<{ name: string; reward: number }>>([]);
+  const [tasks, setTasks] = useState<Array<{ name: string; reward: number }>>(
+    []
+  );
   const [timer, setTimer] = useState<string>("");
 
   const [completed, setCompleted] = useState<{ [key: string]: boolean }>({});
@@ -158,7 +160,7 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
     let lastUpdate = Number(localStorage.getItem("tasks_last_update") || 0);
     let saved = localStorage.getItem("tasks_current");
     let currentTasks: Array<{ name: string; reward: number }> = [];
-  // let claimedObj: { [key: string]: boolean } = {};
+    // let claimedObj: { [key: string]: boolean } = {};
     if (!saved || Date.now() - lastUpdate > 12 * 3600 * 1000) {
       currentTasks = getRandomTasks();
       localStorage.setItem("tasks_current", JSON.stringify(currentTasks));
@@ -224,7 +226,9 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
         transition={{ duration: isAndroid ? 0 : 0.2 }}
         onClick={(e) => e.stopPropagation()}
       >
-  <CloseBtn onClick={onClose} title="Закрыть">×</CloseBtn>
+        <CloseBtn onClick={onClose} title="Закрыть">
+          ×
+        </CloseBtn>
         <Title>Задания</Title>
         <TimerText>Обновится через: {timer}</TimerText>
         <TaskList>
@@ -250,12 +254,17 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
                       boxShadow: "0 2px 8px #43a04744",
                     }}
                     onClick={() => {
-                      let coins = Number(localStorage.getItem("progress_coins") || 0);
+                      let coins = Number(
+                        localStorage.getItem("progress_coins") || 0
+                      );
                       coins += task.reward;
                       localStorage.setItem("progress_coins", String(coins));
                       const newClaimed = { ...claimed, [nkey]: true };
                       setClaimed(newClaimed);
-                      localStorage.setItem("tasks_claimed", JSON.stringify(newClaimed));
+                      localStorage.setItem(
+                        "tasks_claimed",
+                        JSON.stringify(newClaimed)
+                      );
                       setShowCompleteMsg("Вы выполнили задание!");
                       setTimeout(() => setShowCompleteMsg(null), 3000);
                     }}
@@ -315,6 +324,6 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
       </ModalBox>
     </ModalOverlay>
   );
-}
+};
 
 export default TasksModal;

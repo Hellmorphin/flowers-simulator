@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-const isAndroid = typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+const isAndroid =
+  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 
 const ModalBackground = styled(motion.div)`
   position: fixed;
@@ -61,7 +62,8 @@ const BonusBlocksRow = styled.div`
 `;
 
 const BonusBlock = styled.div`
-  background: #f9f6e7;
+  background: rgba(255, 236, 179, 0.98);
+  box-shadow: 0 2px 12px #ffb30033;
   border-radius: 12px;
   padding: 14px 10px;
   display: flex;
@@ -220,7 +222,7 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
         {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
         animate={{ scale: 1 }}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×

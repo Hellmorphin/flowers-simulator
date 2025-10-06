@@ -176,12 +176,12 @@ const BG_BOUGHT_KEY = "flowersim.bg.bought";
 const COINS_KEY = "progress_coins";
 
 const backgrounds = [
-  { name: "i.jpg", src: bg1, price: 70 },
-  { name: "i2.jpg", src: bg2, price: 70 },
-  { name: "i3.jpg", src: bg3, price: 70 },
-  { name: "i4.jpg", src: bg4, price: 100 },
-  { name: "i5.jpg", src: bg5, price: 100 },
-  { name: "i6.jpg", src: bg6, price: 100 },
+  { name: "i.jpg", src: bg1, price: 300 },
+  { name: "i2.jpg", src: bg2, price: 300 },
+  { name: "i3.jpg", src: bg3, price: 300 },
+  { name: "i4.jpg", src: bg4, price: 600 },
+  { name: "i5.jpg", src: bg5, price: 600 },
+  { name: "i6.jpg", src: bg6, price: 600 },
 ];
 
 const tempBgAssets: Record<string, string> = {
@@ -256,7 +256,7 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
         animate={{ scale: 1 }}
         exit={!isAndroid ? { scale: 0.9 } : undefined}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×

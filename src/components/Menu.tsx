@@ -107,6 +107,7 @@ interface MenuProps {
   tutorialStep?: number;
   onShop: () => void;
   isFlowerMaxed?: boolean;
+  onAwakenUpgrade: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
@@ -211,6 +212,16 @@ const Menu: React.FC<MenuProps> = ({
             onClick={handleOpenBackgroundModal}
           >
             Фон
+          </MenuButton>
+          <MenuButton
+            style={{
+              background: "#ffd600",
+              color: "#6d4c41",
+              fontWeight: 700,
+              marginTop: "1.2rem",
+            }}
+          >
+            Прокачка Пробуждения
           </MenuButton>
           <MenuButton
             style={{
