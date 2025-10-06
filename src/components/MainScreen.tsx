@@ -411,7 +411,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 ? "calc(50% + 25px)"
                 : "calc(50% + 10px)",
             transform: "translate(-50%, -100%)",
-            zIndex: 9999,
+            zIndex: 9, // ниже модалок
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -430,7 +430,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 pointerEvents: "none",
                 userSelect: "none",
                 display: "block",
-                zIndex: 9999,
+                zIndex: 9,
               }}
             />
           )}
@@ -444,7 +444,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 pointerEvents: "none",
                 userSelect: "none",
                 display: "block",
-                zIndex: 9999,
+                zIndex: 9,
               }}
             />
           )}
