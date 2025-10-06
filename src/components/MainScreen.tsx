@@ -4,8 +4,9 @@ import YdobrImg from "../assets/Ydobr.png";
 import styled from "styled-components";
 import Pot from "./Pot";
 import Flower from "./Flower";
-import { FaCoins, FaTint } from "react-icons/fa";
-import { GiFertilizerBag } from "react-icons/gi";
+import { FaCoins, FaStore, FaGift, FaImage } from "react-icons/fa";
+import { FaTint, FaLeaf } from "react-icons/fa";
+import { MdAssignment } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
 import bg1 from "../assets/i.jpg";
 import bg2 from "../assets/i2.jpg";
@@ -119,15 +120,15 @@ type MainScreenProps = {
   showLeika?: boolean;
   showYdobr?: boolean;
   onPlant: () => void;
+  tutorialStep?: number;
+  // waterLeftMs?: number;
+  // fertilizeLeftMs?: number;
+  // getTimeLeftText?: (ms: number) => string;
   onWater: () => void;
   onFertilize: () => void;
   canWater?: boolean;
   canFertilize?: boolean;
   disableActions?: boolean;
-  tutorialStep?: number;
-  // waterLeftMs?: number;
-  // fertilizeLeftMs?: number;
-  // getTimeLeftText?: (ms: number) => string;
 };
 
 const MainScreen: React.FC<MainScreenProps> = ({
@@ -143,7 +144,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canWater,
   canFertilize,
   disableActions,
-  tutorialStep,
+
   // waterLeftMs,
   // fertilizeLeftMs,
   // getTimeLeftText,
@@ -154,6 +155,31 @@ const MainScreen: React.FC<MainScreenProps> = ({
   const [coins, setCoins] = React.useState<number>(
     Number(localStorage.getItem("progress_coins") || 0)
   );
+  // Локальные таймеры для отображения КД (как в Menu)
+  const [waterLeft, setWaterLeft] = React.useState(0);
+  const [fertilizeLeft, setFertilizeLeft] = React.useState(0);
+  React.useEffect(() => {
+    function updateTimes() {
+      const progress =
+        JSON.parse(localStorage.getItem("flowersim.progress") || "{}") || {};
+      const now = Date.now();
+      const lastWater = progress?.lastWater || 0;
+      const lastFertilize = progress?.lastFertilize || 0;
+      setWaterLeft(Math.max(0, 30 * 60 * 1000 - (now - lastWater)));
+      setFertilizeLeft(Math.max(0, 2 * 60 * 60 * 1000 - (now - lastFertilize)));
+    }
+    updateTimes();
+    const interval = setInterval(updateTimes, 200);
+    return () => clearInterval(interval);
+  }, []);
+  function getTimeLeftText(ms: number) {
+    if (ms <= 0) return "";
+    const min = Math.ceil(ms / 60000);
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    if (h > 0) return `${h}ч ${m}м`;
+    return `${m}м`;
+  }
   React.useEffect(() => {
     const handler = () =>
       setCoins(Number(localStorage.getItem("progress_coins") || 0));
@@ -195,32 +221,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
     : { background: "#222" };
 
   // Локальные таймеры для отображения КД (как в Menu)
-  const [waterLeft, setWaterLeft] = React.useState(0);
-  const [fertilizeLeft, setFertilizeLeft] = React.useState(0);
-  React.useEffect(() => {
-    function updateTimes() {
-      const progress =
-        JSON.parse(localStorage.getItem("flowersim.progress") || "{}") || {};
-      const now = Date.now();
-      const lastWater = progress?.lastWater || 0;
-      const lastFertilize = progress?.lastFertilize || 0;
-      setWaterLeft(Math.max(0, 30 * 60 * 1000 - (now - lastWater)));
-      setFertilizeLeft(Math.max(0, 2 * 60 * 60 * 1000 - (now - lastFertilize)));
-    }
-    updateTimes();
-    const interval = setInterval(updateTimes, 200);
-    return () => clearInterval(interval);
-  }, []);
 
   // --- Функция форматирования времени КД (как в Menu) ---
-  function getTimeLeftText(ms: number) {
-    if (ms <= 0) return "";
-    const min = Math.ceil(ms / 60000);
-    const h = Math.floor(min / 60);
-    const m = min % 60;
-    if (h > 0) return `${h}ч ${m}м`;
-    return `${m}м`;
-  }
 
   // --- Уведомление о размере цветка ---
   const [showSizeNotif, setShowSizeNotif] = React.useState(false);
@@ -231,7 +233,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
   // Обработчик клика по горшку
   const handlePotClick = () => {
     if (!flowerVisible) return;
-    setNotifText(`Размер цветка  ${flowerPercent}%`);
+    setNotifText(`Размер  ${flowerPercent}%`);
     setShowSizeNotif(true);
     setTimeout(() => setShowSizeNotif(false), 5000);
   };
@@ -244,7 +246,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </CoinIcon>
         <CoinAmount>{coins}</CoinAmount>
       </CoinBarWrapper>
-      {/* Кнопки "Удобрить" и "Полить" слева — как хвостик, с таймером */}
+      {/* Хвостики-кнопки слева (полить/удобрить) */}
       <div
         style={{
           position: "absolute",
@@ -260,7 +262,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
           as={motion.button}
           whileTap={{ scale: 0.95 }}
           onClick={onFertilize}
-          disabled={disableActions || !canFertilize}
+          disabled={disableActions || !canFertilize || flowerPercent === 100}
           style={{
             marginBottom: 6,
             opacity: 1,
@@ -289,9 +291,27 @@ const MainScreen: React.FC<MainScreenProps> = ({
               zIndex: 1,
             }}
           >
-            <GiFertilizerBag size={32} color="#2c7a14" />
+            <FaLeaf size={32} color="#388e3c" />
           </span>
-          {canFertilize || disableActions ? null : (
+          {flowerPercent === 100 ? (
+            <span
+              style={{
+                display: "block",
+                fontSize: 18,
+                color: "#388e3c",
+                minWidth: 60,
+                position: "relative",
+                background: "none",
+                borderRadius: 0,
+                padding: 0,
+                textAlign: "center",
+                fontWeight: 700,
+                zIndex: 3,
+              }}
+            >
+              Макс.
+            </span>
+          ) : canFertilize || disableActions ? null : (
             <span
               style={{
                 display: "block",
@@ -315,7 +335,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
           as={motion.button}
           whileTap={{ scale: 0.95 }}
           onClick={onWater}
-          disabled={disableActions || !canWater}
+          disabled={disableActions || !canWater || flowerPercent === 100}
           style={{
             opacity: 1,
             cursor: disableActions || !canWater ? "not-allowed" : "pointer",
@@ -345,7 +365,25 @@ const MainScreen: React.FC<MainScreenProps> = ({
           >
             <FaTint size={32} color="#039be5" />
           </span>
-          {canWater || disableActions ? null : (
+          {flowerPercent === 100 ? (
+            <span
+              style={{
+                display: "block",
+                fontSize: 18,
+                color: "#388e3c",
+                minWidth: 60,
+                position: "relative",
+                background: "none",
+                borderRadius: 0,
+                padding: 0,
+                textAlign: "center",
+                fontWeight: 700,
+                zIndex: 3,
+              }}
+            >
+              Макс.
+            </span>
+          ) : canWater || disableActions ? null : (
             <span
               style={{
                 display: "block",
@@ -353,7 +391,6 @@ const MainScreen: React.FC<MainScreenProps> = ({
                 color: "#553f09",
                 minWidth: 60,
                 position: "relative",
-
                 background: "none",
                 borderRadius: 0,
                 padding: 0,
@@ -365,6 +402,73 @@ const MainScreen: React.FC<MainScreenProps> = ({
               {getTimeLeftText(waterLeft)}
             </span>
           )}
+        </TailIconStyled>
+      </div>
+      {/* Хвостики-кнопки справа */}
+      <div
+        style={{
+          position: "absolute",
+          top: 180,
+          right: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 18,
+          zIndex: 12,
+        }}
+      >
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            borderRadius: "24px 0 0 24px",
+            borderLeft: "none",
+            borderRight: "2px solid #ffb300",
+          }}
+          onClick={() => window.dispatchEvent(new CustomEvent("openShopModal"))}
+        >
+          <FaStore size={32} color="#1b855e" />
+        </TailIconStyled>
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            borderRadius: "24px 0 0 24px",
+            borderLeft: "none",
+            borderRight: "2px solid #ffb300",
+          }}
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("openProgressModal"))
+          }
+        >
+          <FaGift size={32} color="#88181e" />
+        </TailIconStyled>
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            borderRadius: "24px 0 0 24px",
+            borderLeft: "none",
+            borderRight: "2px solid #ffb300",
+          }}
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("openBackgroundModal"))
+          }
+        >
+          <FaImage size={32} color="#33bb94" />
+        </TailIconStyled>
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            borderRadius: "24px 0 0 24px",
+            borderLeft: "none",
+            borderRight: "2px solid #ffb300",
+          }}
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("openTasksModal"))
+          }
+        >
+          <MdAssignment size={32} color="#080808" />
         </TailIconStyled>
       </div>
       {/* Анимация лейки */}
@@ -458,6 +562,26 @@ const MainScreen: React.FC<MainScreenProps> = ({
               <Pot potSkin={potSkin} />
             </div>
           </div>
+          {!flowerVisible && (
+            <button
+              onClick={onPlant}
+              style={{
+                marginTop: 24,
+                padding: "12px 32px",
+                fontSize: 20,
+                borderRadius: 16,
+                background: "#ffecb3",
+                color: "#6d4c41",
+                border: "2px solid #ffb300",
+                fontWeight: 700,
+                boxShadow: "0 2px 12px #ffb30044",
+                cursor: "pointer",
+                zIndex: 10,
+              }}
+            >
+              Посадить цветок
+            </button>
+          )}
         </div>
         <AnimatePresence>
           {showSizeNotif && (
@@ -489,7 +613,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </AnimatePresence>
       </PotWrapper>
       <Footer>
-        Ver. 1.6.2 by -
+        Ver. 1.6.3 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

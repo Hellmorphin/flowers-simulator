@@ -148,7 +148,7 @@ const potSkins = [
   { name: "Boss", file: "gorshokBoss.png", unlock: 150 },
   { name: "Ангел", file: "gorshokAngel.png", unlock: 200 }, // Gold — за 100 часов
   { name: "Банка", file: "gorshoBank.png", unlock: 215 },
-  { name: "Бакал", file: "gorshokgolda.png", unlock: 120 },
+  { name: "Бакал", file: "gorshokgolda.png", unlock: 220 },
   { name: "Энергетик", file: "gorshoEnergypng.png", unlock: 230 },
   { name: "Туалет", file: "gorshokHuida.png", unlock: 250 },
   { name: "Кубик", file: "gorshokmine.png", unlock: 280 },
@@ -395,20 +395,20 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-      <ModalOverlay
-        initial={!isAndroid ? { opacity: 0 } : undefined}
-        animate={{ opacity: 1 }}
-        exit={!isAndroid ? { opacity: 0 } : undefined}
+    <ModalOverlay
+      initial={!isAndroid ? { opacity: 0 } : undefined}
+      animate={{ opacity: 1 }}
+      exit={!isAndroid ? { opacity: 0 } : undefined}
+      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      onClick={onClose}
+    >
+      <ModalBox
+        initial={!isAndroid ? { scale: 0.9 } : undefined}
+        animate={{ scale: 1 }}
+        exit={!isAndroid ? { scale: 0.9 } : undefined}
         transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={onClose}
+        onClick={(e) => e.stopPropagation()}
       >
-        <ModalBox
-          initial={!isAndroid ? { scale: 0.9 } : undefined}
-          animate={{ scale: 1 }}
-          exit={!isAndroid ? { scale: 0.9 } : undefined}
-          transition={{ duration: isAndroid ? 0 : 0.2 }}
-          onClick={e => e.stopPropagation()}
-        >
         <CloseBtn onClick={onClose} title="Закрыть">
           ×
         </CloseBtn>

@@ -32,6 +32,7 @@ const ModalContainer = styled(motion.div)`
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
+  overflow-x: hidden;
   gap: 24px;
   scrollbar-width: none;
   &::-webkit-scrollbar {

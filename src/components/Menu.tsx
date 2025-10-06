@@ -1,19 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+
 // Определяем Android-устройство
 const isAndroid =
   typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
-
-// Вспомогательная функция для форматирования времени без секунд
-function getTimeLeftText(ms: number) {
-  if (ms <= 0) return "";
-  const min = Math.ceil(ms / 60000);
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  if (h > 0) return `${h}ч ${m}м`;
-  return `${m}м`;
-}
 
 const GlassMenu = styled(motion.div)`
   position: fixed;
@@ -106,7 +97,6 @@ const TailGrip = styled.div`
 `;
 
 interface MenuProps {
-  // ...existing code...
   open: boolean;
   toggleMenu: () => void;
   onPlant: () => void;
@@ -123,36 +113,13 @@ const Menu: React.FC<MenuProps> = ({
   open,
   toggleMenu,
   onPlant,
-  onWater,
-  onFertilize,
-  canWater,
-  canFertilize,
+
   tutorialStep,
   onShop,
   isFlowerMaxed,
 }) => {
   const showPlantBtn = tutorialStep === 1;
-  const disableActions = tutorialStep !== undefined && tutorialStep < 2;
-  // --- Время до активации кнопок ---
-  const [waterLeftMs, setWaterLeftMs] = useState(0);
-  const [fertilizeLeftMs, setFertilizeLeftMs] = useState(0);
-  useEffect(() => {
-    function updateTimes() {
-      const progress = JSON.parse(
-        localStorage.getItem("flowersim.progress") || "{}"
-      );
-      const now = Date.now();
-      const lastWater = progress?.lastWater || 0;
-      const lastFertilize = progress?.lastFertilize || 0;
-      setWaterLeftMs(Math.max(0, 30 * 60 * 1000 - (now - lastWater)));
-      setFertilizeLeftMs(
-        Math.max(0, 2 * 60 * 60 * 1000 - (now - lastFertilize))
-      );
-    }
-    updateTimes();
-    const interval = setInterval(updateTimes, 200); // обновлять раз в 0.2 секунды для мгновенного отклика
-    return () => clearInterval(interval);
-  }, []);
+
   const handleOpenBackgroundModal = () => {
     if (typeof window !== "undefined" && window.dispatchEvent) {
       window.dispatchEvent(new CustomEvent("openBackgroundModal"));
@@ -166,25 +133,6 @@ const Menu: React.FC<MenuProps> = ({
 
   return (
     <>
-      {!open && (
-        <TailIcon
-          style={{
-            position: "fixed",
-            right: 0,
-            left: "auto",
-            top: "45%",
-            zIndex: 200,
-          }}
-          initial={{ x: isAndroid ? 0 : 60, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={
-            isAndroid ? { duration: 0 } : { type: "spring", stiffness: 120 }
-          }
-          onClick={toggleMenu}
-        >
-          <TailGrip />
-        </TailIcon>
-      )}
       {open && (
         <GlassMenu
           initial={{ x: isAndroid ? 0 : "100%" }}

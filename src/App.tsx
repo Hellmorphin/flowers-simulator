@@ -29,9 +29,9 @@ const defaultProgress: Progress = {
 
 // Туториал: 0 — открыть меню, 1 — посадить цветок, 2 — открыть меню, 3 — удобрить, 4 — полить
 const TUTORIAL_STEPS = [
-  "Нажмите на хвостик справа для открытия меню.",
   "Нажмите «Посадить цветок».",
-  "Обратите внимание на кнопку с удобрением и каплей.",
+  "Нажмите «Посадить цветок».",
+  "Обратите внимание на кнопку с листиком (это удобрить) и каплей (это полить).",
   "Нажмите «Удобрить».",
   "Нажмите «Полить».",
 ];
@@ -42,6 +42,8 @@ import ProgressModal from "./components/ProgressModal";
 import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
+  const [canWater, setCanWater] = useState(false);
+  const [canFertilize, setCanFertilize] = useState(false);
   // Инициализация заданий при первом запуске приложения
   useEffect(() => {
     const saved = localStorage.getItem("tasks_current");
@@ -197,9 +199,16 @@ function App() {
   }, [toastContext]);
 
   // Проверка времени для полива/удобрения
-  const now = Date.now();
-  const canWater = now - progress.lastWater > 30 * 60 * 1000;
-  const canFertilize = now - progress.lastFertilize > 2 * 60 * 60 * 1000;
+  useEffect(() => {
+    function updateCanActions() {
+      const now = Date.now();
+      setCanWater(now - progress.lastWater > 30 * 60 * 1000);
+      setCanFertilize(now - progress.lastFertilize > 2 * 60 * 60 * 1000);
+    }
+    updateCanActions();
+    const interval = setInterval(updateCanActions, 500);
+    return () => clearInterval(interval);
+  }, [progress.lastWater, progress.lastFertilize]);
 
   // Туториал логика
   const [tutorialStep, setTutorialStep] = useState<number>(
@@ -231,8 +240,13 @@ function App() {
       setBackgroundModalOpen(true);
       setMenuOpen(false);
     };
+    const handlerShop = () => {
+      setShopOpen(true);
+      setMenuOpen(false);
+    };
     window.addEventListener("openProgressModal", handlerProgress);
     window.addEventListener("openBackgroundModal", handlerBg);
+    window.addEventListener("openShopModal", handlerShop);
     const handlerTasks = () => {
       setTasksModalOpen(true);
       setMenuOpen(false);
@@ -241,6 +255,8 @@ function App() {
     return () => {
       window.removeEventListener("openProgressModal", handlerProgress);
       window.removeEventListener("openBackgroundModal", handlerBg);
+      window.removeEventListener("openShopModal", handlerShop);
+      window.removeEventListener("openTasksModal", handlerTasks);
     };
   }, []);
 
@@ -290,6 +306,7 @@ function App() {
     if (!canFertilize) return;
     setShowYdobr(true);
     setTimeout(() => setShowYdobr(false), 4000);
+    const now = Date.now();
     // Только для новых пользователей продолжаем туториал
     if (progress.tutorialStep < 5) {
       setProgress((p) => {
@@ -335,6 +352,7 @@ function App() {
     if (!canWater) return;
     setShowLeika(true);
     setTimeout(() => setShowLeika(false), 4000);
+    const now = Date.now();
     const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
     if (size >= MAX_FLOWER) {
       (toastApi?.showToast || toastContext?.showToast)?.(
