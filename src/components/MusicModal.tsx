@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { FaRegCircle, FaMusic, FaVolumeMute } from "react-icons/fa";
+import { FaMusic, FaVolumeMute } from "react-icons/fa";
 
 const ModalOverlay = styled(motion.div)`
   position: fixed;
@@ -40,6 +40,12 @@ const CloseBtn = styled.button`
   color: #6d4c41;
   cursor: pointer;
   z-index: 10;
+  outline: none;
+  box-shadow: none;
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
   @media (max-width: 700px) {
     top: -0.9rem;
     right: -0.9rem;
@@ -72,9 +78,11 @@ const MusicModal: React.FC<{
         initial={false}
         animate={{ scale: 1 }}
         transition={{ duration: 0 }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
-        <CloseBtn onClick={onClose} title="Закрыть">×</CloseBtn>
+        <CloseBtn onClick={onClose} title="Закрыть">
+          ×
+        </CloseBtn>
         <Title>Музыка</Title>
         <button
           style={{
@@ -90,15 +98,27 @@ const MusicModal: React.FC<{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            outline: "none",
+            boxShadow: "none",
           }}
           onClick={onToggle}
           aria-label={enabled ? "Выключить музыку" : "Включить музыку"}
+          tabIndex={0}
+          onFocus={(e) => (e.target.style.outline = "none")}
         >
           {enabled ? <FaMusic size={32} /> : <FaVolumeMute size={32} />}
         </button>
         {enabled && (
           <div style={{ width: "100%", marginTop: 10 }}>
-            <div style={{ textAlign: "center", color: "orange", fontWeight: 600, fontSize: "1.1rem", marginBottom: 6 }}>
+            <div
+              style={{
+                textAlign: "center",
+                color: "orange",
+                fontWeight: 600,
+                fontSize: "1.1rem",
+                marginBottom: 6,
+              }}
+            >
               Громкость
             </div>
             <input
@@ -107,7 +127,7 @@ const MusicModal: React.FC<{
               max={0.1}
               step={0.001}
               value={volume}
-              onChange={e => onVolumeChange(Number(e.target.value))}
+              onChange={(e) => onVolumeChange(Number(e.target.value))}
               style={{ width: "100%", marginTop: 8 }}
             />
           </div>

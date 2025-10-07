@@ -53,7 +53,6 @@ import {
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
-
 const ModalOverlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -166,8 +165,8 @@ const PLAYTIME_LAST_TS_KEY = "flowersim.playtime.lastts";
 const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // --- Воспроизведение звука Click4.mp3 для вкладок ---
   // Для мгновенного отклика создаём новый Audio на каждый клик
-    // Удаляем неиспользуемую функцию playClick4
-  
+  // Удаляем неиспользуемую функцию playClick4
+
   // Получить временный горшок
   const handleClaimTempPot = (file: string) => {
     let tempPermData: string[] = [];
@@ -500,7 +499,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  boxShadow: "0 8px 32px #6d4c4133",
+                  boxShadow: "0 2px 8px #a1887f44",
                 }}
               >
                 <img
@@ -643,7 +642,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    boxShadow: "0 8px 32px #6d4c4133",
+                    boxShadow: "0 2px 8px #a1887f44",
                   }}
                 >
                   <img
@@ -774,7 +773,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    boxShadow: "0 8px 32px #6d4c4133",
+                    boxShadow: "0 2px 8px #a1887f44",
                   }}
                 >
                   <img
@@ -935,7 +934,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      boxShadow: "0 8px 32px #6d4c4133",
+                      boxShadow: "0 2px 8px #a1887f44",
                     }}
                   >
                     <img

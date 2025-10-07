@@ -5,7 +5,6 @@ import { FaBoxOpen } from "react-icons/fa";
 import CaseRouletteModal from "./CaseRouletteModal";
 import { motion } from "framer-motion";
 
-
 const ModalBackground = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -22,7 +21,7 @@ const ModalBackground = styled(motion.div)`
 const ModalContainer = styled(motion.div)`
   background: rgba(255, 236, 179, 0.98);
   border-radius: 2rem;
-  box-shadow: 0 8px 32px #6d4c4133;
+  box-shadow: 0 2px 8px #a1887f44;
   min-width: 0;
   max-width: 600px;
   min-height: 220px;
@@ -83,7 +82,7 @@ const BonusScrollArea = styled.div`
 
 const BonusBlock = styled.div`
   background: rgba(255, 236, 179, 0.98);
-  box-shadow: 0 2px 12px #ffb30033;
+  box-shadow: 0 2px 8px #a1887f44;
   border-radius: 12px;
   padding: 14px 10px;
   display: flex;
@@ -302,7 +301,13 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
           transition={{ duration: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); handleModalClose(); }} title="Закрыть">
+          <CloseBtn
+            onClick={() => {
+              if (typeof window.playClick2 === "function") window.playClick2();
+              handleModalClose();
+            }}
+            title="Закрыть"
+          >
             ×
           </CloseBtn>
           <Title>Бонус</Title>
@@ -336,8 +341,12 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 <BonusLabel>Ежедневный кейс</BonusLabel>
                 <TimerText>{dailyCaseTimer}</TimerText>
                 <BonusButton
-                  disabled={!dailyCaseReady || showCase !== null || caseCooldown}
-                  onClick={() => { if (!showCase && !caseCooldown) setShowCase("daily"); }}
+                  disabled={
+                    !dailyCaseReady || showCase !== null || caseCooldown
+                  }
+                  onClick={() => {
+                    if (!showCase && !caseCooldown) setShowCase("daily");
+                  }}
                 >
                   {caseCooldown ? "Подождите..." : "Открыть кейс"}
                 </BonusButton>
@@ -349,8 +358,12 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 <BonusLabel>Еженедельный кейс</BonusLabel>
                 <TimerText>{weeklyCaseTimer}</TimerText>
                 <BonusButton
-                  disabled={!weeklyCaseReady || showCase !== null || caseCooldown}
-                  onClick={() => { if (!showCase && !caseCooldown) setShowCase("weekly"); }}
+                  disabled={
+                    !weeklyCaseReady || showCase !== null || caseCooldown
+                  }
+                  onClick={() => {
+                    if (!showCase && !caseCooldown) setShowCase("weekly");
+                  }}
                 >
                   {caseCooldown ? "Подождите..." : "Открыть кейс"}
                 </BonusButton>

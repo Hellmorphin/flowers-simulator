@@ -62,7 +62,39 @@ const BackgroundMusic = forwardRef(({ play }: { play: boolean }, ref) => {
     };
   }, [play, enabled, volume]);
 
-  // Кнопка открытия модалки
+  // Определяем iOS
+  const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if (isIOS) {
+    // Только кнопка вкл/выкл
+    return (
+      <button
+        style={{
+          position: "absolute",
+          right: 30,
+          top: 115,
+          zIndex: 100,
+          background: "none",
+          border: "none",
+          borderRadius: 20,
+          padding: 0,
+          cursor: "pointer",
+          boxShadow: "none",
+          color: "orange",
+        }}
+        onClick={() => {
+          setEnabled((v) => {
+            localStorage.setItem("musicOn", v ? "0" : "1");
+            return !v;
+          });
+        }}
+        aria-label={enabled ? "Выключить музыку" : "Включить музыку"}
+      >
+        {enabled ? <FaMusic size={32} /> : <FaVolumeMute size={32} />}
+      </button>
+    );
+  }
+  // На остальных платформах — модалка
   return (
     <>
       <button

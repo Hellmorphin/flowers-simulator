@@ -1,3 +1,16 @@
+/* Убираем белое выделение у всех кнопок и элементов с фокусом */
+button, [tabindex], input[type="button"], input[type="submit"], input[type="reset"] {
+  outline: none !important;
+  box-shadow: none !important;
+}
+button:focus, button:active,
+[tabindex]:focus, [tabindex]:active,
+input[type="button"]:focus, input[type="button"]:active,
+input[type="submit"]:focus, input[type="submit"]:active,
+input[type="reset"]:focus, input[type="reset"]:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

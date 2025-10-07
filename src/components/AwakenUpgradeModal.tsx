@@ -174,9 +174,20 @@ const AwakenUpgradeModal: React.FC<{
       transition={{ duration: 0 }}
       onClick={handleOverlayClick}
     >
-      <ModalBox initial={false} animate={{ scale: 1 }} transition={{ duration: 0 }}>
-  <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }}>&times;</CloseBtn>
-        <Title>Прокачка пробуждения</Title>
+      <ModalBox
+        initial={false}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0 }}
+      >
+        <CloseBtn
+          onClick={() => {
+            if (typeof window.playClick2 === "function") window.playClick2();
+            onClose();
+          }}
+        >
+          &times;
+        </CloseBtn>
+        <Title>Пробуждения</Title>
         <LevelsScrollArea>
           {LEVELS.map(({ level, price, reward }) => (
             <UpgradeBlock key={level}>

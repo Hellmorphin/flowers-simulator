@@ -850,7 +850,12 @@ const MainScreen: React.FC<MainScreenProps> = ({
           {flowerVisible && (
             <AwakenWrapper>
               {awakenStart === 0 && (
-                <AwakenButton onClick={() => { playClick2(); handleAwakenStart(); }}>
+                <AwakenButton
+                  onClick={() => {
+                    playClick2();
+                    handleAwakenStart();
+                  }}
+                >
                   Пробудить горшок
                 </AwakenButton>
               )}
@@ -872,7 +877,30 @@ const MainScreen: React.FC<MainScreenProps> = ({
                         pointerEvents: "none",
                       }}
                     >
-                      До монет: {formatAwakenTime(awakenTimeLeft)}
+                      До{" "}
+                      {(() => {
+                        const LEVELS = [
+                          { level: 1, price: 500, reward: 10 },
+                          { level: 2, price: 800, reward: 20 },
+                          { level: 3, price: 1200, reward: 30 },
+                          { level: 4, price: 2000, reward: 40 },
+                          { level: 5, price: 2500, reward: 50 },
+                          { level: 6, price: 3000, reward: 60 },
+                          { level: 7, price: 3500, reward: 70 },
+                          { level: 8, price: 4000, reward: 80 },
+                          { level: 9, price: 4500, reward: 90 },
+                          { level: 10, price: 5000, reward: 100 },
+                        ];
+                        let reward = 5;
+                        if (upgradeLevel > 0) {
+                          const found = LEVELS.find(
+                            (l) => l.level === upgradeLevel
+                          );
+                          if (found) reward = found.reward;
+                        }
+                        return `${reward} монет`;
+                      })()}
+                      : {formatAwakenTime(awakenTimeLeft)}
                     </span>
                   </AwakenBar>
                   <AwakenButton disabled>В процессе...</AwakenButton>
@@ -880,7 +908,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
               )}
               {awakenStart > 0 && awakenPercent === 100 && (
                 <AwakenButton
-                  onClick={() => { playClick2(); handleAwakenCollect(); }}
+                  onClick={() => {
+                    playClick2();
+                    handleAwakenCollect();
+                  }}
                   disabled={collecting}
                 >
                   {collecting ? "Забираем..." : "Забрать монетки"}
@@ -933,7 +964,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         )}
       </AnimatePresence>
       <Footer>
-        Ver. 1.6.4 by -
+        Ver. 1.6.5 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
