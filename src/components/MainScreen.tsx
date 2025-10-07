@@ -84,6 +84,8 @@ import bg6 from "../assets/i6.jpg";
 import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
 import AwakenUpgradeModal from "./AwakenUpgradeModal";
+import Click2 from "../assets/Click2.mp3";
+import Click3 from "../assets/Click3.mp3";
 
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
@@ -226,6 +228,49 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canFertilize,
   disableActions,
 }) => {
+  // --- Воспроизведение звука Click2.mp3 ---
+  // Используем один экземпляр Audio для Click2.mp3 и Click3.mp3, чтобы звук всегда проигрывался даже при быстром клике
+  const click2AudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const click3AudioRef = React.useRef<HTMLAudioElement | null>(null);
+  React.useEffect(() => {
+    click2AudioRef.current = new Audio(Click2);
+    click2AudioRef.current.volume = 0.7;
+    click3AudioRef.current = new Audio(Click3);
+    click3AudioRef.current.volume = 0.7;
+    return () => {
+      if (click2AudioRef.current) {
+        click2AudioRef.current.pause();
+        click2AudioRef.current = null;
+      }
+      if (click3AudioRef.current) {
+        click3AudioRef.current.pause();
+        click3AudioRef.current = null;
+      }
+    };
+  }, []);
+  const playClick2 = React.useCallback(() => {
+    try {
+      if (click2AudioRef.current) {
+        click2AudioRef.current.currentTime = 0;
+        click2AudioRef.current.play();
+      }
+    } catch (e) {}
+  }, []);
+  // Экспортируем playClick2 в window для использования в других компонентах (крестики модалок)
+  React.useEffect(() => {
+    window.playClick2 = playClick2;
+    return () => {
+      delete window.playClick2;
+    };
+  }, [playClick2]);
+  const playClick3 = React.useCallback(() => {
+    try {
+      if (click3AudioRef.current) {
+        click3AudioRef.current.currentTime = 0;
+        click3AudioRef.current.play();
+      }
+    } catch (e) {}
+  }, []);
   // Кнопка открытия модалки прокачки пробуждения (вызывается из Menu через проп onAwakenUpgrade)
   // ...
   // Вставьте сюда Menu, если он используется внутри MainScreen, иначе вызовите onAwakenUpgrade из App
@@ -471,7 +516,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
         <TailIconStyled
           as={motion.button}
           whileTap={{ scale: 0.95 }}
-          onClick={onFertilize}
+          onClick={() => {
+            playClick2();
+            onFertilize();
+          }}
           disabled={disableActions || !canFertilize || flowerPercent === 100}
           style={{
             marginBottom: 6,
@@ -544,7 +592,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
         <TailIconStyled
           as={motion.button}
           whileTap={{ scale: 0.95 }}
-          onClick={onWater}
+          onClick={() => {
+            playClick2();
+            onWater();
+          }}
           disabled={disableActions || !canWater || flowerPercent === 100}
           style={{
             opacity: 1,
@@ -635,7 +686,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
             borderLeft: "none",
             borderRight: "2px solid #ffb300",
           }}
-          onClick={() => window.dispatchEvent(new CustomEvent("openShopModal"))}
+          onClick={() => {
+            playClick2();
+            window.dispatchEvent(new CustomEvent("openShopModal"));
+          }}
         >
           <FaStore size={32} color="#1b855e" />
         </TailIconStyled>
@@ -648,9 +702,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
             borderLeft: "none",
             borderRight: "2px solid #ffb300",
           }}
-          onClick={() =>
-            window.dispatchEvent(new CustomEvent("openProgressModal"))
-          }
+          onClick={() => {
+            playClick2();
+            window.dispatchEvent(new CustomEvent("openProgressModal"));
+          }}
         >
           <FaGift size={32} color="#88181e" />
         </TailIconStyled>
@@ -664,7 +719,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
             borderLeft: "none",
             borderRight: "2px solid #ffb300",
           }}
-          onClick={() => setShowAwakenUpgrade(true)}
+          onClick={() => {
+            playClick2();
+            setShowAwakenUpgrade(true);
+          }}
         >
           <FaBolt size={32} color="#db8f14" />
         </TailIconStyled>
@@ -677,9 +735,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
             borderLeft: "none",
             borderRight: "2px solid #ffb300",
           }}
-          onClick={() =>
-            window.dispatchEvent(new CustomEvent("openBackgroundModal"))
-          }
+          onClick={() => {
+            playClick2();
+            window.dispatchEvent(new CustomEvent("openBackgroundModal"));
+          }}
         >
           <FaImage size={32} color="#33bb94" />
         </TailIconStyled>
@@ -692,9 +751,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
             borderLeft: "none",
             borderRight: "2px solid #ffb300",
           }}
-          onClick={() =>
-            window.dispatchEvent(new CustomEvent("openTasksModal"))
-          }
+          onClick={() => {
+            playClick2();
+            window.dispatchEvent(new CustomEvent("openTasksModal"));
+          }}
         >
           <MdAssignment size={32} color="#080808" />
         </TailIconStyled>
@@ -817,7 +877,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
           {flowerVisible && (
             <AwakenWrapper>
               {awakenStart === 0 && (
-                <AwakenButton onClick={handleAwakenStart}>
+                <AwakenButton onClick={() => { playClick3(); handleAwakenStart(); }}>
                   Пробудить горшок
                 </AwakenButton>
               )}
@@ -847,7 +907,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
               )}
               {awakenStart > 0 && awakenPercent === 100 && (
                 <AwakenButton
-                  onClick={handleAwakenCollect}
+                  onClick={() => { playClick3(); handleAwakenCollect(); }}
                   disabled={collecting}
                 >
                   {collecting ? "Забираем..." : "Забрать монетки"}

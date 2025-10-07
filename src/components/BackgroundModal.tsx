@@ -258,7 +258,7 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
         transition={{ duration: isAndroid ? 0 : 0.2 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <CloseBtn onClick={onClose} title="Закрыть">
+  <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">
           ×
         </CloseBtn>
         <Title>Фоны</Title>

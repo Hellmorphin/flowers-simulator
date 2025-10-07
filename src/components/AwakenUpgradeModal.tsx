@@ -175,7 +175,7 @@ const AwakenUpgradeModal: React.FC<{
       onClick={handleOverlayClick}
     >
       <ModalBox initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
-        <CloseBtn onClick={onClose}>&times;</CloseBtn>
+  <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }}>&times;</CloseBtn>
         <Title>Прокачка пробуждения</Title>
         <LevelsScrollArea>
           {LEVELS.map(({ level, price, reward }) => (
