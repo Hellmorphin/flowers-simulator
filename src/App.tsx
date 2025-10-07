@@ -1,11 +1,12 @@
 // Инициализация заданий при первом запуске
 import { TASKS } from "./components/TasksModal";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import StartScreen from "./components/StartScreen";
 import MainScreen from "./components/MainScreen";
 import Menu from "./components/Menu";
 import Tutorial from "./components/Tutorial";
 import ToastManager, { ToastManagerContext } from "./components/ToastManager";
+import BackgroundMusic from "./components/BackgroundMusic";
 
 const FLOWER_KEY = "flowersim.progress";
 
@@ -188,6 +189,14 @@ function App() {
     () => progress.tutorialStep < 5
   );
   const [toastApi, setToastApi] = useState<any>(null);
+  const musicRef = useRef<{ playMusic: () => void }>(null);
+
+  const handleStart = () => {
+    setStarted(true);
+    setTimeout(() => {
+      musicRef.current?.playMusic();
+    }, 0);
+  };
 
   // Сохраняем прогресс
   useEffect(() => {
@@ -410,8 +419,6 @@ function App() {
     // eslint-disable-next-line
   }, [tutorialStep, progress.tutorialStep]);
 
-  // Для StartScreen
-  const handleStart = () => setStarted(true);
 
   // Для туториала
   const tutorialText =
@@ -423,6 +430,7 @@ function App() {
         <StartScreen onStart={handleStart} />
       ) : (
         <>
+          <BackgroundMusic ref={musicRef} play={started} />
           {progress.tutorialStep < 5 &&
             showFinalHint &&
             localStorage.getItem("flowersim.finalHintShown") !== "1" && (
