@@ -69,7 +69,8 @@ const RewardItem = styled.div<{ $highlight?: boolean }>`
   color: #6d4c41;
   font-size: 0.95em;
   min-width: 38px;
-  border: ${({ highlight }) => (highlight ? "2px solid #ffb300" : "2px solid #eee")};
+  border: ${({ $highlight }) =>
+    $highlight ? "2px solid #ffb300" : "2px solid #eee"};
 `;
 
 const RewardIcon = styled(FaCoins)`
@@ -100,17 +101,17 @@ const Button = styled.button`
 
 const rewardsDaily = [
   { coins: 200, chance: 0.05 },
-  { coins: 50, chance: 0.10 },
+  { coins: 50, chance: 0.1 },
   { coins: 40, chance: 0.15 },
-  { coins: 30, chance: 0.30 },
-  { coins: 20, chance: 0.40 },
+  { coins: 30, chance: 0.3 },
+  { coins: 20, chance: 0.4 },
 ];
 const rewardsWeekly = [
   { coins: 1000, chance: 0.03 },
   { coins: 500, chance: 0.05 },
   { coins: 400, chance: 0.12 },
-  { coins: 300, chance: 0.30 },
-  { coins: 200, chance: 0.50 },
+  { coins: 300, chance: 0.3 },
+  { coins: 200, chance: 0.5 },
 ];
 
 function getRandomReward(rewards: { coins: number; chance: number }[]) {
@@ -129,7 +130,11 @@ export interface CaseRouletteModalProps {
   onReward: (coins: number) => void;
 }
 
-const CaseRouletteModal: React.FC<CaseRouletteModalProps> = ({ type, onClose, onReward }) => {
+const CaseRouletteModal: React.FC<CaseRouletteModalProps> = ({
+  type,
+  onClose,
+  onReward,
+}) => {
   const [rolling, setRolling] = useState(true);
   const [resultIdx, setResultIdx] = useState<number | null>(null);
   const [activeIdx, setActiveIdx] = useState<number>(0);
@@ -141,31 +146,31 @@ const CaseRouletteModal: React.FC<CaseRouletteModalProps> = ({ type, onClose, on
     setResultIdx(null);
     setActiveIdx(0);
     setShowCollect(false);
-    // Выбираем выигрышный индекс
     const coins = getRandomReward(rewards);
-    const winIdx = rewards.findIndex(r => r.coins === coins);
-    // Анимация рулетки: быстрая фаза, затем замедление
+    const winIdx = rewards.findIndex((r) => r.coins === coins);
     let ticks = 0;
-    let interval = 38; // быстрая фаза
-    let slowStart = 38; // сколько тиков быстро
-    let maxTicks = slowStart + 18 + winIdx; // быстрая + медленная + выигрыш
+    let interval = 38;
+    let slowStart = 38;
+    let maxTicks = slowStart + 18 + winIdx;
+    let timeouts: number[] = [];
     const animate = () => {
-      setActiveIdx(prev => (prev + 1) % rewards.length);
+      setActiveIdx((prev) => (prev + 1) % rewards.length);
       ticks++;
       if (ticks < slowStart) {
-        setTimeout(animate, interval); // быстро
+        timeouts.push(window.setTimeout(animate, interval));
       } else if (ticks < maxTicks) {
-        // плавное замедление
-        setTimeout(animate, interval + Math.floor((ticks - slowStart) * 7));
+        timeouts.push(window.setTimeout(animate, interval + Math.floor((ticks - slowStart) * 7)));
       } else {
         setResultIdx(winIdx);
         setActiveIdx(winIdx);
         setRolling(false);
-        setTimeout(() => setShowCollect(true), 600);
+        timeouts.push(window.setTimeout(() => setShowCollect(true), 600));
       }
     };
-    setTimeout(animate, interval);
-    return () => {};
+    timeouts.push(window.setTimeout(animate, interval));
+    return () => {
+      timeouts.forEach(clearTimeout);
+    };
   }, [type, rewards]);
 
   const handleCollect = () => {
@@ -190,11 +195,16 @@ const CaseRouletteModal: React.FC<CaseRouletteModalProps> = ({ type, onClose, on
         transition={{ duration: 0.2 }}
         // onClick={e => e.stopPropagation()} // Отключаем закрытие по клику вне окна
       >
-        <Title>{type === "daily" ? "Ежедневный кейс" : "Еженедельный кейс"}</Title>
+        <Title>
+          {type === "daily" ? "Ежедневный кейс" : "Еженедельный кейс"}
+        </Title>
         <ChestIcon />
         <RewardRow>
           {rewards.map((r, idx) => (
-            <RewardItem key={r.coins} $highlight={rolling ? activeIdx === idx : resultIdx === idx}>
+            <RewardItem
+              key={r.coins}
+              $highlight={rolling ? activeIdx === idx : resultIdx === idx}
+            >
               <RewardIcon />
               {r.coins}
             </RewardItem>

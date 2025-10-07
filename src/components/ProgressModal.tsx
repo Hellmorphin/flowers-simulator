@@ -160,13 +160,11 @@ function getTimeLeft(target: number) {
   return `${minutes}м`;
 }
 
-
 const DAILY_KEY = "progress_daily_bonus";
 const WEEKLY_KEY = "progress_weekly_bonus";
 const DAILY_CASE_KEY = "progress_daily_case";
 const WEEKLY_CASE_KEY = "progress_weekly_case";
 const COINS_KEY = "progress_coins";
-
 
 const getNextDaily = () => {
   const last = Number(localStorage.getItem(DAILY_KEY) || 0);
@@ -211,9 +209,8 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
   const [weeklyReady, setWeeklyReady] = useState<boolean>(false);
   const [dailyTimer, setDailyTimer] = useState<string>("");
   const [weeklyTimer, setWeeklyTimer] = useState<string>("");
-  const [showCase, setShowCase] = useState<null | "daily" | "weekly" >(null);
+  const [showCase, setShowCase] = useState<null | "daily" | "weekly">(null);
   const [caseReward, setCaseReward] = useState<number | null>(null);
-  const [caseTypeRewarded, setCaseTypeRewarded] = useState<null | "daily" | "weekly" >(null);
   const [dailyCaseReady, setDailyCaseReady] = useState<boolean>(false);
   const [weeklyCaseReady, setWeeklyCaseReady] = useState<boolean>(false);
   const [dailyCaseTimer, setDailyCaseTimer] = useState<string>("");
@@ -244,7 +241,6 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
     return () => clearInterval(interval);
   }, [isOpen]);
 
-
   // Обычные бонусы
   const handleDailyBonus = () => {
     const current = Number(localStorage.getItem(COINS_KEY) || 0);
@@ -266,17 +262,14 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
     if (type === "daily") {
       localStorage.setItem(DAILY_CASE_KEY, String(Date.now()));
       setDailyCaseReady(false);
-      setCaseTypeRewarded("daily");
     } else {
       localStorage.setItem(WEEKLY_CASE_KEY, String(Date.now()));
       setWeeklyCaseReady(false);
-      setCaseTypeRewarded("weekly");
     }
     setCaseReward(coins);
     setTimeout(() => {
       setShowCase(null);
       setCaseReward(null);
-      setCaseTypeRewarded(null);
     }, 1200);
   };
 
@@ -314,28 +307,52 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 <CoinIcon />
                 <BonusLabel>Еженедельный бонус</BonusLabel>
                 <TimerText>{weeklyTimer}</TimerText>
-                <BonusButton disabled={!weeklyReady} onClick={handleWeeklyBonus}>
+                <BonusButton
+                  disabled={!weeklyReady}
+                  onClick={handleWeeklyBonus}
+                >
                   Получить +50
                 </BonusButton>
               </BonusBlock>
             </BonusBlocksRow>
-            <BonusBlocksRow style={{ flexDirection: 'column', gap: 12 }}>
+            <BonusBlocksRow style={{ flexDirection: "column", gap: 12 }}>
               <BonusBlock>
-                <FaBoxOpen style={{ color: "#ff9800", fontSize: "2em", marginBottom: 2 }} />
+                <FaBoxOpen
+                  style={{ color: "#ff9800", fontSize: "2em", marginBottom: 2 }}
+                />
                 <BonusLabel>Ежедневный кейс</BonusLabel>
                 <TimerText>{dailyCaseTimer}</TimerText>
-                <BonusButton disabled={!dailyCaseReady} onClick={() => setShowCase("daily")}>Открыть кейс</BonusButton>
+                <BonusButton
+                  disabled={!dailyCaseReady}
+                  onClick={() => setShowCase("daily")}
+                >
+                  Открыть кейс
+                </BonusButton>
               </BonusBlock>
               <BonusBlock>
-                <FaBoxOpen style={{ color: "#ff9800", fontSize: "2em", marginBottom: 2 }} />
+                <FaBoxOpen
+                  style={{ color: "#ff9800", fontSize: "2em", marginBottom: 2 }}
+                />
                 <BonusLabel>Еженедельный кейс</BonusLabel>
                 <TimerText>{weeklyCaseTimer}</TimerText>
-                <BonusButton disabled={!weeklyCaseReady} onClick={() => setShowCase("weekly")}>Открыть кейс</BonusButton>
+                <BonusButton
+                  disabled={!weeklyCaseReady}
+                  onClick={() => setShowCase("weekly")}
+                >
+                  Открыть кейс
+                </BonusButton>
               </BonusBlock>
             </BonusBlocksRow>
           </BonusScrollArea>
           {caseReward && (
-            <div style={{ textAlign: "center", color: "#ff9800", fontWeight: 700, marginTop: 10 }}>
+            <div
+              style={{
+                textAlign: "center",
+                color: "#ff9800",
+                fontWeight: 700,
+                marginTop: 10,
+              }}
+            >
               +{caseReward} монет!
             </div>
           )}
@@ -344,8 +361,11 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
       {showCase && (
         <CaseRouletteModal
           type={showCase}
-          onClose={() => { setShowCase(null); setCaseReward(null); setCaseTypeRewarded(null); }}
-          onReward={coins => handleCaseReward(showCase, coins)}
+          onClose={() => {
+            setShowCase(null);
+            setCaseReward(null);
+          }}
+          onReward={(coins) => handleCaseReward(showCase, coins)}
         />
       )}
     </>
