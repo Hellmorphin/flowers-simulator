@@ -215,15 +215,15 @@ const TasksModal: React.FC<TasksModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   return (
     <ModalOverlay
-      {...(!isAndroid && { initial: { opacity: 0 }, exit: { opacity: 0 } })}
+      initial={false}
       animate={{ opacity: 1 }}
-      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      transition={{ duration: 0 }}
       onClick={onClose}
     >
       <ModalBox
-        {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
+        initial={false}
         animate={{ scale: 1 }}
-        transition={{ duration: isAndroid ? 0 : 0.2 }}
+        transition={{ duration: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
   <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">

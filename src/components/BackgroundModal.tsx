@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 
-const isAndroid =
-  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 import styled from "styled-components";
 import { FaCoins } from "react-icons/fa";
 import bg1 from "../assets/i.jpg";
@@ -245,17 +243,15 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
 
   return (
     <ModalOverlay
-      initial={!isAndroid ? { opacity: 0 } : undefined}
+      initial={false}
       animate={{ opacity: 1 }}
-      exit={!isAndroid ? { opacity: 0 } : undefined}
-      transition={{ duration: isAndroid ? 0 : 0.2 }}
+      transition={{ duration: 0 }}
       onClick={onClose}
     >
       <ModalBox
-        initial={!isAndroid ? { scale: 0.9 } : undefined}
+        initial={false}
         animate={{ scale: 1 }}
-        exit={!isAndroid ? { scale: 0.9 } : undefined}
-        transition={{ duration: isAndroid ? 0 : 0.2 }}
+        transition={{ duration: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
   <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">

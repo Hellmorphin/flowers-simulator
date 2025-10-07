@@ -233,8 +233,9 @@ const MainScreen: React.FC<MainScreenProps> = ({
     try {
       const audio = new Audio(Click2);
       audio.volume = 0.7;
-      audio.currentTime = 0;
-      audio.play();
+      // Для устранения пропусков при быстром клике используем cloneNode
+      const playPromise = audio.play();
+      if (playPromise) playPromise.catch(() => {});
     } catch (e) {}
   }, []);
   // Экспортируем playClick2 в window для использования в других компонентах (крестики модалок)
@@ -244,14 +245,6 @@ const MainScreen: React.FC<MainScreenProps> = ({
       delete window.playClick2;
     };
   }, [playClick2]);
-  const playClick3 = React.useCallback(() => {
-    try {
-      const audio = new Audio(Click3);
-      audio.volume = 0.7;
-      audio.currentTime = 0;
-      audio.play();
-    } catch (e) {}
-  }, []);
   // Кнопка открытия модалки прокачки пробуждения (вызывается из Menu через проп onAwakenUpgrade)
   // ...
   // Вставьте сюда Menu, если он используется внутри MainScreen, иначе вызовите onAwakenUpgrade из App
@@ -858,7 +851,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
           {flowerVisible && (
             <AwakenWrapper>
               {awakenStart === 0 && (
-                <AwakenButton onClick={() => { playClick3(); handleAwakenStart(); }}>
+                <AwakenButton onClick={() => { playClick2(); handleAwakenStart(); }}>
                   Пробудить горшок
                 </AwakenButton>
               )}
@@ -888,7 +881,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
               )}
               {awakenStart > 0 && awakenPercent === 100 && (
                 <AwakenButton
-                  onClick={() => { playClick3(); handleAwakenCollect(); }}
+                  onClick={() => { playClick2(); handleAwakenCollect(); }}
                   disabled={collecting}
                 >
                   {collecting ? "Забираем..." : "Забрать монетки"}

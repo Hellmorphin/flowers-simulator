@@ -169,12 +169,12 @@ const AwakenUpgradeModal: React.FC<{
   };
   return (
     <ModalOverlay
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      transition={{ duration: 0 }}
       onClick={handleOverlayClick}
     >
-      <ModalBox initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
+      <ModalBox initial={false} animate={{ scale: 1 }} transition={{ duration: 0 }}>
   <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }}>&times;</CloseBtn>
         <Title>Прокачка пробуждения</Title>
         <LevelsScrollArea>

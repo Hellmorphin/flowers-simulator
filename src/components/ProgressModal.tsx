@@ -5,8 +5,6 @@ import { FaBoxOpen } from "react-icons/fa";
 import CaseRouletteModal from "./CaseRouletteModal";
 import { motion } from "framer-motion";
 
-const isAndroid =
-  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 
 const ModalBackground = styled(motion.div)`
   position: fixed;
@@ -215,6 +213,8 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
   const [weeklyCaseReady, setWeeklyCaseReady] = useState<boolean>(false);
   const [dailyCaseTimer, setDailyCaseTimer] = useState<string>("");
   const [weeklyCaseTimer, setWeeklyCaseTimer] = useState<string>("");
+  // cooldown после открытия кейса
+  const [caseCooldown, setCaseCooldown] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -267,29 +267,42 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
       setWeeklyCaseReady(false);
     }
     setCaseReward(coins);
+    setCaseCooldown(true);
     setTimeout(() => {
       setShowCase(null);
       setCaseReward(null);
+      // Ставим cooldown на 3 секунды после закрытия кейса
+      setTimeout(() => setCaseCooldown(false), 3000);
     }, 1200);
   };
 
   if (!isOpen) return null;
 
+  // Обёртка для onClose: если открыт кейс, сначала закрыть его
+  const handleModalClose = () => {
+    if (showCase) {
+      setShowCase(null);
+      setCaseReward(null);
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <>
       <ModalBackground
-        {...(!isAndroid && { initial: { opacity: 0 }, exit: { opacity: 0 } })}
+        initial={false}
         animate={{ opacity: 1 }}
-        transition={{ duration: isAndroid ? 0 : 0.2 }}
-        onClick={onClose}
+        transition={{ duration: 0 }}
+        onClick={handleModalClose}
       >
         <ModalContainer
-          {...(!isAndroid && { initial: { scale: 0.9 }, exit: { scale: 0.9 } })}
+          initial={false}
           animate={{ scale: 1 }}
-          transition={{ duration: isAndroid ? 0 : 0.2 }}
+          transition={{ duration: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">
+          <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); handleModalClose(); }} title="Закрыть">
             ×
           </CloseBtn>
           <Title>Бонус</Title>
@@ -323,10 +336,10 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 <BonusLabel>Ежедневный кейс</BonusLabel>
                 <TimerText>{dailyCaseTimer}</TimerText>
                 <BonusButton
-                  disabled={!dailyCaseReady}
-                  onClick={() => setShowCase("daily")}
+                  disabled={!dailyCaseReady || showCase !== null || caseCooldown}
+                  onClick={() => { if (!showCase && !caseCooldown) setShowCase("daily"); }}
                 >
-                  Открыть кейс
+                  {caseCooldown ? "Подождите..." : "Открыть кейс"}
                 </BonusButton>
               </BonusBlock>
               <BonusBlock>
@@ -336,10 +349,10 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 <BonusLabel>Еженедельный кейс</BonusLabel>
                 <TimerText>{weeklyCaseTimer}</TimerText>
                 <BonusButton
-                  disabled={!weeklyCaseReady}
-                  onClick={() => setShowCase("weekly")}
+                  disabled={!weeklyCaseReady || showCase !== null || caseCooldown}
+                  onClick={() => { if (!showCase && !caseCooldown) setShowCase("weekly"); }}
                 >
-                  Открыть кейс
+                  {caseCooldown ? "Подождите..." : "Открыть кейс"}
                 </BonusButton>
               </BonusBlock>
             </BonusBlocksRow>
