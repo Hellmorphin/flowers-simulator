@@ -228,32 +228,13 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canFertilize,
   disableActions,
 }) => {
-  // --- Воспроизведение звука Click2.mp3 ---
-  // Используем один экземпляр Audio для Click2.mp3 и Click3.mp3, чтобы звук всегда проигрывался даже при быстром клике
-  const click2AudioRef = React.useRef<HTMLAudioElement | null>(null);
-  const click3AudioRef = React.useRef<HTMLAudioElement | null>(null);
-  React.useEffect(() => {
-    click2AudioRef.current = new Audio(Click2);
-    click2AudioRef.current.volume = 0.7;
-    click3AudioRef.current = new Audio(Click3);
-    click3AudioRef.current.volume = 0.7;
-    return () => {
-      if (click2AudioRef.current) {
-        click2AudioRef.current.pause();
-        click2AudioRef.current = null;
-      }
-      if (click3AudioRef.current) {
-        click3AudioRef.current.pause();
-        click3AudioRef.current = null;
-      }
-    };
-  }, []);
+  // --- Воспроизведение звука Click2.mp3 и Click3.mp3 без задержки ---
   const playClick2 = React.useCallback(() => {
     try {
-      if (click2AudioRef.current) {
-        click2AudioRef.current.currentTime = 0;
-        click2AudioRef.current.play();
-      }
+      const audio = new Audio(Click2);
+      audio.volume = 0.7;
+      audio.currentTime = 0;
+      audio.play();
     } catch (e) {}
   }, []);
   // Экспортируем playClick2 в window для использования в других компонентах (крестики модалок)
@@ -265,10 +246,10 @@ const MainScreen: React.FC<MainScreenProps> = ({
   }, [playClick2]);
   const playClick3 = React.useCallback(() => {
     try {
-      if (click3AudioRef.current) {
-        click3AudioRef.current.currentTime = 0;
-        click3AudioRef.current.play();
-      }
+      const audio = new Audio(Click3);
+      audio.volume = 0.7;
+      audio.currentTime = 0;
+      audio.play();
     } catch (e) {}
   }, []);
   // Кнопка открытия модалки прокачки пробуждения (вызывается из Menu через проп onAwakenUpgrade)

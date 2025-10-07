@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Click4 from "../assets/Click4.mp3";
 // --- Воспроизведение звука Click4.mp3 для вкладок ---
-const click4AudioRef = React.createRef<HTMLAudioElement>();
 
-function playClick4() {
-  try {
-    if (click4AudioRef.current) {
-      click4AudioRef.current.currentTime = 0;
-      click4AudioRef.current.play();
-    }
-  } catch (e) {}
-}
 // Получить временный горшок
 // --- ВРЕМЕННОЕ ОКНО АКТИВАЦИИ ДЛЯ ВСЕХ ---
 // Владивосток UTC+10, окно: 21:50–23:30, раз в 7 дней
@@ -177,23 +168,12 @@ const PLAYTIME_LAST_TS_KEY = "flowersim.playtime.lastts";
 
 const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // --- Воспроизведение звука Click4.mp3 для вкладок ---
-  const click4AudioRef = React.useRef<HTMLAudioElement | null>(null);
-  React.useEffect(() => {
-    click4AudioRef.current = new Audio(Click4);
-    click4AudioRef.current.volume = 0.7;
-    return () => {
-      if (click4AudioRef.current) {
-        click4AudioRef.current.pause();
-        click4AudioRef.current = null;
-      }
-    };
-  }, []);
+  // Для мгновенного отклика создаём новый Audio на каждый клик
   const playClick4 = React.useCallback(() => {
     try {
-      if (click4AudioRef.current) {
-        click4AudioRef.current.currentTime = 0;
-        click4AudioRef.current.play();
-      }
+      const audio = new Audio(Click4);
+      audio.volume = 0.7;
+      audio.play();
     } catch (e) {}
   }, []);
   // Получить временный горшок
@@ -445,7 +425,13 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         transition={{ duration: isAndroid ? 0 : 0.2 }}
         onClick={(e) => e.stopPropagation()}
       >
-  <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">
+        <CloseBtn
+          onClick={() => {
+            if (typeof window.playClick2 === "function") window.playClick2();
+            onClose();
+          }}
+          title="Закрыть"
+        >
           ×
         </CloseBtn>
         <Title>Магазин</Title>
@@ -459,7 +445,10 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           }}
         >
           <button
-            onClick={() => { playClick4(); setTab("pot"); }}
+            onClick={() => {
+              playClick4();
+              setTab("pot");
+            }}
             style={{
               fontWeight: tab === "pot" ? "bold" : 400,
               minWidth: 130,
@@ -470,7 +459,10 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Горшок
           </button>
           <button
-            onClick={() => { playClick4(); setTab("flower"); }}
+            onClick={() => {
+              playClick4();
+              setTab("flower");
+            }}
             style={{
               fontWeight: tab === "flower" ? "bold" : 400,
               minWidth: 130,
