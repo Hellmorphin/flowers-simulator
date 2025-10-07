@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Click4 from "../assets/Click4.mp3";
 // --- Воспроизведение звука Click4.mp3 для вкладок ---
 
 // Получить временный горшок
@@ -169,13 +168,8 @@ const PLAYTIME_LAST_TS_KEY = "flowersim.playtime.lastts";
 const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   // --- Воспроизведение звука Click4.mp3 для вкладок ---
   // Для мгновенного отклика создаём новый Audio на каждый клик
-  const playClick4 = React.useCallback(() => {
-    try {
-      const audio = new Audio(Click4);
-      audio.volume = 0.7;
-      audio.play();
-    } catch (e) {}
-  }, []);
+    // Удаляем неиспользуемую функцию playClick4
+  
   // Получить временный горшок
   const handleClaimTempPot = (file: string) => {
     let tempPermData: string[] = [];
@@ -446,7 +440,6 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         >
           <button
             onClick={() => {
-              playClick4();
               setTab("pot");
             }}
             style={{
@@ -454,13 +447,13 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               minWidth: 130,
               maxWidth: 320,
               background: tab === "pot" ? "#4e3f12" : "#4e3f12",
+              color: "#ff9800",
             }}
           >
             Горшок
           </button>
           <button
             onClick={() => {
-              playClick4();
               setTab("flower");
             }}
             style={{
@@ -468,6 +461,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               minWidth: 130,
               maxWidth: 320,
               background: tab === "pot" ? "#4e3f12" : "#4e3f12",
+              color: "#ff9800",
             }}
           >
             Цветок
