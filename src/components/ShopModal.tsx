@@ -152,6 +152,10 @@ const potSkins = [
   { name: "Энергетик", file: "gorshoEnergypng.png", unlock: 230 },
   { name: "Туалет", file: "gorshokHuida.png", unlock: 250 },
   { name: "Кубик", file: "gorshokmine.png", unlock: 280 },
+  { name: "Флаг", file: "gorshokRus.png", unlock: 300 },
+  { name: "Зубастик", file: "gorshokBlue.png", unlock: 320 },
+  { name: "Молния", file: "gorshokRussia.png", unlock: 340 },
+  { name: "Пузырик", file: "gorshoPar.png", unlock: 380 },
 ];
 
 const POTS_KEY = "flowersim.potSkin";
@@ -800,8 +804,25 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                           Снять
                         </button>
                       ) : null
+                    ) : skin.file !== "Flowers1.png" ? (
+                      <button
+                        onClick={() => handleApplyFlower(skin.file)}
+                        style={{
+                          background: "#ffb300",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 8,
+                          padding: "4px 12px",
+                          fontWeight: "bold",
+                          margin: "0 auto",
+                        }}
+                      >
+                        Применить
+                      </button>
                     ) : (
-                      skin.file !== "Flowers1.png" && (
+                      // Для стартового цветка: если открыт хотя бы один другой, показываем "Применить"
+                      unlockedFlowers.filter((f) => f !== "Flowers1.png")
+                        .length > 0 && (
                         <button
                           onClick={() => handleApplyFlower(skin.file)}
                           style={{
