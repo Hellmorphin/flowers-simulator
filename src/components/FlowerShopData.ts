@@ -13,6 +13,8 @@ export const flowerSkins = [
   { name: "Роза", file: "Flowers11.png", unlock: 150 },
   { name: "ОБАБОК", file: "Flowers12.png", unlock: 200 },
   { name: "БАОБАБ", file: "Flowers13.png", unlock: 250 },
+  { name: "Дерево", file: "FlowersTree.png", unlock: 300 },
+  { name: "Сасулька", file: "FlowersFrost.png", unlock: 350 },
   { name: "ДЕМОНОБАБОК", file: "Flowers14.png", unlock: "temp2" }, // временный
   { name: "Обезьянка", file: "FlowersMonkey.png", unlock: "temp" }, // временный
   { name: "Valera", file: "FlowersVarleraFlow.png", unlock: "temp" }, // временный

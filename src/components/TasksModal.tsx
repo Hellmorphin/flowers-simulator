@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
-const isAndroid =
-  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
 
 const ModalOverlay = styled(motion.div)`
   position: fixed;

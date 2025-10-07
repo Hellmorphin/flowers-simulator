@@ -85,7 +85,6 @@ import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
 import AwakenUpgradeModal from "./AwakenUpgradeModal";
 import Click2 from "../assets/Click2.mp3";
-import Click3 from "../assets/Click3.mp3";
 
 // --- Меню монеток ---
 const CoinBarWrapper = styled.div`
