@@ -9,7 +9,7 @@ import { FaMusic, FaVolumeMute } from "react-icons/fa";
 import MainMusic from "../assets/MainMusic.mp3";
 
 const MUSIC_PAUSE = 10000; // пауза между проигрыванием, мс
-const VOLUME = 0.03;
+const VOLUME = 0.0075;
 
 const BackgroundMusic = forwardRef(({ play }: { play: boolean }, ref) => {
   useImperativeHandle(ref, () => ({
