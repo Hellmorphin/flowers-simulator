@@ -61,6 +61,12 @@ type StartScreenProps = {
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
+  const handleClick = () => {
+    const audio = new Audio(new URL("../assets/Click.mp3", import.meta.url).href);
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+    onStart();
+  };
   return (
     <Background>
       <PotBg
@@ -79,7 +85,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
       <StartButton
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}
-        onClick={onStart}
+        onClick={handleClick}
       >
         Начать
       </StartButton>
