@@ -5,6 +5,135 @@ import { FaBoxOpen } from "react-icons/fa";
 import CaseRouletteModal from "./CaseRouletteModal";
 import { motion } from "framer-motion";
 
+// --- Промокоды ---
+const PROMO_LIST = [
+  { code: "4JKF9-PT7LQ-Z8XRC-DM2VY", reward: 300 },
+  { code: "N9T4E-Q7RWA-3LZ8J-KCX5B", reward: 500 },
+  { code: "L2VQ9-MX4JP-T8ZWR-NK5YG", reward: 1000 },
+  { code: "D7K8E-ZL3RQ-H2VNY-P9XMC", reward: 2000 },
+];
+
+function PromoCodeField() {
+  const [value, setValue] = React.useState("");
+  const [status, setStatus] = React.useState<null | "ok" | "used" | "fail">(
+    null
+  );
+  const [loading, setLoading] = React.useState(false);
+
+  const handleApply = () => {
+    setStatus(null);
+    setLoading(true);
+    setTimeout(() => {
+      const code = value.trim().toUpperCase();
+      const promo = PROMO_LIST.find((p) => p.code === code);
+      if (!promo) {
+        setStatus("fail");
+        setLoading(false);
+        return;
+      }
+      const used = JSON.parse(localStorage.getItem("flowersim.promos") || "[]");
+      if (used.includes(code)) {
+        setStatus("used");
+        setLoading(false);
+        return;
+      }
+      // Дать монеты
+      const current = Number(localStorage.getItem("progress_coins") || 0);
+      localStorage.setItem("progress_coins", String(current + promo.reward));
+      localStorage.setItem("flowersim.promos", JSON.stringify([...used, code]));
+      setStatus("ok");
+      setLoading(false);
+    }, 600);
+  };
+
+  return (
+    <div
+      style={{
+        margin: "12px 0 0 0",
+        padding: "18px 12px 18px 12px",
+        background: "rgba(255, 236, 179, 0.98)",
+        borderRadius: 16,
+        boxShadow: "0 2px 8px #a1887f44",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 700,
+          color: "#ff9800",
+          fontSize: 18,
+          marginBottom: 8,
+        }}
+      >
+        Ключ
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+          setStatus(null);
+        }}
+        placeholder="Активация ключа"
+        style={{
+          border: "2px solid #ffb300",
+          borderRadius: 10,
+          padding: "10px 10px",
+          fontSize: 18,
+          width: 200,
+          outline: "none",
+          marginBottom: 4,
+          background: "#fff",
+          color: "#6d4c41",
+          boxShadow: "0 1px 4px #ffb30022",
+          textAlign: "center",
+          letterSpacing: 1,
+        }}
+        disabled={loading}
+        maxLength={32}
+        autoComplete="off"
+      />
+      <button
+        onClick={handleApply}
+        disabled={loading || !value.trim()}
+        style={{
+          background: "#ffb300",
+          color: "#fff",
+          border: "none",
+          borderRadius: 8,
+          padding: "8px 24px",
+          fontWeight: 700,
+          fontSize: 17,
+          cursor: loading ? "not-allowed" : "pointer",
+          marginBottom: 4,
+          boxShadow: "0 2px 8px #ffb30033",
+          transition: "background 0.2s",
+        }}
+      >
+        {loading ? "Проверка..." : "Активировать"}
+      </button>
+      {status === "ok" && (
+        <div style={{ color: "#43a047", fontWeight: 700, fontSize: 16 }}>
+          Ключ активирован!
+        </div>
+      )}
+      {status === "fail" && (
+        <div style={{ color: "#d32f2f", fontWeight: 700, fontSize: 16 }}>
+          Ключ не верный!
+        </div>
+      )}
+      {status === "used" && (
+        <div style={{ color: "#d32f2f", fontWeight: 700, fontSize: 16 }}>
+          Ключ уже активирован!
+        </div>
+      )}
+    </div>
+  );
+}
+
 const ModalBackground = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -369,6 +498,7 @@ const ProgressModal: React.FC<ProgressModalProps> = ({ isOpen, onClose }) => {
                 </BonusButton>
               </BonusBlock>
             </BonusBlocksRow>
+            <PromoCodeField />
           </BonusScrollArea>
           {caseReward && (
             <div
