@@ -2,6 +2,7 @@
 import { TASKS } from "./components/TasksModal";
 import React, { useState, useEffect, useRef } from "react";
 import StartScreen from "./components/StartScreen";
+import AboutGameScreen from "./components/AboutGameScreen";
 import MainScreen from "./components/MainScreen";
 import Menu from "./components/Menu";
 import Tutorial from "./components/Tutorial";
@@ -43,6 +44,7 @@ import ProgressModal from "./components/ProgressModal";
 import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
+  const [aboutOpen, setAboutOpen] = useState(false);
   // --- Состояние для модалки прокачки пробуждения ---
 
   const [canWater, setCanWater] = useState(false);
@@ -426,8 +428,10 @@ function App() {
 
   return (
     <ToastManager>
-      {!started ? (
-        <StartScreen onStart={handleStart} />
+      {!started && !aboutOpen ? (
+        <StartScreen onStart={handleStart} onAbout={() => setAboutOpen(true)} />
+      ) : aboutOpen ? (
+        <AboutGameScreen onBack={() => setAboutOpen(false)} />
       ) : (
         <>
           <BackgroundMusic ref={musicRef} play={started} />

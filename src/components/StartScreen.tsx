@@ -1,6 +1,8 @@
+
 import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+
 
 const Background = styled.div`
   min-height: 100dvh;
@@ -58,9 +60,30 @@ const StartButton = styled(motion.button)`
 
 type StartScreenProps = {
   onStart: () => void;
+  onAbout: () => void;
 };
 
-const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
+
+const AboutButton = styled(motion.button)`
+  background: linear-gradient(135deg, #ffb300 0%, #ffecb3 60%, #6d4c41 100%);
+  color: #6d4c41;
+  font-size: 1.45rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 2.5rem;
+  padding: 1.2rem 3.5rem;
+  margin-top: 40px;
+  box-shadow: 0 8px 32px #a1887f99, 0 2px 8px #ffb30099;
+  cursor: pointer;
+  z-index: 2;
+  transition: box-shadow 0.2s, background 0.2s;
+  &:hover {
+    box-shadow: 0 12px 40px #a1887fcc, 0 4px 16px #ffb300cc;
+    background: linear-gradient(135deg, #ffecb3 0%, #ffb300 60%, #6d4c41 100%);
+  }
+`;
+
+const StartScreen: React.FC<StartScreenProps> = ({ onStart, onAbout }) => {
   const handleClick = () => {
     const audio = new Audio(new URL("../assets/Click.mp3", import.meta.url).href);
     audio.currentTime = 0;
@@ -89,8 +112,15 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
       >
         Начать
       </StartButton>
+      <AboutButton
+        whileTap={{ scale: 0.97 }}
+        whileHover={{ scale: 1.04 }}
+        onClick={onAbout}
+      >
+        Об игре
+      </AboutButton>
     </Background>
   );
-};
+}
 
 export default StartScreen;
