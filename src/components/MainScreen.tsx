@@ -64,7 +64,7 @@ const AwakenButton = styled.button`
     max-width: 150px;
   }
 `;
-// import LeikaImg from "../assets/Leika.png";
+import LeikaImg from "../assets/Leika.png";
 import ShuckImg from "../assets/Shuck.png";
 import Shuck2Img from "../assets/Shuck2.png";
 import WoterImg from "../assets/Woter.png";
@@ -235,30 +235,35 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canFertilize,
   disableActions,
 }) => {
+  // --- Анимация лейки при поливе ---
+  const [showLeika, setShowLeika] = React.useState(false);
   // --- Анимация обработки ---
   const [showObrab, setShowObrab] = React.useState(false);
-    // --- Время последнего входа ---
-    React.useEffect(() => {
-      const now = Date.now();
-      const lastVisit = Number(localStorage.getItem("flowersim.lastVisit") || 0);
-      localStorage.setItem("flowersim.lastVisit", String(now));
-      // Если цветок видим и жуков меньше двух
-      if (flowerVisible && beetles.length < 2) {
-        // Считаем сколько жуков должно появиться
-        const beetleTimes = [3600000, 7200000]; // 1ч, 2ч
-        const elapsed = now - lastVisit;
-        let newBeetles = [...beetles];
-        beetleTimes.forEach((ms, idx) => {
-          if (elapsed >= ms && newBeetles.length <= idx) {
-            newBeetles.push(Math.random() > 0.5 ? 1 : 2);
-          }
-        });
-        if (newBeetles.length !== beetles.length) {
-          setBeetles(newBeetles.slice(0, 2));
-          localStorage.setItem("flowersim.beetles", JSON.stringify(newBeetles.slice(0, 2)));
+  // --- Время последнего входа ---
+  React.useEffect(() => {
+    const now = Date.now();
+    const lastVisit = Number(localStorage.getItem("flowersim.lastVisit") || 0);
+    localStorage.setItem("flowersim.lastVisit", String(now));
+    // Если цветок видим и жуков меньше двух
+    if (flowerVisible && beetles.length < 2) {
+      // Считаем сколько жуков должно появиться
+      const beetleTimes = [3600000, 7200000]; // 1ч, 2ч
+      const elapsed = now - lastVisit;
+      let newBeetles = [...beetles];
+      beetleTimes.forEach((ms, idx) => {
+        if (elapsed >= ms && newBeetles.length <= idx) {
+          newBeetles.push(Math.random() > 0.5 ? 1 : 2);
         }
+      });
+      if (newBeetles.length !== beetles.length) {
+        setBeetles(newBeetles.slice(0, 2));
+        localStorage.setItem(
+          "flowersim.beetles",
+          JSON.stringify(newBeetles.slice(0, 2))
+        );
       }
-    }, [flowerVisible]);
+    }
+  }, [flowerVisible]);
   // --- Состояние для жука, сохраняем в localStorage ---
   const [beetles, setBeetles] = React.useState<Array<1 | 2>>(() => {
     try {
@@ -275,8 +280,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
   React.useEffect(() => {
     if (!flowerVisible) return;
     if (beetles.length >= 2) return;
-    // Первый жук через 1 час
-    const t1 = setTimeout(() => {
+  // Первый жук через 1 час
+  const t1 = setTimeout(() => {
       setBeetles((prev: Array<1 | 2>) => {
         if (prev.length < 1) {
           const newArr: Array<1 | 2> = [Math.random() > 0.5 ? 1 : 2];
@@ -285,9 +290,9 @@ const MainScreen: React.FC<MainScreenProps> = ({
         }
         return prev;
       });
-    }, 3600000);
-    // Второй жук ещё через 1 час
-    const t2 = setTimeout(() => {
+  }, 3600000);
+  // Второй жук ещё через 1 час
+  const t2 = setTimeout(() => {
       setBeetles((prev: Array<1 | 2>) => {
         if (prev.length < 2) {
           const next: 1 | 2 = Math.random() > 0.5 ? 1 : 2;
@@ -297,7 +302,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         }
         return prev;
       });
-    }, 3600000 * 2);
+  }, 3600000 * 2);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -538,7 +543,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
             top: idx === 0 ? 180 : 292, // первый жук над кнопкой "удобрить", второй над "полить"
             width: 90,
             height: 90,
-            zIndex: 9999,
+            zIndex: 100, // поверх элементов, но ниже модалок
             pointerEvents: "none",
             transition: "opacity 0.3s",
           }}
@@ -699,12 +704,14 @@ const MainScreen: React.FC<MainScreenProps> = ({
           onClick={() => {
             playClick2();
             onWater();
+            setShowLeika(true);
+            setTimeout(() => setShowLeika(false), 4000);
           }}
           disabled={
             disableActions ||
             !canWater ||
             flowerPercent === 100 ||
-            beetles.length > 0
+            beetles.length === 2
           }
           style={{
             opacity: 1,
@@ -945,6 +952,24 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </TailIconStyled>
       </div>
       {/* Анимация лейки */}
+      {showLeika && (
+        <img
+          src={LeikaImg}
+          alt="Лейка"
+          style={{
+            position: "absolute",
+            left: 160,
+            top: 180,
+            width: 120,
+            height: 120,
+            zIndex: 20,
+            opacity: 1,
+            transform: "rotate(-25deg)",
+            animation: "leikaFade 4s forwards",
+          }}
+        />
+      )}
+      {/* Анимация обработки */}
       {showObrab && (
         <img
           src={ObrabImg}
