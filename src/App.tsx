@@ -29,11 +29,12 @@ const defaultProgress: Progress = {
   tutorialStep: 0,
 };
 
-// Туториал: 0 — открыть меню, 1 — посадить цветок, 2 — открыть меню, 3 — удобрить, 4 — полить
+// Туториал: 0 — открыть меню, 1 — посадить цветок, 2 — открыть меню, 3 — кнопки, 4 — жуки, 5 — удобрить, 6 — полить
 const TUTORIAL_STEPS = [
   "Нажмите «Посадить цветок».",
   "Нажмите «Посадить цветок».",
-  "Обратите внимание на кнопку с листиком (это удобрить) и каплей (это полить).",
+  "Обратите внимание на кнопку с листиком (это удобрить), каплей (это полить) и спреем (это обработать).",
+  "Иногда будут появлятся жуки и не давать полить и удобрять растения. Чтобы от них избавится покупайте спрей",
   "Нажмите «Удобрить».",
   "Нажмите «Полить».",
 ];
@@ -308,6 +309,14 @@ function App() {
       }, 3000);
       return () => clearTimeout(timeout);
     }
+    // Шаг 3: показать подсказку про жуков и автоматически перейти к следующему шагу через 3-4 секунды
+    if (tutorialStep === 3) {
+      const timeout = setTimeout(() => {
+        setTutorialStep(4);
+        setProgress((p) => ({ ...p, tutorialStep: 4 }));
+      }, 3500);
+      return () => clearTimeout(timeout);
+    }
   }, [tutorialStep]);
 
   // Анимации лейки и удобрения
@@ -321,7 +330,7 @@ function App() {
     setTimeout(() => setShowYdobr(false), 4000);
     const now = Date.now();
     // Только для новых пользователей продолжаем туториал
-    if (progress.tutorialStep < 5) {
+    if (progress.tutorialStep < 6) {
       setProgress((p) => {
         const newP = {
           ...p,
@@ -333,12 +342,12 @@ function App() {
               (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 10
             ),
           },
-          tutorialStep: 4,
+          tutorialStep: 5, // Переход на "Нажмите полить"
         };
         setTimeout(() => updateTaskProgress("fertilize"), 0);
         return newP;
       });
-      setTutorialStep(4);
+      setTutorialStep(5); // Переход на "Нажмите полить"
     } else {
       setProgress((p) => {
         const newP = {
@@ -385,12 +394,12 @@ function App() {
             (p.flowerSizes[flowerSkin] || MIN_FLOWER) + 5
           ),
         },
-        tutorialStep: 5,
+        tutorialStep: 6, // Завершение туториала
       };
       setTimeout(() => updateTaskProgress("water"), 0);
       return newP;
     });
-    setTutorialStep(5);
+    setTutorialStep(6); // Завершение туториала
     setMenuOpen(false);
     toastApi?.showToast("Спасибо!");
     setTimeout(() => setShowFinalHint(true), 800);
@@ -421,10 +430,9 @@ function App() {
     // eslint-disable-next-line
   }, [tutorialStep, progress.tutorialStep]);
 
-
   // Для туториала
   const tutorialText =
-    progress.tutorialStep >= 5 ? "" : TUTORIAL_STEPS[tutorialStep] || "";
+    tutorialStep < 6 ? TUTORIAL_STEPS[tutorialStep] : "";
 
   return (
     <ToastManager>
@@ -508,7 +516,7 @@ function App() {
             />
           )}
           <Tutorial
-            visible={showTutorial && tutorialStep < 5}
+            visible={showTutorial && tutorialStep < 6 && !!tutorialText}
             text={tutorialText}
             step={tutorialStep}
             menuOpen={menuOpen}

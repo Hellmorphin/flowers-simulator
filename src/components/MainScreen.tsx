@@ -65,14 +65,17 @@ const AwakenButton = styled.button`
   }
 `;
 import LeikaImg from "../assets/Leika.png";
+import ShuckImg from "../assets/Shuck.png";
+import Shuck2Img from "../assets/Shuck2.png";
 import WoterImg from "../assets/Woter.png";
 import ListImg from "../assets/list.png";
 import YdobrImg from "../assets/Ydobr.png";
+import ObrabImg from "../assets/Obrab.png";
 import styled from "styled-components";
 import Pot from "./Pot";
 import Flower from "./Flower";
 import { FaCoins, FaStore, FaGift, FaImage, FaBolt } from "react-icons/fa";
-import { FaTint, FaLeaf } from "react-icons/fa";
+import { FaTint, FaLeaf, FaSprayCan } from "react-icons/fa";
 import { MdAssignment } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
 import bg1 from "../assets/i.jpg";
@@ -232,6 +235,58 @@ const MainScreen: React.FC<MainScreenProps> = ({
   canFertilize,
   disableActions,
 }) => {
+  // --- Анимация обработки ---
+  const [showObrab, setShowObrab] = React.useState(false);
+  // --- Состояние для жука, сохраняем в localStorage ---
+  const [beetles, setBeetles] = React.useState<Array<1 | 2>>(() => {
+    try {
+      const stored = localStorage.getItem("flowersim.beetles");
+      if (stored) {
+        const arr = JSON.parse(stored);
+        if (Array.isArray(arr) && arr.every((v) => v === 1 || v === 2)) {
+          return arr;
+        }
+      }
+    } catch {}
+    return [];
+  });
+  React.useEffect(() => {
+    if (!flowerVisible) return;
+    if (beetles.length >= 2) return;
+    // Первый жук через 1 час
+    const t1 = setTimeout(() => {
+      setBeetles((prev: Array<1 | 2>) => {
+        if (prev.length < 1) {
+          const newArr: Array<1 | 2> = [Math.random() > 0.5 ? 1 : 2];
+          localStorage.setItem("flowersim.beetles", JSON.stringify(newArr));
+          return newArr;
+        }
+        return prev;
+      });
+    }, 3600000);
+    // Второй жук ещё через 1 час
+    const t2 = setTimeout(() => {
+      setBeetles((prev: Array<1 | 2>) => {
+        if (prev.length < 2) {
+          const next: 1 | 2 = Math.random() > 0.5 ? 1 : 2;
+          const newArr: Array<1 | 2> = [...prev, next].slice(0, 2);
+          localStorage.setItem("flowersim.beetles", JSON.stringify(newArr));
+          return newArr;
+        }
+        return prev;
+      });
+    }, 3600000 * 2);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [flowerVisible, beetles.length]);
+  // Сохраняем жуков при изменении
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("flowersim.beetles", JSON.stringify(beetles));
+    } catch {}
+  }, [beetles]);
   // --- Воспроизведение звука Click2.mp3 и Click3.mp3 без задержки ---
   const playClick2 = React.useCallback(() => {
     try {
@@ -396,19 +451,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
     }, 400);
   }
   const bgMap: Record<string, string> = {
-  "i.jpg": bg1,
-  "i2.jpg": bg2,
-  "i3.jpg": bg3,
-  "i4.jpg": bg4,
-  "i5.jpg": bg5,
-  "i6.jpg": bg6,
-  "i7.jpg": bg7,
-  "i8.jpg": bg8,
-  "i9.jpg": bg9,
-  "i10.jpg": bg10,
-  "i11.jpg": bg11,
-  "Forest.jpg": forestBg,
-  "loog.jpg": loogBg,
+    "i.jpg": bg1,
+    "i2.jpg": bg2,
+    "i3.jpg": bg3,
+    "i4.jpg": bg4,
+    "i5.jpg": bg5,
+    "i6.jpg": bg6,
+    "i7.jpg": bg7,
+    "i8.jpg": bg8,
+    "i9.jpg": bg9,
+    "i10.jpg": bg10,
+    "i11.jpg": bg11,
+    "Forest.jpg": forestBg,
+    "loog.jpg": loogBg,
   };
   // Если фон не куплен, просто цвет
   const bought = (() => {
@@ -449,6 +504,24 @@ const MainScreen: React.FC<MainScreenProps> = ({
 
   return (
     <Background style={bgStyle}>
+      {/* Несколько жуков поверх всего, кроме модалок */}
+      {beetles.map((type, idx) => (
+        <img
+          key={idx}
+          src={type === 1 ? ShuckImg : Shuck2Img}
+          alt="Жук"
+          style={{
+            position: "absolute",
+            left: 0,
+            top: idx === 0 ? 180 : 292, // первый жук над кнопкой "удобрить", второй над "полить"
+            width: 90,
+            height: 90,
+            zIndex: 9999,
+            pointerEvents: "none",
+            transition: "opacity 0.3s",
+          }}
+        />
+      ))}
       {/* Фиксированные иконки полива и удобрения справа от цветка */}
       {flowerVisible && (canWater || canFertilize) && (
         <div
@@ -524,7 +597,12 @@ const MainScreen: React.FC<MainScreenProps> = ({
             playClick2();
             onFertilize();
           }}
-          disabled={disableActions || !canFertilize || flowerPercent === 100}
+          disabled={
+            disableActions ||
+            !canFertilize ||
+            flowerPercent === 100 ||
+            beetles.length > 0
+          }
           style={{
             marginBottom: 6,
             opacity: 1,
@@ -600,7 +678,12 @@ const MainScreen: React.FC<MainScreenProps> = ({
             playClick2();
             onWater();
           }}
-          disabled={disableActions || !canWater || flowerPercent === 100}
+          disabled={
+            disableActions ||
+            !canWater ||
+            flowerPercent === 100 ||
+            beetles.length > 0
+          }
           style={{
             opacity: 1,
             cursor: disableActions || !canWater ? "not-allowed" : "pointer",
@@ -667,6 +750,82 @@ const MainScreen: React.FC<MainScreenProps> = ({
               {getTimeLeftText(waterLeft)}
             </span>
           )}
+        </TailIconStyled>
+        {/* Кнопка "Обработать" */}
+        <TailIconStyled
+          as={motion.button}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            playClick2();
+            setShowObrab(true);
+            setTimeout(() => setShowObrab(false), 4000);
+            if (coins >= 50 && beetles.length > 0) {
+              setCoins((c) => {
+                const newCoins = c - 50;
+                localStorage.setItem("progress_coins", String(newCoins));
+                return newCoins;
+              });
+              setBeetles([]);
+              localStorage.setItem("flowersim.beetles", JSON.stringify([]));
+            }
+          }}
+          disabled={beetles.length === 0 || coins < 50}
+          style={{
+            opacity: beetles.length === 0 || coins < 50 ? 0.6 : 1,
+            cursor:
+              beetles.length === 0 || coins < 50 ? "not-allowed" : "pointer",
+            position: "relative",
+            overflow: "hidden",
+            background: "linear-gradient(270deg, #ffecb3 60%, #ffb300 100%)", // желтый градиент как у остальных
+            marginTop: 38, // ещё ниже
+            width: 60,
+            minWidth: 60,
+            maxWidth: 80,
+            height: 130,
+            minHeight: 130,
+          }}
+        >
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: 100,
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1,
+            }}
+          >
+            {/* Иконка обработки растений FaSprayCan тёмно-синяя, по центру */}
+            <FaSprayCan size={32} color="#670f7d" />
+          </span>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "absolute",
+              left: "50%",
+              bottom: 24,
+              transform: "translateX(-50%)",
+              background: "none",
+              borderRadius: 0,
+              padding: 0,
+              textAlign: "center",
+              fontWeight: 700,
+              zIndex: 3,
+              fontSize: 18,
+              color: "#ffb300",
+              gap: 4,
+            }}
+          >
+            <FaCoins size={18} color="#9e8008" style={{ marginRight: 4 }} />
+            <span style={{ color: "#9e8008" }}>50</span>
+          </span>
         </TailIconStyled>
       </div>
       {/* Хвостики-кнопки справа */}
@@ -764,18 +923,17 @@ const MainScreen: React.FC<MainScreenProps> = ({
         </TailIconStyled>
       </div>
       {/* Анимация лейки */}
-      {showLeika && (
+      {showObrab && (
         <img
-          src={LeikaImg}
-          alt="Лейка"
+          src={ObrabImg}
+          alt="Обработка"
           style={{
             position: "absolute",
-            left: 160, // было 50, стало 110
-            top: 120,
-            width: 60,
-            height: 60,
+            left: 160,
+            top: 180,
+            width: 120,
+            height: 120,
             zIndex: 20,
-            transform: "rotate(-60deg)",
             opacity: 1,
             animation: "leikaFade 4s forwards",
           }}
@@ -995,7 +1153,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         )}
       </AnimatePresence>
       <Footer>
-        Ver. 1.6.6 by -
+        Ver. 1.7.0 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"
