@@ -81,6 +81,11 @@ import bg3 from "../assets/i3.jpg";
 import bg4 from "../assets/i4.jpg";
 import bg5 from "../assets/i5.jpg";
 import bg6 from "../assets/i6.jpg";
+import bg7 from "../assets/i7.jpg";
+import bg8 from "../assets/i8.jpg";
+import bg9 from "../assets/i9.jpg";
+import bg10 from "../assets/i10.jpg";
+import bg11 from "../assets/i11.jpg";
 import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
 import AwakenUpgradeModal from "./AwakenUpgradeModal";
@@ -391,14 +396,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
     }, 400);
   }
   const bgMap: Record<string, string> = {
-    "i.jpg": bg1,
-    "i2.jpg": bg2,
-    "i3.jpg": bg3,
-    "i4.jpg": bg4,
-    "i5.jpg": bg5,
-    "i6.jpg": bg6,
-    "Forest.jpg": forestBg,
-    "loog.jpg": loogBg,
+  "i.jpg": bg1,
+  "i2.jpg": bg2,
+  "i3.jpg": bg3,
+  "i4.jpg": bg4,
+  "i5.jpg": bg5,
+  "i6.jpg": bg6,
+  "i7.jpg": bg7,
+  "i8.jpg": bg8,
+  "i9.jpg": bg9,
+  "i10.jpg": bg10,
+  "i11.jpg": bg11,
+  "Forest.jpg": forestBg,
+  "loog.jpg": loogBg,
   };
   // Если фон не куплен, просто цвет
   const bought = (() => {

@@ -183,16 +183,14 @@ const backgrounds = [
   { name: "i.jpg", src: bg1, price: 300 },
   { name: "i2.jpg", src: bg2, price: 300 },
   { name: "i3.jpg", src: bg3, price: 300 },
-  { name: "i9.jpg", src: bg9, price: 300 },
+  { name: "i4.jpg", src: bg4, price: 300 },
+  { name: "i5.jpg", src: bg5, price: 300 },
+  { name: "i6.jpg", src: bg6, price: 300 },
+  { name: "i7.jpg", src: bg7, price: 300 },
   { name: "i8.jpg", src: bg8, price: 300 },
+  { name: "i9.jpg", src: bg9, price: 300 },
   { name: "i10.jpg", src: bg10, price: 300 },
-  { name: "i4.jpg", src: bg4, price: 600 },
-
-  { name: "i5.jpg", src: bg5, price: 600 },
-  { name: "i6.jpg", src: bg6, price: 600 },
-  { name: "i7.jpg", src: bg7, price: 600 },
-
-  { name: "i11.jpg", src: bg11, price: 600 },
+  { name: "i11.jpg", src: bg11, price: 300 },
 ];
 
 const tempBgAssets: Record<string, string> = {
