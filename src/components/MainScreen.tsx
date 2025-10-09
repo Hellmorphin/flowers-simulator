@@ -64,7 +64,7 @@ const AwakenButton = styled.button`
     max-width: 150px;
   }
 `;
-import LeikaImg from "../assets/Leika.png";
+// import LeikaImg from "../assets/Leika.png";
 import ShuckImg from "../assets/Shuck.png";
 import Shuck2Img from "../assets/Shuck2.png";
 import WoterImg from "../assets/Woter.png";
@@ -226,7 +226,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
   flowerVisible,
   potSkin,
   mainBg,
-  showLeika,
+  // showLeika,
   showYdobr,
   onPlant,
   onWater,
@@ -237,6 +237,28 @@ const MainScreen: React.FC<MainScreenProps> = ({
 }) => {
   // --- Анимация обработки ---
   const [showObrab, setShowObrab] = React.useState(false);
+    // --- Время последнего входа ---
+    React.useEffect(() => {
+      const now = Date.now();
+      const lastVisit = Number(localStorage.getItem("flowersim.lastVisit") || 0);
+      localStorage.setItem("flowersim.lastVisit", String(now));
+      // Если цветок видим и жуков меньше двух
+      if (flowerVisible && beetles.length < 2) {
+        // Считаем сколько жуков должно появиться
+        const beetleTimes = [3600000, 7200000]; // 1ч, 2ч
+        const elapsed = now - lastVisit;
+        let newBeetles = [...beetles];
+        beetleTimes.forEach((ms, idx) => {
+          if (elapsed >= ms && newBeetles.length <= idx) {
+            newBeetles.push(Math.random() > 0.5 ? 1 : 2);
+          }
+        });
+        if (newBeetles.length !== beetles.length) {
+          setBeetles(newBeetles.slice(0, 2));
+          localStorage.setItem("flowersim.beetles", JSON.stringify(newBeetles.slice(0, 2)));
+        }
+      }
+    }, [flowerVisible]);
   // --- Состояние для жука, сохраняем в localStorage ---
   const [beetles, setBeetles] = React.useState<Array<1 | 2>>(() => {
     try {
