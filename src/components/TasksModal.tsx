@@ -103,13 +103,17 @@ const CloseBtn = styled.button`
 `;
 
 export const TASKS = [
-  { name: "Полить горшок", reward: 10 },
-  { name: "Удобрить горшок", reward: 10 },
-  { name: "Полить горшок 10 раз", reward: 50 },
-  { name: "Удобрить горшок 3 раза", reward: 50 },
-  { name: "Зайти в игру", reward: 10 },
-  { name: "Удобрить и полить горшок", reward: 20 },
-  { name: "Бесплатно", reward: 10 },
+    { name: "Полить горшок", reward: 10 },
+    { name: "Удобрить горшок", reward: 10 },
+    { name: "Полить горшок 10 раз", reward: 50 },
+    { name: "Удобрить горшок 3 раза", reward: 50 },
+    { name: "Зайти в игру", reward: 10 },
+    { name: "Удобрить и полить горшок", reward: 20 },
+    { name: "Бесплатно", reward: 10 },
+    // Новые задания на пробуждение горшка
+    { name: "Пробудить горшок", reward: 10 },
+    { name: "Пробудить горшок 10 раз", reward: 50 },
+    { name: "Пробудить горшок 30 раз", reward: 150 },
 ];
 
 function getNextUpdateTime() {

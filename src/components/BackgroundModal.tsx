@@ -8,6 +8,12 @@ import bg3 from "../assets/i3.jpg";
 import bg4 from "../assets/i4.jpg";
 import bg5 from "../assets/i5.jpg";
 import bg6 from "../assets/i6.jpg";
+import bg7 from "../assets/i7.jpg";
+import bg8 from "../assets/i8.jpg";
+import bg9 from "../assets/i9.jpg";
+import bg10 from "../assets/i10.jpg";
+import bg11 from "../assets/i11.jpg";
+
 import forestBg from "../assets/Forest.jpg";
 import loogBg from "../assets/loog.jpg";
 import { tempBackgrounds } from "./BackgroundShopData";
@@ -177,9 +183,16 @@ const backgrounds = [
   { name: "i.jpg", src: bg1, price: 300 },
   { name: "i2.jpg", src: bg2, price: 300 },
   { name: "i3.jpg", src: bg3, price: 300 },
+  { name: "i9.jpg", src: bg9, price: 300 },
+  { name: "i8.jpg", src: bg8, price: 300 },
+  { name: "i10.jpg", src: bg10, price: 300 },
   { name: "i4.jpg", src: bg4, price: 600 },
+
   { name: "i5.jpg", src: bg5, price: 600 },
   { name: "i6.jpg", src: bg6, price: 600 },
+  { name: "i7.jpg", src: bg7, price: 600 },
+
+  { name: "i11.jpg", src: bg11, price: 600 },
 ];
 
 const tempBgAssets: Record<string, string> = {
@@ -254,7 +267,13 @@ const BackgroundModal: React.FC<BackgroundModalProps> = ({
         transition={{ duration: 0 }}
         onClick={(e) => e.stopPropagation()}
       >
-  <CloseBtn onClick={() => { if (typeof window.playClick2 === 'function') window.playClick2(); onClose(); }} title="Закрыть">
+        <CloseBtn
+          onClick={() => {
+            if (typeof window.playClick2 === "function") window.playClick2();
+            onClose();
+          }}
+          title="Закрыть"
+        >
           ×
         </CloseBtn>
         <Title>Фоны</Title>

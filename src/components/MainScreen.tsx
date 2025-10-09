@@ -338,6 +338,27 @@ const MainScreen: React.FC<MainScreenProps> = ({
     const t = Date.now();
     setAwakenStart(t);
     localStorage.setItem(AWAKEN_KEY, String(t));
+    // --- Логика для заданий "Пробудить горшок" ---
+    // Считаем количество нажатий
+    let awakenCount =
+      Number(localStorage.getItem("tasks_awaken_count") || 0) + 1;
+    localStorage.setItem("tasks_awaken_count", String(awakenCount));
+    // Обновляем прогресс заданий
+    let completed: Record<string, boolean> = {};
+    try {
+      completed =
+        JSON.parse(localStorage.getItem("tasks_completed") || "{}") || {};
+    } catch {}
+    // Одиночное задание
+    if (!completed["пробудить горшок"] && awakenCount >= 1)
+      completed["пробудить горшок"] = true;
+    // 10 раз
+    if (!completed["пробудить горшок 10 раз"] && awakenCount >= 10)
+      completed["пробудить горшок 10 раз"] = true;
+    // 30 раз
+    if (!completed["пробудить горшок 30 раз"] && awakenCount >= 30)
+      completed["пробудить горшок 30 раз"] = true;
+    localStorage.setItem("tasks_completed", JSON.stringify(completed));
   }
   function handleAwakenCollect() {
     if (awakenPercent < 100 || collecting) return;
@@ -964,7 +985,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         )}
       </AnimatePresence>
       <Footer>
-        Ver. 1.6.5 by -
+        Ver. 1.6.6 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

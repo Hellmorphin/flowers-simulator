@@ -645,6 +645,8 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     boxShadow: "0 2px 8px #a1887f44",
                   }}
                 >
+                  {/* % выращивания над картинкой */}
+                  {/* У временных горшков не выводим процент выращивания */}
                   <img
                     src={
                       new URL(`../assets/${skin.file}`, import.meta.url).href
@@ -756,86 +758,116 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             {/* Обычные цветы */}
             {flowerSkins
               .filter((s) => typeof s.unlock === "number")
-              .map((skin) => (
-                <div
-                  key={skin.file}
-                  style={{
-                    border:
-                      "2px solid " +
-                      (selectedFlower === skin.file ? "#ffecb3" : "#ffecb3"),
-                    borderRadius: 16,
-                    padding: 12,
-                    background: "#ffecb3",
-                    minWidth: 250,
-                    maxWidth: 250,
-                    position: "relative",
-                    opacity: unlockedFlowers.includes(skin.file) ? 1 : 0.5,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    boxShadow: "0 2px 8px #a1887f44",
-                  }}
-                >
-                  <img
-                    src={
-                      new URL(`../assets/${skin.file}`, import.meta.url).href
-                    }
-                    alt={skin.name}
-                    style={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "contain",
-                      borderRadius: 12,
-                      marginBottom: 8,
-                    }}
-                  />
+              .map((skin) => {
+                // Получаем текущий скин цветка и его размер
+
+                  localStorage.getItem("flowersim.flowerSkin") ||
+                  "Flowers1.png";
+                let flowerSize = 8;
+                try {
+                  // Берём объект размеров из flowersim.progress
+                  const progress = JSON.parse(
+                    localStorage.getItem("flowersim.progress") || "{}"
+                  );
+                  if (
+                    progress &&
+                    progress.flowerSizes &&
+                    typeof progress.flowerSizes[skin.file] === "number"
+                  ) {
+                    flowerSize = progress.flowerSizes[skin.file];
+                  }
+                } catch {}
+                // Вычисляем процент как в MainScreen
+                let percent = Math.round((flowerSize / 380) * 100);
+                if (percent < 8) percent = 8;
+                return (
                   <div
+                    key={skin.file}
                     style={{
-                      fontWeight: "bold",
-                      marginBottom: 8,
-                      textAlign: "center",
-                      color: "#ff6f00",
+                      border:
+                        "2px solid " +
+                        (selectedFlower === skin.file ? "#ffecb3" : "#ffecb3"),
+                      borderRadius: 16,
+                      padding: 12,
+                      background: "#ffecb3",
+                      minWidth: 250,
+                      maxWidth: 250,
+                      position: "relative",
+                      opacity: unlockedFlowers.includes(skin.file) ? 1 : 0.5,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      boxShadow: "0 2px 8px #a1887f44",
                     }}
                   >
-                    {skin.name}
-                  </div>
-                  {unlockedFlowers.includes(skin.file) ? (
-                    selectedFlower === skin.file ? (
-                      skin.file !== "Flowers1.png" ? (
-                        <button
-                          onClick={handleResetFlower}
-                          style={{
-                            background: "#eee",
-                            color: "#6d4c41",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "4px 12px",
-                            fontWeight: "bold",
-                            margin: "0 auto",
-                          }}
-                        >
-                          Снять
-                        </button>
-                      ) : null
-                    ) : skin.file !== "Flowers1.png" ? (
-                      <button
-                        onClick={() => handleApplyFlower(skin.file)}
+                    {/* % выращивания над картинкой */}
+                    {unlockedFlowers.includes(skin.file) && (
+                      <div
                         style={{
-                          background: "#ffb300",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 8,
-                          padding: "4px 12px",
+                          position: "absolute",
+                          top: 8,
+                          left: 0,
+                          right: 0,
+                          textAlign: "center",
                           fontWeight: "bold",
+                          fontSize: 16,
+                          color: "#df7513",
+                          background: "rgba(228, 201, 123, 0.85)",
+                          borderRadius: 10,
+
+                          width: "80%",
                           margin: "0 auto",
+                          zIndex: 10,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
-                        Применить
-                      </button>
-                    ) : (
-                      // Для стартового цветка: если открыт хотя бы один другой, показываем "Применить"
-                      unlockedFlowers.filter((f) => f !== "Flowers1.png")
-                        .length > 0 && (
+                        {`Вырос на ${percent}%`}
+                      </div>
+                    )}
+                    <img
+                      src={
+                        new URL(`../assets/${skin.file}`, import.meta.url).href
+                      }
+                      alt={skin.name}
+                      style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "contain",
+                        borderRadius: 12,
+                        marginBottom: 8,
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        marginBottom: 8,
+                        textAlign: "center",
+                        color: "#ff6f00",
+                      }}
+                    >
+                      {skin.name}
+                    </div>
+                    {unlockedFlowers.includes(skin.file) ? (
+                      selectedFlower === skin.file ? (
+                        skin.file !== "Flowers1.png" ? (
+                          <button
+                            onClick={handleResetFlower}
+                            style={{
+                              background: "#eee",
+                              color: "#6d4c41",
+                              border: "none",
+                              borderRadius: 8,
+                              padding: "4px 12px",
+                              fontWeight: "bold",
+                              margin: "0 auto",
+                            }}
+                          >
+                            Снять
+                          </button>
+                        ) : null
+                      ) : skin.file !== "Flowers1.png" ? (
                         <button
                           onClick={() => handleApplyFlower(skin.file)}
                           style={{
@@ -850,48 +882,67 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         >
                           Применить
                         </button>
+                      ) : (
+                        // Для стартового цветка: если открыт хотя бы один другой, показываем "Применить"
+                        unlockedFlowers.filter((f) => f !== "Flowers1.png")
+                          .length > 0 && (
+                          <button
+                            onClick={() => handleApplyFlower(skin.file)}
+                            style={{
+                              background: "#ffb300",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              padding: "4px 12px",
+                              fontWeight: "bold",
+                              margin: "0 auto",
+                            }}
+                          >
+                            Применить
+                          </button>
+                        )
                       )
-                    )
-                  ) : (
-                    (() => {
-                      const left = Math.max(
-                        0,
-                        (skin.unlock as number) - playTime
-                      );
-                      if (left >= 1) {
-                        return (
-                          <div
-                            style={{
-                              fontSize: 13,
-                              color: "#ff6f00",
-                              textAlign: "center",
-                              fontWeight: 700,
-                            }}
-                          >
-                            Откроется через {Math.ceil(left)}ч
-                          </div>
+                    ) : (
+                      (() => {
+                        const left = Math.max(
+                          0,
+                          (skin.unlock as number) - playTime
                         );
-                      } else if (left > 0) {
-                        const mins = Math.ceil(left * 60);
-                        return (
-                          <div
-                            style={{
-                              fontSize: 13,
-                              color: "#ff6f00",
-                              textAlign: "center",
-                              fontWeight: 700,
-                            }}
-                          >
-                            Откроется через {mins}м
-                          </div>
-                        );
-                      } else {
-                        return null;
-                      }
-                    })()
-                  )}
-                </div>
-              ))}
+                        if (left >= 1) {
+                          return (
+                            <div
+                              style={{
+                                fontSize: 13,
+                                color: "#ff6f00",
+                                textAlign: "center",
+                                fontWeight: 700,
+                              }}
+                            >
+                              Откроется через {Math.ceil(left)}ч
+                            </div>
+                          );
+                        } else if (left > 0) {
+                          const mins = Math.ceil(left * 60);
+                          return (
+                            <div
+                              style={{
+                                fontSize: 13,
+                                color: "#ff6f00",
+                                textAlign: "center",
+                                fontWeight: 700,
+                              }}
+                            >
+                              Откроется через {mins}м
+                            </div>
+                          );
+                        } else {
+                          return null;
+                        }
+                      })()
+                    )}
+                  </div>
+                );
+              })}
             {/* Временные цветы */}
             {flowerSkins
               .filter((s) => typeof s.unlock === "string")
@@ -900,6 +951,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 let tempPermData: string[] = [];
                 let permanent = false;
                 let leftMs = 0;
+                let flowerSize = 8;
                 try {
                   tempData = JSON.parse(
                     localStorage.getItem(TEMP_FLOWER_KEY) || "{}"
@@ -907,6 +959,11 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   tempPermData = JSON.parse(
                     localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]"
                   );
+                  // Берём размер из progress.flowerSizes
+                  const progress = JSON.parse(localStorage.getItem("flowersim.progress") || "{}");
+                  if (progress && progress.flowerSizes && typeof progress.flowerSizes[skin.file] === "number") {
+                    flowerSize = progress.flowerSizes[skin.file];
+                  }
                   if (tempData[skin.file]) {
                     leftMs =
                       TEMP_FLOWER_DURATION - (Date.now() - tempData[skin.file]);
@@ -914,6 +971,8 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   }
                   if (tempPermData.includes(skin.file)) permanent = true;
                 } catch {}
+                let percent = Math.round((flowerSize / 380) * 100);
+                if (percent < 8) percent = 8;
                 const unlockedThis = permanent;
                 // Кнопка "Получить" только в окно раздачи
                 const tempActiveFlower = isTempFlowerActive();
@@ -937,6 +996,31 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                       boxShadow: "0 2px 8px #a1887f44",
                     }}
                   >
+                    {/* % выращивания над картинкой только если цветок открыт */}
+                    {permanent && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          left: 0,
+                          right: 0,
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          color: "#df7513",
+                          background: "rgba(228, 201, 123, 0.85)",
+                          borderRadius: 10,
+                          width: "80%",
+                          margin: "0 auto",
+                          zIndex: 10,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {`Вырос на ${percent}%`}
+                      </div>
+                    )}
                     <img
                       src={
                         new URL(`../assets/${skin.file}`, import.meta.url).href
