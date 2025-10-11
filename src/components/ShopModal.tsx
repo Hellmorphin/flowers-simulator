@@ -146,10 +146,10 @@ const potSkins = [
   { name: "Loading", file: "gorshokLoadingpng.png", unlock: 120 },
   { name: "Boss", file: "gorshokBoss.png", unlock: 150 },
   { name: "Ангел", file: "gorshokAngel.png", unlock: 200 }, // Gold — за 100 часов
-  { name: "Банка", file: "gorshoBank.png", unlock: 215 },
+  { name: "Фаза", file: "faza.png", unlock: 215 },
   { name: "Бакал", file: "gorshokgolda.png", unlock: 220 },
   { name: "Энергетик", file: "gorshoEnergypng.png", unlock: 230 },
-  { name: "Туалет", file: "gorshokHuida.png", unlock: 250 },
+  { name: "Туалет", file: "tyalet.png", unlock: 250 },
   { name: "Кубик", file: "gorshokmine.png", unlock: 280 },
   { name: "Флаг", file: "gorshokRus.png", unlock: 300 },
   { name: "Зубастик", file: "gorshokBlue.png", unlock: 320 },
@@ -761,8 +761,7 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               .map((skin) => {
                 // Получаем текущий скин цветка и его размер
 
-                  localStorage.getItem("flowersim.flowerSkin") ||
-                  "Flowers1.png";
+                localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
                 let flowerSize = 8;
                 try {
                   // Берём объект размеров из flowersim.progress
@@ -960,8 +959,14 @@ const ShopModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     localStorage.getItem(TEMP_FLOWER_PERM_KEY) || "[]"
                   );
                   // Берём размер из progress.flowerSizes
-                  const progress = JSON.parse(localStorage.getItem("flowersim.progress") || "{}");
-                  if (progress && progress.flowerSizes && typeof progress.flowerSizes[skin.file] === "number") {
+                  const progress = JSON.parse(
+                    localStorage.getItem("flowersim.progress") || "{}"
+                  );
+                  if (
+                    progress &&
+                    progress.flowerSizes &&
+                    typeof progress.flowerSizes[skin.file] === "number"
+                  ) {
                     flowerSize = progress.flowerSizes[skin.file];
                   }
                   if (tempData[skin.file]) {
