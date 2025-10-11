@@ -49,6 +49,21 @@ import ProgressModal from "./components/ProgressModal";
 import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
+  // Автоотправка количества выращенных цветов каждые 14 минут
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nickname = localStorage.getItem("flowersim.user");
+      const flowersGrown = localStorage.getItem("flowersim.flowersGrown");
+      if (nickname && flowersGrown) {
+        fetch(`${API_BASE}/flowers-grown-count`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, flowersGrown: Number(flowersGrown) }),
+        });
+      }
+    }, 14 * 60 * 1000); // 14 минут
+    return () => clearInterval(interval);
+  }, []);
   const [leadersOpen, setLeadersOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   // --- Состояние для модалки прокачки пробуждения ---
@@ -225,7 +240,15 @@ function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nickname }),
-      });
+      })
+      .then(res => {
+        if (res.status === 409) {
+          // Пользователь уже есть — это нормально!
+          return { user: { nickname } };
+        }
+        return res.json();
+      })
+      .catch(() => {});
     }
     setStarted(true);
     setTimeout(() => {
