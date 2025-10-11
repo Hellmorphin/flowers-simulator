@@ -90,6 +90,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onAbout }) => {
     audio.play().catch(() => {});
     onStart();
   };
+  const nickname = localStorage.getItem('flowersim.user');
   return (
     <Background>
       <PotBg
@@ -105,6 +106,23 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, onAbout }) => {
       >
         Gorshock
       </Title>
+      {nickname && (
+        <div style={{
+          marginBottom: 12,
+          background: '#fffde7',
+          color: '#6d4c41',
+          fontWeight: 700,
+          fontSize: 20,
+          borderRadius: 12,
+          padding: '6px 24px',
+          boxShadow: '0 2px 8px #ffb30022',
+          textAlign: 'center',
+          minWidth: 100,
+          maxWidth: '80vw',
+        }}>
+          {nickname}
+        </div>
+      )}
       <StartButton
         whileTap={{ scale: 0.95 }}
         whileHover={{ scale: 1.05 }}

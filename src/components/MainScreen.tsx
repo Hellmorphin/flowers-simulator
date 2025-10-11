@@ -1,3 +1,4 @@
+import { API_BASE } from "../apiBase.ts";
 import React from "react";
 // --- Стили для прогресс-бара и кнопки пробуждения ---
 const AwakenWrapper = styled.div`
@@ -280,8 +281,8 @@ const MainScreen: React.FC<MainScreenProps> = ({
   React.useEffect(() => {
     if (!flowerVisible) return;
     if (beetles.length >= 2) return;
-  // Первый жук через 1 час
-  const t1 = setTimeout(() => {
+    // Первый жук через 1 час
+    const t1 = setTimeout(() => {
       setBeetles((prev: Array<1 | 2>) => {
         if (prev.length < 1) {
           const newArr: Array<1 | 2> = [Math.random() > 0.5 ? 1 : 2];
@@ -290,9 +291,9 @@ const MainScreen: React.FC<MainScreenProps> = ({
         }
         return prev;
       });
-  }, 3600000);
-  // Второй жук ещё через 1 час
-  const t2 = setTimeout(() => {
+    }, 3600000);
+    // Второй жук ещё через 1 час
+    const t2 = setTimeout(() => {
       setBeetles((prev: Array<1 | 2>) => {
         if (prev.length < 2) {
           const next: 1 | 2 = Math.random() > 0.5 ? 1 : 2;
@@ -302,7 +303,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         }
         return prev;
       });
-  }, 3600000 * 2);
+    }, 3600000 * 2);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -382,8 +383,19 @@ const MainScreen: React.FC<MainScreenProps> = ({
     return `${m}м`;
   }
   React.useEffect(() => {
-    const handler = () =>
-      setCoins(Number(localStorage.getItem("progress_coins") || 0));
+    const handler = () => {
+      const coinsValue = Number(localStorage.getItem("progress_coins") || 0);
+      setCoins(coinsValue);
+      // Отправка монет на сервер
+      const nickname = localStorage.getItem("flowersim.user");
+      if (nickname) {
+  fetch(`${API_BASE}/coins`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname, coins: coinsValue }),
+        });
+      }
+    };
     window.addEventListener("storage", handler);
     const interval = setInterval(handler, 1000);
     return () => {
@@ -529,6 +541,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
     setTimeout(() => setShowSizeNotif(false), 5000);
   };
 
+  // ...existing code...
   return (
     <Background style={bgStyle}>
       {/* Несколько жуков поверх всего, кроме модалок */}
@@ -1200,7 +1213,7 @@ const MainScreen: React.FC<MainScreenProps> = ({
         )}
       </AnimatePresence>
       <Footer>
-        Ver. 1.7.0 by -
+        Ver. 1.8 by -
         <a
           href="https://t.me/Hellmorphin"
           target="_blank"

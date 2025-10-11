@@ -1,3 +1,4 @@
+import { API_BASE } from "./apiBase.ts";
 // Инициализация заданий при первом запуске
 import { TASKS } from "./components/TasksModal";
 import React, { useState, useEffect, useRef } from "react";
@@ -8,6 +9,7 @@ import Menu from "./components/Menu";
 import Tutorial from "./components/Tutorial";
 import ToastManager, { ToastManagerContext } from "./components/ToastManager";
 import BackgroundMusic from "./components/BackgroundMusic";
+import RegistrationScreen from "./components/RegistrationScreen";
 
 const FLOWER_KEY = "flowersim.progress";
 
@@ -40,11 +42,14 @@ const TUTORIAL_STEPS = [
 ];
 
 import ShopModal from "./components/ShopModal";
+import LeadersModal from "./components/LeadersModal";
+import { FaCrown } from "react-icons/fa";
 import TasksModal from "./components/TasksModal";
 import ProgressModal from "./components/ProgressModal";
 import BackgroundModal from "./components/BackgroundModal";
 
 function App() {
+  const [leadersOpen, setLeadersOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   // --- Состояние для модалки прокачки пробуждения ---
 
@@ -182,6 +187,24 @@ function App() {
     }
     return defaultProgress;
   });
+  const nickname = localStorage.getItem("flowersim.user");
+  useEffect(() => {
+    if (!nickname) return;
+    // Считаем количество цветков, достигших максимального размера
+    const grownCount = Object.values(progress.flowerSizes).map(Number).filter(size => size >= MAX_FLOWER).length;
+    (async () => {
+      try {
+  await fetch(`${API_BASE}/flowers-grown-count`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nickname,
+            count: grownCount,
+          }),
+        });
+      } catch (e) {}
+    })();
+  }, [progress.flowerSizes, nickname]);
   // Получаем текущий скин цветка
   const flowerSkin =
     localStorage.getItem("flowersim.flowerSkin") || "Flowers1.png";
@@ -377,6 +400,26 @@ function App() {
     const now = Date.now();
     const size = progress.flowerSizes[flowerSkin] || MIN_FLOWER;
     if (size >= MAX_FLOWER) {
+      // Цветок вырос до максимума — отправляем на сервер
+      (async () => {
+        try {
+          // Определяем номер цветка (например, по индексу или имени)
+          // Здесь просто пример: можно усложнить по логике
+          const flowerId =
+            Object.keys(progress.flowerSizes).indexOf(flowerSkin) + 1;
+          await fetch(`${API_BASE}/flower-grown`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nickname,
+              flowerId,
+              flowerSkin,
+            }),
+          });
+        } catch (e) {
+          // Можно добавить обработку ошибок
+        }
+      })();
       (toastApi?.showToast || toastContext?.showToast)?.(
         "Цветок Вырос до максимума!"
       );
@@ -431,8 +474,15 @@ function App() {
   }, [tutorialStep, progress.tutorialStep]);
 
   // Для туториала
-  const tutorialText =
-    tutorialStep < 6 ? TUTORIAL_STEPS[tutorialStep] : "";
+  const tutorialText = tutorialStep < 6 ? TUTORIAL_STEPS[tutorialStep] : "";
+
+  if (!nickname) {
+    return (
+      <ToastManager>
+        <RegistrationScreen onAuth={() => window.location.reload()} />
+      </ToastManager>
+    );
+  }
 
   return (
     <ToastManager>
@@ -443,6 +493,31 @@ function App() {
       ) : (
         <>
           <BackgroundMusic ref={musicRef} play={started} />
+          {/* Кнопка лидерборда в левом верхнем углу, без желтого фона, только иконка */}
+          <button
+            onClick={() => setLeadersOpen(true)}
+            style={{
+              position: "fixed",
+              top: 98,
+              left: 7,
+              zIndex: 100,
+              background: "transparent",
+              border: "none",
+              borderRadius: "50%",
+              width: 60,
+              height: 60,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: 36,
+              boxShadow: "none",
+              padding: 0,
+            }}
+            title="Лидеры"
+          >
+            <FaCrown style={{ color: "#ffb300", fontSize: 40 }} />
+          </button>
           {progress.tutorialStep < 5 &&
             showFinalHint &&
             localStorage.getItem("flowersim.finalHintShown") !== "1" && (
@@ -496,9 +571,14 @@ function App() {
               setMenuOpen(false);
             }}
             isFlowerMaxed={currentFlowerSize >= MAX_FLOWER}
+            onLeaders={() => {
+              setLeadersOpen(true);
+              setMenuOpen(false);
+            }}
           />
 
           {shopOpen && <ShopModal onClose={() => setShopOpen(false)} />}
+          <LeadersModal isOpen={leadersOpen} onClose={() => setLeadersOpen(false)} />
           {progressModalOpen && (
             <ProgressModal
               isOpen={progressModalOpen}

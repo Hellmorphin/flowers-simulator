@@ -1,4 +1,5 @@
 import React from "react";
+import { FaCrown } from "react-icons/fa";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
@@ -115,16 +116,17 @@ interface MenuProps {
   tutorialStep?: number;
   onShop: () => void;
   isFlowerMaxed?: boolean;
+  onLeaders?: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
   open,
   toggleMenu,
   onPlant,
-
   tutorialStep,
   onShop,
   isFlowerMaxed,
+  onLeaders,
 }) => {
   const showPlantBtn = tutorialStep === 1;
 
@@ -219,6 +221,21 @@ const Menu: React.FC<MenuProps> = ({
             onClick={handleOpenBackgroundModal}
           >
             Фон
+          </MenuButton>
+          <MenuButton
+            style={{
+              background: "#ffd600",
+              color: "#6d4c41",
+              fontWeight: 700,
+              marginTop: "1.2rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+            onClick={onLeaders}
+          >
+            <FaCrown style={{ color: "#FFD700", fontSize: 22 }} /> Лидеры
           </MenuButton>
           <MenuButton
             style={{
