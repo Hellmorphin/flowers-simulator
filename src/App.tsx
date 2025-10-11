@@ -218,6 +218,15 @@ function App() {
   const musicRef = useRef<{ playMusic: () => void }>(null);
 
   const handleStart = () => {
+    // Отправляем ник пользователя на сервер при входе
+    const nickname = localStorage.getItem("flowersim.user");
+    if (nickname) {
+      fetch(`${API_BASE}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname }),
+      });
+    }
     setStarted(true);
     setTimeout(() => {
       musicRef.current?.playMusic();
